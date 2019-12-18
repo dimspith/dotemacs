@@ -15,8 +15,6 @@
     - elm-language-server (autocompletion)
 *** C
     - clangd (lsp mode)
-*** Elixir
-    - elixir-ls (lsp mode)
 ** External Packages
 *** Counsel
     - fzf (counsel-fzf)
@@ -30,6 +28,9 @@
       * ~C-c t a r~ -> Align region based on a regexp (align-regexp)
       * ~C-c t a a~ -> Align region based on whitespace (align)
       * ~C-c t a s~ -> Like align but works on current section (align-current)
+  - Commands that open shells begin with ~C-c e~
+    * ~C-c e e~ -> eshell
+    * ~C-c e a~ -> ansi-term
         
 * Package Management
 ** Package Archives
@@ -51,32 +52,34 @@
 (setq my-packages
   '(
   use-package
+
+  yaml-mode
+  haskell-mode
+  elixir-mode
+  clojure-mode
+
   counsel
   ivy
   swiper
   projectile
+
   iedit
   quickrun
-
   aggressive-indent
   org-bullets
+
   eredis
-
-  emmet-mode
-  impatient-mode
-  yaml-mode
-  haskell-mode
-  alchemist
-  elixir-mode
-  erlang
-
   yasnippet
   which-key
   htmlize
   magit
   hindent
+  neotree
   all-the-icons-dired
   all-the-icons-ivy
+  emmet-mode
+  impatient-mode
+  cider
 
   lsp-mode
   lsp-ui
@@ -202,6 +205,7 @@ navigation
 (use-package eshell
   :bind 
   ("C-c e e" . eshell)
+  ("C-c e a" . ansi-term)
   :hook (eshell-mode . 
     (lambda ()
       (bind-key "C-l" 'eshell/clear eshell-mode-map)
@@ -253,6 +257,11 @@ Highlight matching parentheses
 (use-package view
   :bind ("C-v" . View-scroll-half-page-forward)
         ("M-v" . View-scroll-half-page-backward))
+
+(use-package align
+  :bind ("C-c t a a" . align)
+        ("C-c t a r" . align-regexp)
+        ("C-c t a s" . align-current))
 
 (use-package emacs
   :bind
@@ -422,21 +431,20 @@ Highlight matching parentheses
    Emacs Language Server Protocol support
    Enable it on certain languages along with most of it's addons
 #+BEGIN_SRC emacs-lisp
-  (use-package lsp-mode
-    :hook ((c-mode      . lsp)
-           (elixir-mode . lsp)
-           (rust-mode   . lsp)
-           (js-mode     . lsp))
-    :commands lsp)
+(use-package lsp-mode
+  :hook ((c-mode      . lsp)
+         (rust-mode   . lsp)
+         (js-mode     . lsp))
+  :commands lsp)
 
-  ;; optionally
-  (use-package lsp-ui
-    :commands lsp-ui-mode
-    :bind
-    ("C-c l d" . lsp-ui-doc-show)
-    :config
-    (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-    (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
+;; optionally
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :bind
+  ("C-c l d" . lsp-ui-doc-show)
+  :config
+  (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+  (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
 #+END_SRC
 
 ** Emmet
@@ -471,8 +479,16 @@ Highlight matching parentheses
 (use-package all-the-icons-ivy
   :ensure t
   :config 
+  (setq all-the-icons-ivy-file-commands
+    '(counsel-find-file
+      counsel-file-jump
+      counsel-recentf
+      projectile-find-file
+      projectile-find-dir))
+  (all-the-icons-ivy-setup)
   (ivy-set-display-transformer 'ivy-switch-buffer 'all-the-icons-ivy-buffer-transformer))
 #+END_SRC
+
 ** Haskell-mode
 #+BEGIN_SRC emacs-lisp
 (use-package haskell-mode
@@ -546,18 +562,7 @@ Tab = 4 spaces, bsd indentation style
   (css-mode . company-mode))
 #+END_SRC
 
-** Elixir-mode
-#+BEGIN_SRC emacs-lisp
-  (use-package elixir-mode
-    :ensure t
-    :hook
-    (elixir-mode . company-mode)
-    (elixir-mode . alchemist-mode)
-    (elixir-mode . flycheck-mode))
-#+END_SRC
-
 ** Modeline
-
 Enable Moody and Minions (uncomment if you want to use it)
 #+BEGIN_SRC emacs-lisp
   ;; (use-package moody
