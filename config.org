@@ -1,0 +1,594 @@
+#+TITLE: My Emacs Configuration
+#+AUTHOR: Dimitris Spythouris
+#+STARTUP: overview
+#+OPTIONS: num:nil
+# #+SETUPFILE: https://fniessen.github.io/org-html-themes/setup/theme-readtheorg.setup
+
+* External dependencies
+  In order for this config to work properly, some external packages have to be
+  installed. They are split into their respective categories.
+** Languages
+*** Javascript
+    - npm i -g javascript-typescript-langserver (lsp completion)
+    - npm i -g jshint (flycheck linting)
+*** Elm
+    - elm-language-server (autocompletion)
+*** C
+    - clangd (lsp mode)
+*** Elixir
+    - elixir-ls (lsp mode)
+** External Packages
+*** Counsel
+    - fzf (counsel-fzf)
+* Custom Commands Cheatsheet
+  - Search Commands begin with ~C-c s~
+    * ~C-c s f~ -> Fzf search (counsel-fzf)
+    * ~C-c s l~ -> Linux locate command (counsel-locate)
+    * ~C-c s d~ -> Find subdirectory (counsel-dired-jump)
+  - Text manipulation commands begin with ~C-c t~
+    - Aligning commands begin with ~C-c t a~
+      * ~C-c t a r~ -> Align region based on a regexp (align-regexp)
+      * ~C-c t a a~ -> Align region based on whitespace (align)
+      * ~C-c t a s~ -> Like align but works on current section (align-current)
+        
+* Package Management
+** Package Archives
+   Initialize package.el, add MELPA to the package archives and initialize the package lists.
+   MELPA gets priority in package searches.
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(package-initialize)
+
+(when (not package-archive-contents)
+    (ignore-errors (package-refresh-contents)))
+#+END_SRC
+
+** Default Packages
+   Check if all packages defined in my-packages are installed.
+   If not, install them. Ensure they exist in the load path.
+#+BEGIN_SRC emacs-lisp
+(setq my-packages
+  '(
+  use-package
+  counsel
+  ivy
+  swiper
+  projectile
+  iedit
+  quickrun
+
+  aggressive-indent
+  org-bullets
+  eredis
+
+  emmet-mode
+  impatient-mode
+  yaml-mode
+  haskell-mode
+  alchemist
+  elixir-mode
+  erlang
+
+  yasnippet
+  which-key
+  htmlize
+  magit
+  hindent
+  all-the-icons-dired
+  all-the-icons-ivy
+
+  lsp-mode
+  lsp-ui
+  company-lsp
+
+  ;; moody
+  ;; minions
+  doom-modeline
+  doom-themes
+  spacemacs-theme
+  ujelly-theme))
+
+(dolist (pkg my-packages)
+     (unless (package-installed-p pkg)
+(package-install pkg)))
+
+;; MANUALLY INSTALLED / REQUIRED
+(eval-when-compile (require 'use-package))
+(require 'haskell-interactive-mode)
+(require 'haskell-process)
+#+END_SRC
+
+* Core Settings
+** Starting Directory
+Configure emacs to start in the home directory
+#+BEGIN_SRC emacs-lisp
+(setq default-directory "~/")
+#+END_SRC
+
+** Scrolling
+Smooth scrolling
+#+BEGIN_SRC emacs-lisp
+(setq mouse-wheel-scroll-amount '(3 ((shift) . 3)))
+(setq mouse-wheel-progressive-speed nil)
+(setq mouse-wheel-follow-mouse 't)
+(setq scroll-step 1)
+#+END_SRC
+
+** Splash Screen
+   Skip the splash screen and use a scratch buffer in lisp interaction mode.
+#+BEGIN_SRC emacs-lisp
+   (setq inhibit-splash-screen t
+     initial-scratch-message nil
+     initial-major-mode 'emacs-lisp-mode)
+#+END_SRC
+
+** Bars
+   Turn off the scroll bar, menu bar and the tool bar.
+#+BEGIN_SRC emacs-lisp
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+#+END_SRC
+
+** Indentation
+   Tab width is 4 and tabs are now spaces.
+#+BEGIN_SRC emacs-lisp
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+#+END_SRC
+
+** Backup Files
+   All backup files are saved in the ~/.emacs.d/saves directory.
+#+BEGIN_SRC emacs-lisp
+  (setq backup-directory-alist '(("." . "~/.emacs.d/saves"))
+    backup-by-copying t
+    version-control t
+    delete-old-versions t
+    kept-new-versions 20
+    kept-old-versions 5
+    )
+#+END_SRC
+
+** Yes/No
+   When emacs asks for yes/no make it one character.
+#+BEGIN_SRC emacs-lisp
+(defalias 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+
+** Theme
+   The theme used.
+#+BEGIN_SRC emacs-lisp
+(load-theme 'doom-one t)
+#+END_SRC
+
+** Font
+   Font used.
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'default-frame-alist '(font . "Cascadia Mono 11" ))
+(set-face-attribute 'default nil :family "Cascadia Mono 11" :height 110 :weight 'normal)
+(set-frame-font "Cascadia Mono 11" nil t)
+#+END_SRC
+
+** Disabled Commands
+#+BEGIN_SRC emacs-lisp
+(setq disabled-command-function nil)
+#+END_SRC
+
+** Sentences
+Sentences don't end on a dot and two spaces
+#+BEGIN_SRC emacs-lisp
+(setq sentence-end-double-space nil)
+#+END_SRC
+
+* Base Package Settings
+** Hideshow
+Code folding keybindings with hideshow
+#+BEGIN_SRC emacs-lisp
+(use-package hideshow
+  :ensure t
+  :bind (:map hs-minor-mode-map
+        ("C-c f H" . hs-hide-all)
+        ("C-c f S" . hs-show-all)
+        ("C-c f t" . hs-toggle-hiding)
+        ("C-c f h" . hs-hide-block)
+        ("C-c f s" . hs-show-block)))
+#+END_SRC
+
+** Eshell
+Easily access eshell with ~C-c e e~ and add some helpfull commands for easier
+navigation
+#+BEGIN_SRC emacs-lisp
+(use-package eshell
+  :bind 
+  ("C-c e e" . eshell)
+  :hook (eshell-mode . 
+    (lambda ()
+      (bind-key "C-l" 'eshell/clear eshell-mode-map)
+      (eshell/alias "f" "find-file $1")
+      (eshell/alias "fo" "find-file-other-window $1")
+      (eshell/alias "d" "dired $1")
+      (eshell/alias "ll" "ls -l")
+      (eshell/alias "la" "ls -al"))))
+#+END_SRC
+
+** Winner-mode
+#+BEGIN_SRC emacs-lisp
+(use-package winner
+  :ensure t
+  :config
+  (winner-mode 1)
+  :bind
+  ("C-c w u" . winner-undo)
+  ("C-c w r" . winner-redo))
+#+END_SRC
+
+** Superword mode
+Enable subword mode (treat CamelCase as one word)
+#+BEGIN_SRC emacs-lisp
+(use-package subword
+  :config
+  (global-subword-mode t))
+#+END_SRC
+
+** Electric
+#+BEGIN_SRC emacs-lisp
+(use-package electric
+  :config
+  (electric-pair-mode 1)
+  (electric-indent-mode 1)
+  (setq electric-pair-open-newline-between-pairs t))
+#+END_SRC
+
+** Show-paren-mode
+Highlight matching parentheses
+#+BEGIN_SRC emacs-lisp
+(use-package paren
+  :config
+  (show-paren-mode 1))
+#+END_SRC
+
+** Misc
+#+BEGIN_SRC emacs-lisp
+(use-package view
+  :bind ("C-v" . View-scroll-half-page-forward)
+        ("M-v" . View-scroll-half-page-backward))
+
+(use-package emacs
+  :bind
+  ("C-M-<left>"  . shrink-window-horizontally)  
+  ("C-M-<right>" . enlarge-window-horizontally)
+  ("C-M-<down>"  . shrink-window)               
+  ("C-M-<up>"    . enlarge-window)
+  ("M-o"         . other-window)
+  ("C-<tab>"     . indent-relative)
+  ("<f5>"        . compile)
+  ("<C-f9>"      . set-frame-font)
+  ("C-x C-b"     . ibuffer)
+  ("C-x C-b"     . hippie-expand)
+  ("M-j"         . (lambda () (interactive) (join-line -1))))
+#+END_SRC
+
+* Other Package Settings
+** Ivy, Counsel, Swiper
+
+   Enable ivy globally (replacement for ido).
+   Tweak the minibuffer functionality and remove the ^ in filters
+#+BEGIN_SRC emacs-lisp
+(use-package ivy
+  :diminish ivy-mode
+  :demand
+  :ensure t
+  :bind (("C-c C-r" . ivy-resume))
+  :config
+    (ivy-mode t)
+    (setq ivy-initial-inputs-alist nil)
+    (setq ivy-use-virtual-buffers t)
+    (setq enable-recursive-minibuffers t)
+    (setq ivy-count-format "(%d/%d) ")
+  )
+#+END_SRC
+
+   Enable swiper (enhanced isearch for ivy) and assign C-s to search
+#+BEGIN_SRC emacs-lisp
+(use-package swiper
+  :ensure t
+  :bind (("C-s" . swiper))
+)
+#+END_SRC
+
+   Counsel is a collection of ivy enhanced base commands
+   Bind some keys to common commands
+#+BEGIN_SRC emacs-lisp
+(use-package counsel
+  :ensure t
+  :demand
+  :config
+  (counsel-mode t)
+  :bind (("M-x"     . counsel-M-x)
+         ("C-x C-f" . counsel-find-file)
+         ("<f2> u"  . counsel-unicode-char)
+         ("C-c g g" . counsel-git)
+         ("C-c s d" . counsel-dired-jump)
+         ("C-c g j" . counsel-git-grep)
+         ("C-c s f" . counsel-fzf)
+         ("C-c s l" . counsel-locate)
+         ("C-x r i" . counsel-register)
+         ("M-i"     . counsel-imenu)
+         ("<f9>"    . counsel-load-theme)
+         ("<f1> x"  . counsel-descbinds)))
+#+END_SRC
+
+** Yasnippet
+#+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+  :ensure t
+  :diminish yas-minor-mode
+  :config
+  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+  (yas-global-mode)
+  :bind
+  ("C-c C-<tab>"    . company-yasnippet)
+  ("C-c <tab>". yas-expand))
+#+END_SRC
+
+** Company
+   Enable company with various settings
+   Add company backends
+     #+BEGIN_SRC emacs-lisp
+
+(use-package company
+  :ensure t
+  :diminish
+  :config
+   (setq company-idle-delay 0.3)
+   (setq company-minimum-prefix-length 1)
+   (setq company-selection-wrap-around t)
+   (setq company-tooltip-align-annotations t)
+   (setq company-tooltip-limit 10)
+   (setq company-dabbrev-downcase nil)
+   (company-tng-configure-default))
+
+(use-package company-lsp
+  :ensure t
+  :config
+  (add-to-list 'company-backends 'company-lsp))
+
+#+END_SRC
+
+** Projectile
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+  :ensure t
+  :config
+  (setq projectile-completion-system 'ivy)
+  (setq projectile-tags-backend 'etags-select)
+  (add-to-list 'projectile-globally-ignored-modes "org-mode")
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (projectile-mode +1))
+#+END_SRC
+
+** Flycheck
+   Enable flycheck globally and add M-p, M-n for error navigation
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :ensure t
+  :config
+  (add-hook 'after-init-hook 'global-flycheck-mode))
+#+END_SRC
+
+** Which-key
+   Which-key is a keybinding preview utility to show all subsequent keys when waiting for commands.
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :ensure t
+  :diminish which-key-mode
+  :config
+    (which-key-mode t))
+#+END_SRC
+
+** Iedit
+#+BEGIN_SRC emacs-lisp
+(use-package iedit
+  :ensure t
+    :bind ("C-;" . iedit-mode))
+#+END_SRC
+
+** Magit
+   Magit is an interface to git
+   Access it with C-x g
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :ensure t
+  :bind ("C-x g". magit-status))
+#+END_SRC
+
+** Org Bullets
+#+BEGIN_SRC emacs-lisp
+(use-package org-bullets
+    :hook (org-mode . org-bullets-mode))
+#+END_SRC
+
+** Quickrun
+   Quickrun provides utilities to quickly compile and execute programs
+   F6 runs a program in eshell
+#+BEGIN_SRC emacs-lisp
+(use-package quickrun
+  :ensure t
+  :bind ("<f6>" . quickrun-shell))
+#+END_SRC
+
+** LSP
+   Emacs Language Server Protocol support
+   Enable it on certain languages along with most of it's addons
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :hook ((c-mode      . lsp)
+           (elixir-mode . lsp)
+           (rust-mode   . lsp)
+           (js-mode     . lsp))
+    :commands lsp)
+
+  ;; optionally
+  (use-package lsp-ui
+    :commands lsp-ui-mode
+    :bind
+    ("C-c l d" . lsp-ui-doc-show)
+    :config
+    (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+    (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
+#+END_SRC
+
+** Emmet
+   Offers snippets for html and css
+#+BEGIN_SRC emacs-lisp
+(use-package emmet-mode
+  :ensure t
+  :hook ((sgml-mode . emmet-mode)
+         (css-mode . emmet-mode))
+)
+#+END_SRC
+
+** Neotree
+#+BEGIN_SRC emacs-lisp
+(use-package neotree
+  :bind
+  ("<f8>" . neotree-toggle)
+  :config
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow)
+        neo-smart-open t
+        neo-auto-indent-point t
+        neo-autorefresh t))
+#+END_SRC
+
+** All-the-icons
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons-dired
+  :ensure t
+  :hook
+  (dired-mode . all-the-icons-dired-mode))
+
+(use-package all-the-icons-ivy
+  :ensure t
+  :config 
+  (ivy-set-display-transformer 'ivy-switch-buffer 'all-the-icons-ivy-buffer-transformer))
+#+END_SRC
+** Haskell-mode
+#+BEGIN_SRC emacs-lisp
+(use-package haskell-mode
+  :ensure t
+  :bind (:map haskell-mode-map
+        ("<f8>"    . haskell-navigate-imports)
+        ("C-c C-c" . haskell-compile)
+        ("C-c C-l" . haskell-process-load-or-reload)
+        ("C-`"     . haskell-interactive-bring)
+        ("C-c C-t" . haskell-process-do-type)
+        ("C-c C-i" . haskell-process-do-info)
+        ("C-c C-k" . haskell-interactive-mode-clear))
+  :config
+  (setq haskell-interactive-popup-errors nil
+        haskell-process-suggest-remove-import-lines t
+        haskell-process-auto-import-loaded-modules t
+        haskell-process-log t
+        haskell-tags-on-save t
+        haskell-compile-cabal-build-command "stack build"
+        haskell-process-suggest-hoogle-imports t)
+  :hook
+  ((haskell-mode . haskell-indentation-mode)
+   (haskell-mode . interactive-haskell-mode)
+   (haskell-mode . company-mode)
+   (haskell-mode . hindent-mode)
+   (haskell-mode .
+          (lambda ()
+            (set (make-local-variable 'company-backends)
+                 (append '((company-capf company-dabbrev-code))
+                         company-backends))
+            (setq flymake-no-changes-timeout nil)
+            (setq flymake-start-syntax-check-on-newline nil)
+            (setq flycheck-check-syntax-automatically '(save mode-enabled))))))
+#+END_SRC
+
+** C-mode
+Tab = 4 spaces, bsd indentation style
+#+BEGIN_SRC emacs-lisp
+(use-package cc-mode
+  :ensure t
+  :config
+  (setq-default c-basic-offset 4)
+  (setq-default c-default-style "bsd")
+  :hook
+  (c-mode . flycheck-mode)
+  (c-mode . company-mode)
+  (c-mode . lsp))
+#+END_SRC
+
+** Js-mode
+#+BEGIN_SRC emacs-lisp
+(use-package js
+  :hook
+  (js-mode . company-mode)
+  (js-mode . flycheck-mode))
+#+END_SRC
+
+** HTML-mode
+#+BEGIN_SRC emacs-lisp
+(use-package html-mode
+  :hook
+  (html-mode . aggressive-indent-mode))
+#+END_SRC
+
+** CSS-mode
+#+BEGIN_SRC emacs-lisp
+(use-package css-mode
+  :ensure t
+  :hook
+  (css-mode . aggressive-indent-mode)
+  (css-mode . company-mode))
+#+END_SRC
+
+** Elixir-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package elixir-mode
+    :ensure t
+    :hook
+    (elixir-mode . company-mode)
+    (elixir-mode . alchemist-mode)
+    (elixir-mode . flycheck-mode))
+#+END_SRC
+
+** Modeline
+
+Enable Moody and Minions (uncomment if you want to use it)
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package moody
+  ;;   :config
+  ;;   (column-number-mode t)
+  ;;   (setq x-underline-at-descent-line t)
+  ;;   (moody-replace-mode-line-buffer-identification)
+  ;;   (moody-replace-vc-mode))
+
+  ;; (use-package minions
+  ;;   :config (minions-mode t))
+#+END_SRC
+
+Enable doom-modeline
+#+BEGIN_SRC emacs-lisp
+(use-package doom-modeline
+  :ensure t
+  :hook (after-init . doom-modeline-mode)
+  :config
+  (column-number-mode t)
+  (display-time-mode 1))
+#+END_SRC
+
+* My functions
+  Indent the whole buffer
+#+BEGIN_SRC emacs-lisp
+(defun iwb ()
+  "indent whole buffer"
+  (interactive)
+  (delete-trailing-whitespace)
+  (indent-region (point-min) (point-max) nil)
+  (untabify (point-min) (point-max)))
+#+END_SRC
+
