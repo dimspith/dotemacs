@@ -36,7 +36,7 @@
 ** Package Archives
    Initialize package.el, add MELPA to the package archives and initialize the package lists.
    MELPA gets priority in package searches.
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (package-initialize)
@@ -48,7 +48,7 @@
 ** Default Packages
    Check if all packages defined in my-packages are installed.
    If not, install them. Ensure they exist in the load path.
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (setq my-packages
   '(
   use-package
@@ -86,6 +86,7 @@
 
   ;; moody
   ;; minions
+  dashboard
   doom-modeline
   doom-themes
   spacemacs-theme
@@ -105,13 +106,13 @@
 * Core Settings
 ** Starting Directory
 Configure emacs to start in the home directory
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (setq default-directory "~/")
 #+END_SRC
 
 ** Scrolling
 Smooth scrolling
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (setq mouse-wheel-scroll-amount '(3 ((shift) . 3)))
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-follow-mouse 't)
@@ -120,15 +121,15 @@ Smooth scrolling
 
 ** Splash Screen
    Skip the splash screen and use a scratch buffer in lisp interaction mode.
-#+BEGIN_SRC elisp
-   (setq inhibit-splash-screen t
-     initial-scratch-message nil
-     initial-major-mode 'lisp-interaction-mode)
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-splash-screen t)
+(setq initial-scratch-message nil)
+(setq inhibit-startup-echo-message t)
 #+END_SRC
 
 ** Bars
    Turn off the scroll bar, menu bar and the tool bar.
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -136,14 +137,14 @@ Smooth scrolling
 
 ** Indentation
    Tab width is 4 and tabs are now spaces.
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 #+END_SRC
 
 ** Backup Files
    All backup files are saved in the ~/.emacs.d/saves directory.
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
   (setq backup-directory-alist '(("." . "~/.emacs.d/saves"))
     backup-by-copying t
     version-control t
@@ -155,39 +156,39 @@ Smooth scrolling
 
 ** Yes/No
    When emacs asks for yes/no make it one character.
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
 ** Theme
    The theme used.
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (load-theme 'doom-one t)
 #+END_SRC
 
 ** Font
    Font used.
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (add-to-list 'default-frame-alist '(font . "Cascadia Mono 11" ))
 (set-face-attribute 'default nil :family "Cascadia Mono 11" :height 110 :weight 'normal)
 (set-frame-font "Cascadia Mono 11" nil t)
 #+END_SRC
 
 ** Disabled Commands
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (setq disabled-command-function nil)
 #+END_SRC
 
 ** Sentences
 Sentences don't end on a dot and two spaces
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (setq sentence-end-double-space nil)
 #+END_SRC
 
 * Base Package Settings
 ** Hideshow
 Code folding keybindings with hideshow
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package hideshow
   :ensure t
   :bind (:map hs-minor-mode-map
@@ -201,7 +202,7 @@ Code folding keybindings with hideshow
 ** Eshell
 Easily access eshell with ~C-c e e~ and add some helpfull commands for easier
 navigation
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package eshell
   :bind 
   ("C-c e e" . eshell)
@@ -217,7 +218,7 @@ navigation
 #+END_SRC
 
 ** Winner-mode
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package winner
   :ensure t
   :config
@@ -229,14 +230,14 @@ navigation
 
 ** Superword mode
 Enable subword mode (treat CamelCase as one word)
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package subword
   :config
   (global-subword-mode t))
 #+END_SRC
 
 ** Electric
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package electric
   :config
   (electric-pair-mode 1)
@@ -245,7 +246,7 @@ Enable subword mode (treat CamelCase as one word)
 #+END_SRC
 
 ** Isearch
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package isearch
   :bind
   ("C-s" . isearch-forward-regexp))
@@ -253,14 +254,14 @@ Enable subword mode (treat CamelCase as one word)
 
 ** Show-paren-mode
 Highlight matching parentheses
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package paren
   :config
   (show-paren-mode 1))
 #+END_SRC
 
 ** Misc
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package view
   :bind ("C-v" . View-scroll-half-page-forward)
         ("M-v" . View-scroll-half-page-backward))
@@ -290,7 +291,7 @@ Highlight matching parentheses
 
    Enable ivy globally (replacement for ido).
    Tweak the minibuffer functionality and remove the ^ in filters
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package ivy
   :diminish ivy-mode
   :demand
@@ -306,7 +307,7 @@ Highlight matching parentheses
 #+END_SRC
 
    Enable swiper (enhanced isearch for ivy) and assign C-s to search
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package swiper
   :ensure t
   :bind (("C-M-s" . swiper))
@@ -315,7 +316,7 @@ Highlight matching parentheses
 
    Counsel is a collection of ivy enhanced base commands
    Bind some keys to common commands
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package counsel
   :ensure t
   :demand
@@ -336,7 +337,7 @@ Highlight matching parentheses
 #+END_SRC
 
 ** Yasnippet
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package yasnippet
   :ensure t
   :diminish yas-minor-mode
@@ -351,7 +352,7 @@ Highlight matching parentheses
 ** Company
    Enable company with various settings
    Add company backends
-     #+BEGIN_SRC elisp
+     #+BEGIN_SRC emacs-lisp
 
 (use-package company
   :ensure t
@@ -373,7 +374,7 @@ Highlight matching parentheses
 #+END_SRC
 
 ** Projectile
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package projectile
   :ensure t
   :config
@@ -386,7 +387,7 @@ Highlight matching parentheses
 
 ** Flycheck
    Enable flycheck globally and add M-p, M-n for error navigation
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package flycheck
   :ensure t
   :config
@@ -395,7 +396,7 @@ Highlight matching parentheses
 
 ** Which-key
    Which-key is a keybinding preview utility to show all subsequent keys when waiting for commands.
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package which-key
   :ensure t
   :diminish which-key-mode
@@ -404,7 +405,7 @@ Highlight matching parentheses
 #+END_SRC
 
 ** Iedit
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package iedit
   :ensure t
     :bind ("C-;" . iedit-mode))
@@ -413,14 +414,31 @@ Highlight matching parentheses
 ** Magit
    Magit is an interface to git
    Access it with C-x g
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package magit
   :ensure t
   :bind ("C-x g". magit-status))
 #+END_SRC
 
+** Dashboard
+#+BEGIN_SRC emacs-lisp
+(use-package dashboard
+  :config
+  (dashboard-setup-startup-hook)
+  (setq dashboard-set-init-info t)
+  (setq dashboard-center-content t)
+  (setq dashboard-startup-banner 'logo)
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-items '((recents  . 5)
+                         (bookmarks . 5)
+                         (projects . 5)
+                         (agenda . 5)
+                         (registers . 5))))
+#+END_SRC
+
 ** Org Bullets
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package org-bullets
     :hook (org-mode . org-bullets-mode))
 #+END_SRC
@@ -428,7 +446,7 @@ Highlight matching parentheses
 ** Quickrun
    Quickrun provides utilities to quickly compile and execute programs
    F6 runs a program in eshell
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package quickrun
   :ensure t
   :bind ("<f6>" . quickrun-shell))
@@ -437,7 +455,7 @@ Highlight matching parentheses
 ** LSP
    Emacs Language Server Protocol support
    Enable it on certain languages along with most of it's addons
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package lsp-mode
   :hook ((c-mode      . lsp)
          (rust-mode   . lsp)
@@ -456,7 +474,7 @@ Highlight matching parentheses
 
 ** Emmet
    Offers snippets for html and css
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package emmet-mode
   :ensure t
   :hook ((sgml-mode . emmet-mode)
@@ -465,7 +483,7 @@ Highlight matching parentheses
 #+END_SRC
 
 ** Neotree
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package neotree
   :bind
   ("<f8>" . neotree-toggle)
@@ -477,7 +495,7 @@ Highlight matching parentheses
 #+END_SRC
 
 ** All-the-icons
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package all-the-icons-dired
   :ensure t
   :hook
@@ -497,7 +515,7 @@ Highlight matching parentheses
 #+END_SRC
 
 ** Haskell-mode
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
   (use-package haskell-mode
     :ensure t
     :bind (:map haskell-mode-map
@@ -533,7 +551,7 @@ Highlight matching parentheses
 
 ** C-mode
 Tab = 4 spaces, bsd indentation style
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package cc-mode
   :ensure t
   :config
@@ -546,7 +564,7 @@ Tab = 4 spaces, bsd indentation style
 #+END_SRC
 
 ** Js-mode
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package js
   :hook
   (js-mode . company-mode)
@@ -554,14 +572,14 @@ Tab = 4 spaces, bsd indentation style
 #+END_SRC
 
 ** HTML-mode
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package html-mode
   :hook
   (html-mode . aggressive-indent-mode))
 #+END_SRC
 
 ** CSS-mode
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package css-mode
   :ensure t
   :hook
@@ -570,21 +588,8 @@ Tab = 4 spaces, bsd indentation style
 #+END_SRC
 
 ** Modeline
-Enable Moody and Minions (uncomment if you want to use it)
-#+BEGIN_SRC elisp
-  ;; (use-package moody
-  ;;   :config
-  ;;   (column-number-mode t)
-  ;;   (setq x-underline-at-descent-line t)
-  ;;   (moody-replace-mode-line-buffer-identification)
-  ;;   (moody-replace-vc-mode))
-
-  ;; (use-package minions
-  ;;   :config (minions-mode t))
-#+END_SRC
-
 Enable doom-modeline
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
   :ensure t
   :hook (after-init . doom-modeline-mode)
@@ -595,7 +600,7 @@ Enable doom-modeline
 
 * My functions
   Indent the whole buffer
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (defun iwb ()
   "indent whole buffer"
   (interactive)
