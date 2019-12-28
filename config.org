@@ -32,7 +32,7 @@
     * ~C-c e e~ -> eshell
     * ~C-c e a~ -> ansi-term
         
-* Package Management
+* Packages
 ** Package Archives
    Initialize package.el, add MELPA to the package archives and initialize the package lists.
    MELPA gets priority in package searches.
@@ -45,62 +45,10 @@
     (ignore-errors (package-refresh-contents)))
 #+END_SRC
 
-** Default Packages
-   Check if all packages defined in my-packages are installed.
-   If not, install them. Ensure they exist in the load path.
+** Package Management
+Initialize use-package
 #+BEGIN_SRC emacs-lisp
-(setq my-packages
-  '(
-  use-package
-
-  yaml-mode
-  haskell-mode
-  elixir-mode
-  clojure-mode
-
-  counsel
-  ivy
-  swiper
-  projectile
-
-  iedit
-  quickrun
-  aggressive-indent
-  org-bullets
-
-  eredis
-  yasnippet
-  which-key
-  htmlize
-  magit
-  hindent
-  neotree
-  all-the-icons-dired
-  all-the-icons-ivy
-  emmet-mode
-  cider
-
-  lsp-mode
-  lsp-ui
-  company-lsp
-
-  ;; moody
-  ;; minions
-  dashboard
-  doom-modeline
-  doom-themes
-  spacemacs-theme
-  solarized-theme
-  ))
-
-(dolist (pkg my-packages)
-     (unless (package-installed-p pkg)
-(package-install pkg)))
-
-;; MANUALLY INSTALLED / REQUIRED
 (eval-when-compile (require 'use-package))
-(require 'haskell-interactive-mode)
-(require 'haskell-process)
 #+END_SRC
 
 * Core Settings
@@ -336,6 +284,15 @@ Highlight matching parentheses
          ("<f1> x"  . counsel-descbinds)))
 #+END_SRC
 
+** Flycheck
+   Enable flycheck globally and add M-p, M-n for error navigation
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :ensure t
+  :config
+  (add-hook 'after-init-hook 'global-flycheck-mode))
+#+END_SRC
+
 ** Yasnippet
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
@@ -347,6 +304,26 @@ Highlight matching parentheses
   :bind
   ("C-c C-<tab>"    . company-yasnippet)
   ("C-c <tab>". yas-expand))
+#+END_SRC
+
+** All-the-icons
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons-dired
+  :ensure t
+  :hook
+  (dired-mode . all-the-icons-dired-mode))
+
+(use-package all-the-icons-ivy
+  :ensure t
+  :config 
+  (setq all-the-icons-ivy-file-commands
+    '(counsel-find-file
+      counsel-file-jump
+      counsel-recentf
+      projectile-find-file
+      projectile-find-dir))
+  (all-the-icons-ivy-setup)
+  (ivy-set-display-transformer 'ivy-switch-buffer 'all-the-icons-ivy-buffer-transformer))
 #+END_SRC
 
 ** Company
@@ -385,73 +362,6 @@ Highlight matching parentheses
   (projectile-mode +1))
 #+END_SRC
 
-** Flycheck
-   Enable flycheck globally and add M-p, M-n for error navigation
-#+BEGIN_SRC emacs-lisp
-(use-package flycheck
-  :ensure t
-  :config
-  (add-hook 'after-init-hook 'global-flycheck-mode))
-#+END_SRC
-
-** Which-key
-   Which-key is a keybinding preview utility to show all subsequent keys when waiting for commands.
-#+BEGIN_SRC emacs-lisp
-(use-package which-key
-  :ensure t
-  :diminish which-key-mode
-  :config
-    (which-key-mode t))
-#+END_SRC
-
-** Iedit
-#+BEGIN_SRC emacs-lisp
-(use-package iedit
-  :ensure t
-    :bind ("C-;" . iedit-mode))
-#+END_SRC
-
-** Magit
-   Magit is an interface to git
-   Access it with C-x g
-#+BEGIN_SRC emacs-lisp
-(use-package magit
-  :ensure t
-  :bind ("C-x g". magit-status))
-#+END_SRC
-
-** Dashboard
-#+BEGIN_SRC emacs-lisp
-(use-package dashboard
-  :config
-  (dashboard-setup-startup-hook)
-  (setq dashboard-set-init-info t)
-  (setq dashboard-center-content t)
-  (setq dashboard-startup-banner 'logo)
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-items '((recents  . 5)
-                         (bookmarks . 5)
-                         (projects . 5)
-                         (agenda . 5)
-                         (registers . 5))))
-#+END_SRC
-
-** Org Bullets
-#+BEGIN_SRC emacs-lisp
-(use-package org-bullets
-    :hook (org-mode . org-bullets-mode))
-#+END_SRC
-
-** Quickrun
-   Quickrun provides utilities to quickly compile and execute programs
-   F6 runs a program in eshell
-#+BEGIN_SRC emacs-lisp
-(use-package quickrun
-  :ensure t
-  :bind ("<f6>" . quickrun-shell))
-#+END_SRC
-
 ** LSP
    Emacs Language Server Protocol support
    Enable it on certain languages along with most of it's addons
@@ -472,6 +382,57 @@ Highlight matching parentheses
   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
 #+END_SRC
 
+** Magit
+   Magit is an interface to git
+   Access it with C-x g
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :ensure t
+  :bind ("C-x g". magit-status))
+#+END_SRC
+
+** Which-key
+   Which-key is a keybinding preview utility to show all subsequent keys when waiting for commands.
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :ensure t
+  :diminish which-key-mode
+  :config
+    (which-key-mode t))
+#+END_SRC
+
+** Iedit
+#+BEGIN_SRC emacs-lisp
+(use-package iedit
+  :ensure t
+    :bind ("C-;" . iedit-mode))
+#+END_SRC
+
+** Org Bullets
+#+BEGIN_SRC emacs-lisp
+(use-package org-bullets
+    :hook (org-mode . org-bullets-mode))
+#+END_SRC
+
+** Quickrun
+   Quickrun provides utilities to quickly compile and execute programs
+   F6 runs a program in eshell
+#+BEGIN_SRC emacs-lisp
+(use-package quickrun
+  :ensure t
+  :bind ("<f6>" . quickrun-shell))
+#+END_SRC
+
+** Ace Jump Mode
+#+BEGIN_SRC emacs-lisp
+  (use-package ace-jump-mode
+    :ensure t
+    :bind
+    ("C-c SPC" . ace-jump-mode)
+    :config
+    (setq ace-jump-face-foreground "yellow"))
+#+END_SRC
+
 ** Emmet
    Offers snippets for html and css
 #+BEGIN_SRC emacs-lisp
@@ -485,6 +446,7 @@ Highlight matching parentheses
 ** Neotree
 #+BEGIN_SRC emacs-lisp
 (use-package neotree
+  :ensure t
   :bind
   ("<f8>" . neotree-toggle)
   :config
@@ -494,24 +456,37 @@ Highlight matching parentheses
         neo-autorefresh t))
 #+END_SRC
 
-** All-the-icons
+** Themes
 #+BEGIN_SRC emacs-lisp
-(use-package all-the-icons-dired
-  :ensure t
-  :hook
-  (dired-mode . all-the-icons-dired-mode))
+(use-package doom-themes     :ensure t)
+(use-package solarized-theme :ensure t)
+#+END_SRC
 
-(use-package all-the-icons-ivy
-  :ensure t
-  :config 
-  (setq all-the-icons-ivy-file-commands
-    '(counsel-find-file
-      counsel-file-jump
-      counsel-recentf
-      projectile-find-file
-      projectile-find-dir))
-  (all-the-icons-ivy-setup)
-  (ivy-set-display-transformer 'ivy-switch-buffer 'all-the-icons-ivy-buffer-transformer))
+** Aggressive-indent-mode
+#+BEGIN_SRC emacs-lisp
+(use-package aggressive-indent :ensure t)
+#+END_SRC
+
+** Htmlize
+#+BEGIN_SRC emacs-lisp
+(use-package htmlize :ensure t)
+#+END_SRC
+
+** Dashboard
+#+BEGIN_SRC emacs-lisp
+(use-package dashboard
+  :config
+  (dashboard-setup-startup-hook)
+  (setq dashboard-set-init-info t)
+  (setq dashboard-center-content t)
+  (setq dashboard-startup-banner 'logo)
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-items '((recents  . 5)
+                         (bookmarks . 5)
+                         (projects . 5)
+                         (agenda . 5)
+                         (registers . 5))))
 #+END_SRC
 
 ** Haskell-mode
@@ -549,6 +524,16 @@ Highlight matching parentheses
               (setq flycheck-check-syntax-automatically '(save mode-enabled))))))
 #+END_SRC
 
+** Hindent
+#+BEGIN_SRC emacs-lisp
+(use-package hindent :ensure t)
+#+END_SRC
+
+** YAML-mode
+#+BEGIN_SRC emacs-lisp
+(use-package yaml-mode :ensure t)
+#+END_SRC
+
 ** C-mode
 Tab = 4 spaces, bsd indentation style
 #+BEGIN_SRC emacs-lisp
@@ -575,7 +560,7 @@ Tab = 4 spaces, bsd indentation style
 #+BEGIN_SRC emacs-lisp
 (use-package html-mode
   :hook
-  (html-mode . aggressive-indent-mode))
+  (html-mode . aggressive-inent-mode))
 #+END_SRC
 
 ** CSS-mode
