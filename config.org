@@ -5,8 +5,7 @@
 # #+SETUPFILE: https://fniessen.github.io/org-html-themes/setup/theme-readtheorg.setup
 
 * External dependencies
-  In order for this config to work properly, some external packages have to be
-  installed. They are split into their respective categories.
+ List of required dependencies outside emacs
 ** Languages
 *** Javascript
     - npm i -g javascript-typescript-langserver (lsp completion)
@@ -17,25 +16,10 @@
     - clangd (lsp mode)
 ** External Packages
 *** Counsel
-    - fzf (counsel-fzf)
-* Custom Commands Cheatsheet
-  - Search Commands begin with ~C-c s~
-    * ~C-c s f~ -> Fzf search (counsel-fzf)
-    * ~C-c s l~ -> Linux locate command (counsel-locate)
-    * ~C-c s d~ -> Find subdirectory (counsel-dired-jump)
-  - Text manipulation commands begin with ~C-c t~
-    - Aligning commands begin with ~C-c t a~
-      * ~C-c t a r~ -> Align region based on a regexp (align-regexp)
-      * ~C-c t a a~ -> Align region based on whitespace (align)
-      * ~C-c t a s~ -> Like align but works on current section (align-current)
-  - Commands that open shells begin with ~C-c e~
-    * ~C-c e e~ -> eshell
-    * ~C-c e a~ -> ansi-term
-        
+    - fzf (counsel-fzf)        
 * Packages
 ** Package Archives
-   Initialize package.el, add MELPA to the package archives and initialize the package lists.
-   MELPA gets priority in package searches.
+ Initialize package.el, add MELPA to the package archives and initialize the package lists.
 #+BEGIN_SRC emacs-lisp
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
@@ -45,21 +29,26 @@
     (ignore-errors (package-refresh-contents)))
 #+END_SRC
 
-** Package Management
-Initialize use-package
+** Use-package
+Install and initialize use-package.
+Use-package makes handling packages painless by isolating configuration
+per package and improving performance by lazily loading the required packages.
+More info can be found at the [[https://github.com/jwiegley/use-package][use-package repo]].
 #+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
 (eval-when-compile (require 'use-package))
 #+END_SRC
 
 * Core Settings
 ** Starting Directory
-Configure emacs to start in the home directory
+Configure emacs to start in the home directory.
 #+BEGIN_SRC emacs-lisp
 (setq default-directory "~/")
 #+END_SRC
 
 ** Scrolling
-Smooth scrolling
+Smooth scrolling.
 #+BEGIN_SRC emacs-lisp
 (setq mouse-wheel-scroll-amount '(3 ((shift) . 3)))
 (setq mouse-wheel-progressive-speed nil)
@@ -68,7 +57,7 @@ Smooth scrolling
 #+END_SRC
 
 ** Splash Screen
-   Skip the splash screen and use a scratch buffer in lisp interaction mode.
+Skip the splash screen/message and make the scratch buffer empty.
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-splash-screen t)
 (setq initial-scratch-message nil)
@@ -76,7 +65,7 @@ Smooth scrolling
 #+END_SRC
 
 ** Bars
-   Turn off the scroll bar, menu bar and the tool bar.
+Turn off the scroll bar, menu bar and the tool bar.
 #+BEGIN_SRC emacs-lisp
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -84,58 +73,56 @@ Smooth scrolling
 #+END_SRC
 
 ** Indentation
-   Tab width is 4 and tabs are now spaces.
+Default tab width is 4 and tabs are now spaces.
 #+BEGIN_SRC emacs-lisp
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 #+END_SRC
 
 ** Backup Files
-   All backup files are saved in the ~/.emacs.d/saves directory.
+All backup files are saved in the ~/.emacs.d/saves directory.
+Some versioning of files is used to prevent disasters.
 #+BEGIN_SRC emacs-lisp
-  (setq backup-directory-alist '(("." . "~/.emacs.d/saves"))
-    backup-by-copying t
-    version-control t
-    delete-old-versions t
-    kept-new-versions 20
-    kept-old-versions 5
-    )
+(setq backup-directory-alist '(("." . "~/.emacs.d/saves"))
+  backup-by-copying t
+  version-control t
+  delete-old-versions t
+  kept-new-versions 20
+  kept-old-versions 5
+  )
 #+END_SRC
 
 ** Yes/No
-   When emacs asks for yes/no make it one character.
+When emacs requires a yes/no answer make it one character.
 #+BEGIN_SRC emacs-lisp
 (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
-** Theme
-   The theme used.
-#+BEGIN_SRC emacs-lisp
-(load-theme 'doom-one t)
-#+END_SRC
-
 ** Font
-   Font used.
+The font used.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Cascadia Mono 11" ))
-(set-face-attribute 'default nil :family "Cascadia Mono 11" :height 110 :weight 'normal)
-(set-frame-font "Cascadia Mono 11" nil t)
+(add-to-list 'default-frame-alist '(font . "Liberation Mono 11" ))
+(set-face-attribute 'default nil :family "Liberation Mono 11" :height 110 :weight 'normal)
+(set-frame-font "Liberation Mono 11" nil t)
 #+END_SRC
 
 ** Disabled Commands
+Enable all disabled commands.
 #+BEGIN_SRC emacs-lisp
 (setq disabled-command-function nil)
 #+END_SRC
 
 ** Sentences
-Sentences don't end on a dot and two spaces
+Sentences end on a dot and one space. This is used to improve sentence
+navigation with ~M-a~ and ~M-e~.
 #+BEGIN_SRC emacs-lisp
 (setq sentence-end-double-space nil)
 #+END_SRC
 
 * Base Package Settings
 ** Hideshow
-Code folding keybindings with hideshow
+Code folding keybindings with hideshow.
+It is used for hiding functions in code just like vim but less powerful.
 #+BEGIN_SRC emacs-lisp
 (use-package hideshow
   :ensure t
@@ -148,8 +135,8 @@ Code folding keybindings with hideshow
 #+END_SRC
 
 ** Eshell
-Easily access eshell with ~C-c e e~ and add some helpfull commands for easier
-navigation
+Easily access eshell with ~C-c e e~ and ansi-term with ~C-c e a~.
+Also add some helpfull commands for easier navigation in eshell.
 #+BEGIN_SRC emacs-lisp
 (use-package eshell
   :bind 
@@ -166,9 +153,11 @@ navigation
 #+END_SRC
 
 ** Winner-mode
+Easily undo and redo window changes.
 #+BEGIN_SRC emacs-lisp
 (use-package winner
   :ensure t
+  :demand
   :config
   (winner-mode 1)
   :bind
@@ -177,14 +166,24 @@ navigation
 #+END_SRC
 
 ** Superword mode
-Enable subword mode (treat CamelCase as one word)
+Enable subword mode on certain major modes (treat CamelCase as multiple words).
 #+BEGIN_SRC emacs-lisp
 (use-package subword
+  :hook((haskell-mode . subword-mode)
+        (js-mode      . subword-mode)))
+#+END_SRC
+
+** Org-mode
+Set the default export methods for org buffers.
+#+BEGIN_SRC emacs-lisp
+(use-package org
   :config
-  (global-subword-mode t))
+  (setq org-export-backends '(ascii html icalendar latex md odt)))
 #+END_SRC
 
 ** Electric
+Enable electric pair and indent mode.
+A newline between adjacent parentheses opens an extra one.
 #+BEGIN_SRC emacs-lisp
 (use-package electric
   :config
@@ -194,6 +193,7 @@ Enable subword mode (treat CamelCase as one word)
 #+END_SRC
 
 ** Isearch
+Make isearch search for regexes by default.
 #+BEGIN_SRC emacs-lisp
 (use-package isearch
   :bind
@@ -201,7 +201,7 @@ Enable subword mode (treat CamelCase as one word)
 #+END_SRC
 
 ** Show-paren-mode
-Highlight matching parentheses
+Highlight matching parentheses.
 #+BEGIN_SRC emacs-lisp
 (use-package paren
   :config
@@ -217,7 +217,7 @@ Highlight matching parentheses
 (use-package align
   :bind ("C-c t a a" . align)
         ("C-c t a r" . align-regexp)
-        ("C-c t a s" . align-current))
+        ("C-c t a s" . align-current))        
 
 (use-package emacs
   :bind
@@ -236,13 +236,10 @@ Highlight matching parentheses
 
 * Other Package Settings
 ** Ivy, Counsel, Swiper
-
-   Enable ivy globally (replacement for ido).
-   Tweak the minibuffer functionality and remove the ^ in filters
+Enable ivy globally (replacement for ido).
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
   :diminish ivy-mode
-  :demand
   :ensure t
   :bind (("C-c C-r" . ivy-resume))
   :config
@@ -267,7 +264,6 @@ Highlight matching parentheses
 #+BEGIN_SRC emacs-lisp
 (use-package counsel
   :ensure t
-  :demand
   :config
   (counsel-mode t)
   :bind (("M-x"     . counsel-M-x)
@@ -285,7 +281,7 @@ Highlight matching parentheses
 #+END_SRC
 
 ** Flycheck
-   Enable flycheck globally and add M-p, M-n for error navigation
+Enable flycheck globally and add M-p, M-n for error navigation
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
   :ensure t
@@ -329,8 +325,7 @@ Highlight matching parentheses
 ** Company
    Enable company with various settings
    Add company backends
-     #+BEGIN_SRC emacs-lisp
-
+#+BEGIN_SRC emacs-lisp
 (use-package company
   :ensure t
   :diminish
@@ -367,6 +362,7 @@ Highlight matching parentheses
    Enable it on certain languages along with most of it's addons
 #+BEGIN_SRC emacs-lisp
 (use-package lsp-mode
+  :ensure t
   :hook ((c-mode      . lsp)
          (rust-mode   . lsp)
          (js-mode     . lsp))
@@ -374,6 +370,7 @@ Highlight matching parentheses
 
 ;; optionally
 (use-package lsp-ui
+  :ensure t
   :commands lsp-ui-mode
   :bind
   ("C-c l d" . lsp-ui-doc-show)
@@ -383,8 +380,9 @@ Highlight matching parentheses
 #+END_SRC
 
 ** Magit
-   Magit is an interface to git
-   Access it with C-x g
+Magit is an interface to git.
+We also install magit-annex for git-annex compatibility.
+Access it with C-x g.
 #+BEGIN_SRC emacs-lisp
 (use-package magit
   :ensure t
@@ -411,7 +409,8 @@ Highlight matching parentheses
 ** Org Bullets
 #+BEGIN_SRC emacs-lisp
 (use-package org-bullets
-    :hook (org-mode . org-bullets-mode))
+  :ensure t
+  :hook (org-mode . org-bullets-mode))
 #+END_SRC
 
 ** Quickrun
@@ -428,9 +427,7 @@ Highlight matching parentheses
   (use-package ace-jump-mode
     :ensure t
     :bind
-    ("C-c SPC" . ace-jump-mode)
-    :config
-    (setq ace-jump-face-foreground "yellow"))
+    ("C-c SPC" . ace-jump-mode))
 #+END_SRC
 
 ** Emmet
@@ -439,8 +436,7 @@ Highlight matching parentheses
 (use-package emmet-mode
   :ensure t
   :hook ((sgml-mode . emmet-mode)
-         (css-mode . emmet-mode))
-)
+         (css-mode . emmet-mode)))
 #+END_SRC
 
 ** Neotree
@@ -457,9 +453,16 @@ Highlight matching parentheses
 #+END_SRC
 
 ** Themes
+Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes     :ensure t)
-(use-package solarized-theme :ensure t)
+(load-theme 'doom-acario-dark t)
+#+END_SRC
+
+** Esup
+Esup is a startup profiler. M-x esup calculates which packages delay startup
+#+BEGIN_SRC emacs-lisp
+(use-package esup :ensure t)
 #+END_SRC
 
 ** Aggressive-indent-mode
@@ -470,23 +473,6 @@ Highlight matching parentheses
 ** Htmlize
 #+BEGIN_SRC emacs-lisp
 (use-package htmlize :ensure t)
-#+END_SRC
-
-** Dashboard
-#+BEGIN_SRC emacs-lisp
-(use-package dashboard
-  :config
-  (dashboard-setup-startup-hook)
-  (setq dashboard-set-init-info t)
-  (setq dashboard-center-content t)
-  (setq dashboard-startup-banner 'logo)
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-items '((recents  . 5)
-                         (bookmarks . 5)
-                         (projects . 5)
-                         (agenda . 5)
-                         (registers . 5))))
 #+END_SRC
 
 ** Haskell-mode
@@ -538,7 +524,6 @@ Highlight matching parentheses
 Tab = 4 spaces, bsd indentation style
 #+BEGIN_SRC emacs-lisp
 (use-package cc-mode
-  :ensure t
   :config
   (setq-default c-basic-offset 4)
   (setq-default c-default-style "bsd")
@@ -560,7 +545,7 @@ Tab = 4 spaces, bsd indentation style
 #+BEGIN_SRC emacs-lisp
 (use-package html-mode
   :hook
-  (html-mode . aggressive-inent-mode))
+  (html-mode . aggressive-indent-mode))
 #+END_SRC
 
 ** CSS-mode
@@ -577,6 +562,7 @@ Enable doom-modeline
 #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
   :ensure t
+  :demand
   :hook (after-init . doom-modeline-mode)
   :config
   (column-number-mode t)
@@ -593,4 +579,3 @@ Enable doom-modeline
   (indent-region (point-min) (point-max) nil)
   (untabify (point-min) (point-max)))
 #+END_SRC
-
