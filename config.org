@@ -560,13 +560,28 @@ Tab = 4 spaces, bsd indentation style
 ** Modeline
 Enable doom-modeline
 #+BEGIN_SRC emacs-lisp
-(use-package doom-modeline
+(use-package moody
   :ensure t
-  :demand
-  :hook (after-init . doom-modeline-mode)
   :config
+  (setq x-underline-at-descent-line t)
+  (moody-replace-mode-line-buffer-identification)
+  (moody-replace-vc-mode)
   (column-number-mode t)
-  (display-time-mode 1))
+  (display-time-mode 1)
+  (let ((line (face-attribute 'mode-line :underline)))
+    (set-face-attribute 'mode-line          nil :overline   line)
+    (set-face-attribute 'mode-line-inactive nil :overline   line)
+    (set-face-attribute 'mode-line-inactive nil :underline  line)
+    (set-face-attribute 'mode-line          nil :box        nil)
+    (set-face-attribute 'mode-line-inactive nil :box        nil)
+    (set-face-attribute 'mode-line-inactive nil :background "#282828")))
+
+(use-package minions
+  :ensure t
+  :config (minions-mode 1))
+
+
+
 #+END_SRC
 
 * My functions
