@@ -101,9 +101,9 @@ When emacs requires a yes/no answer make it one character.
 ** Font
 The font used.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Liberation Mono 11" ))
-(set-face-attribute 'default nil :family "Liberation Mono 11" :height 110 :weight 'normal)
-(set-frame-font "Liberation Mono 11" nil t)
+(add-to-list 'default-frame-alist '(font . "Fira Code 11" ))
+(set-face-attribute 'default nil :family "Fira Code 11" :height 110 :weight 'normal)
+(set-frame-font "Fira Code 11" nil t)
 #+END_SRC
 
 ** Disabled Commands
@@ -455,8 +455,9 @@ Access it with C-x g.
 ** Themes
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
-(use-package doom-themes     :ensure t)
-(load-theme 'doom-acario-dark t)
+(use-package doom-themes   :ensure t)
+(use-package gruvbox-theme :ensure t)
+(load-theme 'gruvbox-dark-medium t)
 #+END_SRC
 
 ** Esup
@@ -492,7 +493,7 @@ Esup is a startup profiler. M-x esup calculates which packages delay startup
           haskell-process-auto-import-loaded-modules t
           haskell-process-log t
           haskell-process-type 'stack-ghci
-          haskell-tags-on-save t
+          ;haskell-tags-on-save t
           haskell-compile-cabal-build-command "stack build"
           haskell-process-suggest-hoogle-imports t)
     :hook
@@ -560,13 +561,28 @@ Tab = 4 spaces, bsd indentation style
 ** Modeline
 Enable doom-modeline
 #+BEGIN_SRC emacs-lisp
-(use-package doom-modeline
+(use-package moody
   :ensure t
-  :demand
-  :hook (after-init . doom-modeline-mode)
   :config
+  (setq x-underline-at-descent-line t)
+  (moody-replace-mode-line-buffer-identification)
+  (moody-replace-vc-mode)
   (column-number-mode t)
-  (display-time-mode 1))
+  (display-time-mode 1)
+  (let ((line (face-attribute 'mode-line :underline)))
+    (set-face-attribute 'mode-line          nil :overline   line)
+    (set-face-attribute 'mode-line-inactive nil :overline   line)
+    (set-face-attribute 'mode-line-inactive nil :underline  line)
+    (set-face-attribute 'mode-line          nil :box        nil)
+    (set-face-attribute 'mode-line-inactive nil :box        nil)
+    (set-face-attribute 'mode-line-inactive nil :background "#282828")))
+
+(use-package minions
+  :ensure t
+  :config (minions-mode 1))
+
+
+
 #+END_SRC
 
 * My functions
