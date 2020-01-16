@@ -492,7 +492,7 @@ Esup is a startup profiler. M-x esup calculates which packages delay startup
           haskell-process-auto-import-loaded-modules t
           haskell-process-log t
           haskell-process-type 'stack-ghci
-          haskell-tags-on-save t
+          ;haskell-tags-on-save t
           haskell-compile-cabal-build-command "stack build"
           haskell-process-suggest-hoogle-imports t)
     :hook
