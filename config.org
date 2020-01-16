@@ -455,8 +455,9 @@ Access it with C-x g.
 ** Themes
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
-(use-package doom-themes     :ensure t)
-(load-theme 'doom-acario-dark t)
+(use-package doom-themes   :ensure t)
+(use-package gruvbox-theme :ensure t)
+(load-theme 'gruvbox-dark-medium t)
 #+END_SRC
 
 ** Esup
