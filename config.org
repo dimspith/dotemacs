@@ -2,21 +2,7 @@
 #+AUTHOR: Dimitris Spythouris
 #+STARTUP: overview
 #+OPTIONS: num:nil
-# #+SETUPFILE: https://fniessen.github.io/org-html-themes/setup/theme-readtheorg.setup
-
-* External dependencies
- List of required dependencies outside emacs
-** Languages
-*** Javascript
-    - npm i -g javascript-typescript-langserver (lsp completion)
-    - npm i -g jshint (flycheck linting)
-*** Elm
-    - elm-language-server (autocompletion)
-*** C
-    - clangd (lsp mode)
-** External Packages
-*** Counsel
-    - fzf (counsel-fzf)        
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/setup/theme-readtheorg.setup
 * Packages
 ** Package Archives
  Initialize package.el, add MELPA to the package archives and initialize the package lists.
@@ -124,28 +110,14 @@ navigation with ~M-a~ and ~M-e~.
 #+END_SRC
 
 * Base Package Settings
-** Hideshow
-Code folding keybindings with hideshow.
-It is used for hiding functions in code just like vim but less powerful.
-#+BEGIN_SRC emacs-lisp
-(use-package hideshow
-  :ensure t
-  :bind (:map hs-minor-mode-map
-        ("C-c f H" . hs-hide-all)
-        ("C-c f S" . hs-show-all)
-        ("C-c f t" . hs-toggle-hiding)
-        ("C-c f h" . hs-hide-block)
-        ("C-c f s" . hs-show-block)))
-#+END_SRC
-
 ** Eshell
-Easily access eshell with ~C-c e e~ and ansi-term with ~C-c e a~.
-Also add some helpfull commands for easier navigation in eshell.
-#+BEGIN_SRC emacs-lisp
+   Easily access eshell with ~C-c e e~ and ansi-term with ~C-c e a~.
+   Also add some helpfull commands for easier navigation in eshell.
+   #+BEGIN_SRC emacs-lisp
 (use-package eshell
   :bind 
-  ("C-c e e" . eshell)
-  ("C-c e a" . ansi-term)
+  ("C-c t e" . eshell)
+  ("C-c t a" . ansi-term)
   :hook (eshell-mode . 
     (lambda ()
       (bind-key "C-l" 'eshell/clear eshell-mode-map)
@@ -154,11 +126,11 @@ Also add some helpfull commands for easier navigation in eshell.
       (eshell/alias "d" "dired $1")
       (eshell/alias "ll" "ls -l")
       (eshell/alias "la" "ls -al"))))
-#+END_SRC
+   #+END_SRC
 
 ** Winner-mode
-Easily undo and redo window changes.
-#+BEGIN_SRC emacs-lisp
+   Easily undo and redo window changes.
+   #+BEGIN_SRC emacs-lisp
 (use-package winner
   :ensure t
   :demand
@@ -167,65 +139,65 @@ Easily undo and redo window changes.
   :bind
   ("C-c w u" . winner-undo)
   ("C-c w r" . winner-redo))
-#+END_SRC
+   #+END_SRC
 
 ** Superword mode
-Enable subword mode on certain major modes (treat CamelCase as multiple words).
-#+BEGIN_SRC emacs-lisp
+   Enable subword mode on certain major modes (treat CamelCase as multiple words).
+   #+BEGIN_SRC emacs-lisp
 (use-package subword
   :hook((haskell-mode . subword-mode)
         (js-mode      . subword-mode)))
-#+END_SRC
+   #+END_SRC
 
 ** Org-mode
-Set the default export methods for org buffers.
-#+BEGIN_SRC emacs-lisp
+   Set the default export methods for org buffers.
+   #+BEGIN_SRC emacs-lisp
 (use-package org
   :config
   (setq org-export-backends '(ascii html icalendar latex md odt))
-  (setq org-agenda-files '("~/.emacs.d/agenda/"))
+  (setq org-agenda-files '("~/.emacs.d/notes/notes.org"))
   :bind
   ("C-c o a" . org-agenda)
   ("C-c o l" . org-store-link))
-#+END_SRC
+   #+END_SRC
 
 ** Electric
-Enable electric pair and indent mode.
-A newline between adjacent parentheses opens an extra one.
-#+BEGIN_SRC emacs-lisp
+   Enable electric pair and indent mode.
+   A newline between adjacent parentheses opens an extra one.
+   #+BEGIN_SRC emacs-lisp
 (use-package electric
   :config
   (electric-pair-mode 1)
   (electric-indent-mode 1)
   (setq electric-pair-open-newline-between-pairs t))
-#+END_SRC
+   #+END_SRC
 
 ** Isearch
-Make isearch search for regexes by default.
-#+BEGIN_SRC emacs-lisp
+   Make isearch search for regexes by default.
+   #+BEGIN_SRC emacs-lisp
 (use-package isearch
   :bind
   ("C-s" . isearch-forward-regexp))
-#+END_SRC
+   #+END_SRC
 
 ** Show-paren-mode
-Highlight matching parentheses.
-#+BEGIN_SRC emacs-lisp
+   Highlight matching parentheses.
+   #+BEGIN_SRC emacs-lisp
 (use-package paren
   :config
   (show-paren-mode 1))
-#+END_SRC
+   #+END_SRC
 
 ** Misc
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
 (use-package view
   :bind ("C-v" . View-scroll-half-page-forward)
         ("M-v" . View-scroll-half-page-backward))
 
 (use-package align
-  :bind ("C-c t a a" . align)
-        ("C-c t a r" . align-regexp)
-        ("C-c t a s" . align-current))        
+  :bind ("C-c e a a" . align)
+        ("C-c e a r" . align-regexp)
+        ("C-c e a s" . align-current))        
 
 (use-package emacs
   :bind
@@ -239,8 +211,9 @@ Highlight matching parentheses.
   ("<C-f9>"      . set-frame-font)
   ("C-x C-b"     . ibuffer)
   ("M-/"         . hippie-expand)
+  ("<f7>"        . toggle-transparency)
   ("M-j"         . (lambda () (interactive) (join-line -1))))
-#+END_SRC
+   #+END_SRC
 
 * Other Package Settings
 ** Ivy, Counsel, Swiper
@@ -277,9 +250,9 @@ Enable ivy globally (replacement for ido).
   :bind (("M-x"     . counsel-M-x)
          ("C-x C-f" . counsel-find-file)
          ("<f2> u"  . counsel-unicode-char)
-         ("C-c g g" . counsel-git)
+         ("C-c s g f" . counsel-git)
          ("C-c s d" . counsel-dired-jump)
-         ("C-c g j" . counsel-git-grep)
+         ("C-c s g g" . counsel-git-grep)
          ("C-c s f" . counsel-fzf)
          ("C-c s l" . counsel-locate)
          ("C-x r i" . counsel-register)
@@ -289,12 +262,12 @@ Enable ivy globally (replacement for ido).
 #+END_SRC
 
 ** Flycheck
-Enable flycheck globally and add M-p, M-n for error navigation
+Load flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
   :ensure t
   :config
-  (add-hook 'after-init-hook 'global-flycheck-mode))
+  (setq flycheck-check-syntax-automatically '(save mode-enabled)))
 #+END_SRC
 
 ** Yasnippet
@@ -421,6 +394,20 @@ Access it with C-x g.
   :hook (org-mode . org-bullets-mode))
 #+END_SRC
 
+** Latex
+#+BEGIN_SRC emacs-lisp
+(use-package tex
+  :defer t
+  :ensure auctex
+  :hook
+  (LaTeX-mode . company-mode)
+  (LaTeX-mode . flycheck-mode)
+  :config
+  (setq TeX-auto-save t)
+  (setq TeX-engine 'luatex)
+  (setq TeX-parse-self t))
+#+END_SRC
+
 ** Quickrun
    Quickrun provides utilities to quickly compile and execute programs
    F6 runs a program in eshell
@@ -468,9 +455,8 @@ Access it with C-x g.
 ** Themes
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
-(use-package doom-themes   :ensure t)
-(use-package sourcerer-theme :ensure t)
-(load-theme 'sourcerer t)
+(use-package doom-themes :ensure t)
+(load-theme 'doom-dark+ t)
 #+END_SRC
 
 ** Org-mode export
@@ -617,5 +603,20 @@ Enable doom-modeline
   (delete-trailing-whitespace)
   (indent-region (point-min) (point-max) nil)
   (untabify (point-min) (point-max)))
+#+END_SRC
+
+Toggle opacity
+#+BEGIN_SRC emacs-lisp
+ (defun toggle-transparency ()
+   (interactive)
+   (let ((alpha (frame-parameter nil 'alpha)))
+     (set-frame-parameter
+      nil 'alpha
+      (if (eql (cond ((numberp alpha) alpha)
+                     ((numberp (cdr alpha)) (cdr alpha))
+                     ;; Also handle undocumented (<active> <inactive>) form.
+                     ((numberp (cadr alpha)) (cadr alpha)))
+               100)
+               '(87 . 87) '(100 . 100)))))
 #+END_SRC
 
