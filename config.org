@@ -87,13 +87,10 @@ When emacs requires a yes/no answer make it one character.
 ** Font
 The font used.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Iosevka 12" ))
-(set-face-attribute 'default nil :family "Iosevka 12" :height 110 :weight 'normal)
-(set-frame-font "Iosevka 12" nil t)
+  (add-to-list 'default-frame-alist '(font . "Monego 11" ))
+  (set-face-attribute 'default nil :family "Monego 12" :height 110 :weight 'normal)
+  ;; (set-frame-font "Office Code Pro 11" nil t)
 
-;;(add-to-list 'default-frame-alist '(font . "Agave 12" ))
-;;(set-face-attribute 'default nil 2:family "Agave 12" :height 110 :weight 'normal)
-;;(set-frame-font "Agave 13" nil t)
 #+END_SRC
 
 ** Disabled Commands
@@ -128,6 +125,11 @@ navigation with ~M-a~ and ~M-e~.
       (eshell/alias "la" "ls -al"))))
    #+END_SRC
 
+** Dired
+Guess resulting directory on dired operations
+#+BEGIN_SRC emacs-lisp
+(setq dired-dwim-target t)
+#+END_SRC
 ** Winner-mode
    Easily undo and redo window changes.
    #+BEGIN_SRC emacs-lisp
@@ -456,7 +458,7 @@ Access it with C-x g.
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes :ensure t)
-(load-theme 'doom-dark+ t)
+(load-theme 'doom-acario-dark t)
 #+END_SRC
 
 ** Org-mode export
