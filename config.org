@@ -3,6 +3,7 @@
 #+STARTUP: overview
 #+OPTIONS: num:nil
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/setup/theme-readtheorg.setup
+
 * Packages
 ** Package Archives
  Initialize package.el, add MELPA to the package archives and initialize the package lists.
@@ -61,6 +62,7 @@ Turn off the scroll bar, menu bar and the tool bar.
 ** Indentation
 Default tab width is 4 and tabs are now spaces.
 #+BEGIN_SRC emacs-lisp
+(setq-default tab-always-indent t)
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 #+END_SRC
@@ -78,6 +80,13 @@ Some versioning of files is used to prevent disasters.
   )
 #+END_SRC
 
+** Re-builder
+#+BEGIN_SRC emacs-lisp
+(use-package re-builder
+  :config
+  (setq reb-re-syntax 'string))
+#+END_SRC
+
 ** Yes/No
 When emacs requires a yes/no answer make it one character.
 #+BEGIN_SRC emacs-lisp
@@ -87,10 +96,9 @@ When emacs requires a yes/no answer make it one character.
 ** Font
 The font used.
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'default-frame-alist '(font . "Monego 11" ))
-  (set-face-attribute 'default nil :family "Monego 12" :height 110 :weight 'normal)
-  ;; (set-frame-font "Office Code Pro 11" nil t)
-
+(add-to-list 'default-frame-alist '(font . "Fira Code 11" ))
+(set-face-attribute 'default nil :family "Fira Code" :height 110 :weight 'normal)
+;;(set-frame-font "Monego 12" nil t)
 #+END_SRC
 
 ** Disabled Commands
@@ -125,11 +133,31 @@ navigation with ~M-a~ and ~M-e~.
       (eshell/alias "la" "ls -al"))))
    #+END_SRC
 
+** GNUS
+#+BEGIN_SRC emacs-lisp
+(setq gnus-select-method
+     '(nnimap "posteo"
+           (nnimap-address "posteo.de")
+           (nnimap-server-port "imaps")
+           (nnimap-stream ssl)))
+
+(setq smtpmail-smtp-server "posteo.de"
+      smtpmail-smtp-service 587)
+      ;; gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
+
+#+END_SRC
+
+** EWW
+#+BEGIN_SRC emacs-lisp
+(use-package eww)
+#+END_SRC
+
 ** Dired
 Guess resulting directory on dired operations
 #+BEGIN_SRC emacs-lisp
 (setq dired-dwim-target t)
 #+END_SRC
+
 ** Winner-mode
    Easily undo and redo window changes.
    #+BEGIN_SRC emacs-lisp
@@ -152,7 +180,6 @@ Guess resulting directory on dired operations
    #+END_SRC
 
 ** Org-mode
-   Set the default export methods for org buffers.
    #+BEGIN_SRC emacs-lisp
 (use-package org
   :config
@@ -161,6 +188,45 @@ Guess resulting directory on dired operations
   :bind
   ("C-c o a" . org-agenda)
   ("C-c o l" . org-store-link))
+
+(use-package org-agenda
+  :after org
+  :config
+  (setq org-agenda-additional-timestamps-same-entry t)
+  (setq org-agenda-include-diary nil)
+  (setq org-agenda-show-all-dates t)
+  (setq org-agenda-show-outline-path nil)
+  (setq org-agenda-skip-additional-timestamps-same-entry t)
+  (setq org-agenda-skip-deadline-prewarning-if-scheduled t)
+  (setq org-agenda-skip-scheduled-delay-if-deadline t)
+  (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+  (setq org-agenda-skip-scheduled-if-done t)
+  (setq org-agenda-skip-timestamp-if-deadline-is-shown t)
+  (setq org-agenda-skip-timestamp-if-done t)
+  (setq org-agenda-span 3)
+  (setq org-agenda-start-on-weekday 1)
+  (setq org-agenda-timegrid-use-ampm nil)
+  (setq org-agenda-window-setup 'current-window)
+  (setq org-agenda-dim-blocked-tasks t))
+
+(use-package org-src
+  :after org
+  :config
+  (setq org-src-window-setup 'current-window)
+  (setq org-src-fontify-natively t)
+  (setq org-src-preserve-indentation t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-edit-src-content-indentation 0))
+
+(use-package ox
+  :after org
+  :config
+  (setq org-export-with-toc t)
+  (setq org-export-headline-levels 8)
+  (setq org-export-backends
+        '(ascii html latex md))
+  (setq org-export-dispatch-use-expert-ui nil))
+
    #+END_SRC
 
 ** Electric
@@ -187,11 +253,32 @@ Guess resulting directory on dired operations
    #+BEGIN_SRC emacs-lisp
 (use-package paren
   :config
+  (setq show-paren-style 'parenthesis)
+  (setq show-paren-when-point-in-periphery t)
+  (setq show-paren-when-point-inside-paren nil)
   (show-paren-mode 1))
    #+END_SRC
 
+** Hippie-expand
+#+BEGIN_SRC emacs-lisp
+(use-package hippie-exp
+  :bind
+  ("M-/" . hippie-expand)
+  :config
+  (setq hippie-expand-try-functions-list '(try-complete-file-name-partially 
+                                           try-complete-file-name
+                                           try-expand-dabbrev
+                                           try-expand-dabbrev-all-buffers
+                                           try-expand-line
+                                           try-expand-list
+                                           try-expand-all-abbrevs
+                                           try-expand-dabbrev-from-kill
+                                           try-complete-lisp-symbol-partially
+                                           try-complete-lisp-symbol)))
+#+END_SRC
+
 ** Misc
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package view
   :bind ("C-v" . View-scroll-half-page-forward)
         ("M-v" . View-scroll-half-page-backward))
@@ -212,10 +299,14 @@ Guess resulting directory on dired operations
   ("<f5>"        . compile)
   ("<C-f9>"      . set-frame-font)
   ("C-x C-b"     . ibuffer)
-  ("M-/"         . hippie-expand)
   ("<f7>"        . toggle-transparency)
-  ("M-j"         . (lambda () (interactive) (join-line -1))))
-   #+END_SRC
+  ("M-j"         . (lambda () (interactive) (join-line -1)))
+  :config
+  (setq window-divider-default-right-width 1)
+  (setq window-divider-default-bottom-width 1)
+  (setq window-divider-default-places 'right-only)
+  :hook (after-init . window-divider-mode))
+#+END_SRC
 
 * Other Package Settings
 ** Ivy, Counsel, Swiper
@@ -247,10 +338,10 @@ Enable ivy globally (replacement for ido).
 #+BEGIN_SRC emacs-lisp
 (use-package counsel
   :ensure t
+  :ensure-system-package fzf
   :config
   (counsel-mode t)
-  :bind (("M-x"     . counsel-M-x)
-         ("C-x C-f" . counsel-find-file)
+  :bind (("C-x C-f" . counsel-find-file)
          ("<f2> u"  . counsel-unicode-char)
          ("C-c s g f" . counsel-git)
          ("C-c s d" . counsel-dired-jump)
@@ -261,6 +352,18 @@ Enable ivy globally (replacement for ido).
          ("M-i"     . counsel-imenu)
          ("<f9>"    . counsel-load-theme)
          ("<f1> x"  . counsel-descbinds)))
+#+END_SRC
+
+** AMX
+Replacement for smex with good recents support and counsel integration
+#+BEGIN_SRC emacs-lisp
+(use-package amx
+  :ensure t
+  :config
+  (setq amx-backend 'auto)
+  (setq amx-save-file "~/.emacs.d/amx-items")
+  (setq amx-history-length 50)
+  (amx-mode 1))
 #+END_SRC
 
 ** Flycheck
@@ -278,7 +381,7 @@ Load flycheck
   :ensure t
   :diminish yas-minor-mode
   :config
-  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+  ;; (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-global-mode)
   :bind
   ("C-c C-<tab>"    . company-yasnippet)
@@ -305,9 +408,14 @@ Load flycheck
   (ivy-set-display-transformer 'ivy-switch-buffer 'all-the-icons-ivy-buffer-transformer))
 #+END_SRC
 
+** Simple-mpc
+#+BEGIN_SRC emacs-lisp
+(use-package simple-mpc
+  :ensure t)
+#+END_SRC
+
 ** Company
    Enable company with various settings
-   Add company backends
 #+BEGIN_SRC emacs-lisp
 (use-package company
   :ensure t
@@ -321,11 +429,10 @@ Load flycheck
    (setq company-dabbrev-downcase nil)
    (company-tng-configure-default))
 
-(use-package company-lsp
-  :ensure t
-  :config
-  (add-to-list 'company-backends 'company-lsp))
-
+;; (use-package company-lsp
+;;   :ensure t
+;;   :config
+;;   (add-to-list 'company-backends 'company-lsp))
 #+END_SRC
 
 ** Projectile
@@ -346,20 +453,25 @@ Load flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package lsp-mode
   :ensure t
+  :init
+  (setq lsp-keymap-prefix "C-c l")
   :hook ((c-mode      . lsp)
          (rust-mode   . lsp)
          (js-mode     . lsp))
-  :commands lsp)
+  :commands lsp
+  :config
+  (setq gc-cons-threshold 100000000)
+  (setq read-process-output-max (* 1024 1024))
+  (setq lsp-prefer-capf t))
 
 ;; optionally
 (use-package lsp-ui
   :ensure t
   :commands lsp-ui-mode
-  :bind
-  ("C-c l d" . lsp-ui-doc-show)
   :config
   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
+
 #+END_SRC
 
 ** Magit
@@ -419,11 +531,6 @@ Access it with C-x g.
   :bind ("<f6>" . quickrun-shell))
 #+END_SRC
 
-** Transmission
-#+BEGIN_SRC emacs-lisp
-(use-package transmission :ensure t)
-#+END_SRC
-
 ** Ace Jump Mode
 #+BEGIN_SRC emacs-lisp
   (use-package ace-jump-mode
@@ -458,12 +565,7 @@ Access it with C-x g.
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes :ensure t)
-(load-theme 'doom-acario-dark t)
-#+END_SRC
-
-** Org-mode export
-#+BEGIN_SRC emacs-lisp
-(use-package ox-epub :ensure t)
+(load-theme 'doom-dark+ t)
 #+END_SRC
 
 ** Esup
