@@ -4,6 +4,9 @@
 ;### (config.org)                                                   ###
 ;######################################################################
 
+;; Fix org
+(setq straight-fix-org t)
+
 ;; Bootstrap straight.el
 (defvar bootstrap-version)
 (setq straight-use-package-by-default t)
