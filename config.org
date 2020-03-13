@@ -62,12 +62,15 @@ When emacs requires a yes/no answer make it one character.
 (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
+** Visual lines
+#+BEGIN_SRC emacs-lisp
+;; (global-visual-line-mode t)
+#+END_SRC
 ** Font
 The font used.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Fira Code 11" ))
-(set-face-attribute 'default nil :family "Fira Code" :height 110 :weight 'normal)
-;;(set-frame-font "Monego 12" nil t)
+(add-to-list 'default-frame-alist '(font . "Bedstead Semicondensed 12" ))
+(set-face-attribute 'default nil :family "Bedstead Semicondensed" :height 120 :weight 'normal)
 #+END_SRC
 
 ** Disabled Commands
@@ -261,7 +264,8 @@ Guess resulting directory on dired operations
 (use-package org-roam
   :straight (:host github :repo "jethrokuan/org-roam" :branch "develop")
   :hook 
-  (after-init . org-roam-mode)
+  ((after-init . org-roam-mode)
+  (org-roam-backlinks-mode . visual-line-mode))
   :custom
   (org-roam-directory (expand-file-name "~/Notes/"))
   :bind (:map org-roam-mode-map
@@ -271,6 +275,7 @@ Guess resulting directory on dired operations
      :map org-mode-map
      (("C-c n i" . org-roam-insert))))
 #+END_SRC
+
 ** Ivy, Counsel, Swiper
 Enable ivy globally (replacement for ido).
 #+BEGIN_SRC emacs-lisp
@@ -600,6 +605,38 @@ Esup is a startup profiler. M-x esup calculates which packages delay startup
      ;;       (setq flycheck-check-syntax-automatically '(save mode-enabled))))))
 #+END_SRC
 
+** Merlin
+#+BEGIN_SRC emacs-lisp
+(use-package merlin
+  :straight t
+  :config
+  (let ((opam-share (ignore-errors (car (process-lines "opam" "config" "var" "share")))))
+    (when (and opam-share (file-directory-p opam-share))
+      ;; Register Merlin
+      (add-to-list 'load-path (expand-file-name "emacs/site-lisp" opam-share))
+      (autoload 'merlin-mode "merlin" nil t nil)
+      ;; Automatically start it in OCaml buffers
+      (add-hook 'tuareg-mode-hook 'merlin-mode t)
+      (add-hook 'caml-mode-hook 'merlin-mode t)
+      ;; Use opam switch to lookup ocamlmerlin binary
+      (setq merlin-command 'opam)))
+  (setq merlin-use-auto-complete-mode t)
+  (setq merlin-error-after-save nil))
+#+END_SRC
+
+** Tuareg
+#+BEGIN_SRC emacs-lisp
+(use-package tuareg
+  :straight t
+  :hook
+  (tuareg-mode . merlin-mode))
+#+END_SRC
+
+** Utop
+#+BEGIN_SRC emacs-lisp
+(use-package utop
+  :straight t)
+#+END_SRC
 ** Hindent
 #+BEGIN_SRC emacs-lisp
 (use-package hindent :straight t)
