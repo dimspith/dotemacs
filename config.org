@@ -69,8 +69,8 @@ When emacs requires a yes/no answer make it one character.
 ** Font
 The font used.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Bedstead Semicondensed 12" ))
-(set-face-attribute 'default nil :family "Bedstead Semicondensed" :height 120 :weight 'normal)
+(add-to-list 'default-frame-alist '(font . "Fira Code 11" ))
+(set-face-attribute 'default nil :family "Fira Code" :height 110 :weight 'normal)
 #+END_SRC
 
 ** Disabled Commands
