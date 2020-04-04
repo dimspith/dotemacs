@@ -88,9 +88,7 @@ navigation with ~M-a~ and ~M-e~.
 
 * Base Package Settings
 ** Eshell
-   Easily access eshell with ~C-c e e~ and ansi-term with ~C-c e a~.
-   Also add some helpfull commands for easier navigation in eshell.
-   #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package eshell
   :straight nil
   :bind 
@@ -98,26 +96,12 @@ navigation with ~M-a~ and ~M-e~.
   ("C-c t a" . ansi-term)
   :hook (eshell-mode . 
     (lambda ()
-      (bind-key "C-l" 'eshell/clear eshell-mode-map)
+      (bind-key "C-l" (lambda () (interactive) (eshell/clear 1)) eshell-mode-map)
       (eshell/alias "f" "find-file $1")
       (eshell/alias "fo" "find-file-other-window $1")
       (eshell/alias "d" "dired $1")
       (eshell/alias "ll" "ls -l")
       (eshell/alias "la" "ls -al"))))
-   #+END_SRC
-
-** GNUS
-#+BEGIN_SRC emacs-lisp
-(setq gnus-select-method
-     '(nnimap "posteo"
-           (nnimap-address "posteo.de")
-           (nnimap-server-port "imaps")
-           (nnimap-stream ssl)))
-
-(setq smtpmail-smtp-server "posteo.de"
-      smtpmail-smtp-service 587)
-      ;; gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
-
 #+END_SRC
 
 ** Re-builder
@@ -126,6 +110,14 @@ navigation with ~M-a~ and ~M-e~.
   :straight nil
   :config
   (setq reb-re-syntax 'string))
+#+END_SRC
+** Flymake
+#+BEGIN_SRC emacs-lisp
+(use-package flymake
+  :straight t
+  :config
+  (setq flymake-no-changes-timeout nil)
+  (setq flymake-start-syntax-check-on-newline nil))
 #+END_SRC
 ** Dired
 Guess resulting directory on dired operations
@@ -158,7 +150,8 @@ Guess resulting directory on dired operations
 ** Org-mode
  #+BEGIN_SRC emacs-lisp
 (use-package org
-  :straight (:type built-in)
+  ;; :straight (:type built-in)
+  :straight t
   :config
   (setq org-agenda-files '("~/.emacs.d/notes/schedule.org"))
   (setq org-src-window-setup 'current-window)
@@ -262,7 +255,7 @@ Guess resulting directory on dired operations
 ** Org-roam
 #+BEGIN_SRC emacs-lisp
 (use-package org-roam
-  :straight (:host github :repo "jethrokuan/org-roam" :branch "develop")
+  :straight (:host github :repo "jethrokuan/org-roam" :branch "master")
   :hook 
   ((after-init . org-roam-mode)
   (org-roam-backlinks-mode . visual-line-mode))
@@ -271,6 +264,8 @@ Guess resulting directory on dired operations
   :bind (:map org-roam-mode-map
      (("C-c n l" . org-roam)
       ("C-c n f" . org-roam-find-file)
+      ("C-c n t" . org-roam-today)
+      ("C-c n b" . org-roam-switch-to-buffer)
       ("C-c n g" . org-roam-show-graph))
      :map org-mode-map
      (("C-c n i" . org-roam-insert))))
@@ -413,11 +408,6 @@ Load flycheck
    (setq company-tooltip-limit 10)
    (setq company-dabbrev-downcase nil)
    (company-tng-configure-default))
-
-;; (use-package company-lsp
-;;   :straight t
-;;   :config
-;;   (add-to-list 'company-backends 'company-lsp))
 #+END_SRC
 
 ** Projectile
@@ -432,31 +422,14 @@ Load flycheck
   (projectile-mode +1))
 #+END_SRC
 
-** LSP
-   Emacs Language Server Protocol support
-   Enable it on certain languages along with most of it's addons
+** Eglot
 #+BEGIN_SRC emacs-lisp
-(use-package lsp-mode
+(use-package eglot
   :straight t
-  :init
-  (setq lsp-keymap-prefix "C-c l")
-  :hook ((c-mode      . lsp)
-         (rust-mode   . lsp)
-         (js-mode     . lsp))
-  :commands lsp
   :config
-  (setq gc-cons-threshold 100000000)
-  (setq read-process-output-max (* 1024 1024))
-  (setq lsp-prefer-capf t))
-
-;; optionally
-(use-package lsp-ui
-  :straight t
-  :commands lsp-ui-mode
-  :config
-  (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-  (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
-
+  (add-to-list 'eglot-server-programs '(haskell-mode . ("ghcide" "--lsp"))))
+  (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode)
+                                        . ("digestif")))
 #+END_SRC
 
 ** Magit
@@ -500,7 +473,7 @@ Access it with C-x g.
   :straight auctex
   :hook
   (LaTeX-mode . company-mode)
-  (LaTeX-mode . flycheck-mode)
+  (LaTeX-mode . eglot-ensure)
   :config
   (setq TeX-auto-save t)
   (setq TeX-engine 'luatex)
@@ -549,9 +522,11 @@ Access it with C-x g.
 ** Themes
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
-(use-package doom-themes :straight t)
+(use-package noctilux-theme :straight t)
+(use-package gotham-theme :straight t)
+(use-package gruber-darker-theme :straight t)
 (use-package srcery-theme :straight t)
-(load-theme 'srcery t)
+(load-theme 'gotham t)
 #+END_SRC
 
 ** Esup
@@ -560,6 +535,11 @@ Esup is a startup profiler. M-x esup calculates which packages delay startup
 (use-package esup :straight t)
 #+END_SRC
 
+** Utop
+#+BEGIN_SRC emacs-lisp
+(use-package utop
+  :straight t)
+#+END_SRC
 ** Aggressive-indent-mode
 #+BEGIN_SRC emacs-lisp
 (use-package aggressive-indent :straight t)
@@ -575,7 +555,6 @@ Esup is a startup profiler. M-x esup calculates which packages delay startup
   (use-package haskell-mode
     :straight t
     :bind (:map haskell-mode-map
-          ("<f8>"    . haskell-navigate-imports)
           ("C-c C-c" . haskell-compile)
           ("C-c C-l" . haskell-process-load-or-reload)
           ("C-`"     . haskell-interactive-bring)
@@ -594,49 +573,10 @@ Esup is a startup profiler. M-x esup calculates which packages delay startup
     ((haskell-mode . haskell-indentation-mode)
      (haskell-mode . interactive-haskell-mode)
      (haskell-mode . company-mode)
+     (haskell-mode . flycheck-mode)
      (haskell-mode . hindent-mode)))
-     ;; (haskell-mode .
-     ;;     (lambda ()
-     ;;       (set (make-local-variable 'company-backends)
-     ;;            (append '((company-capf company-dabbrev-code))
-     ;;                    company-backends))
-     ;;       (setq flymake-no-changes-timeout nil)
-     ;;       (setq flymake-start-syntax-check-on-newline nil)
-     ;;       (setq flycheck-check-syntax-automatically '(save mode-enabled))))))
 #+END_SRC
 
-** Merlin
-#+BEGIN_SRC emacs-lisp
-(use-package merlin
-  :straight t
-  :config
-  (let ((opam-share (ignore-errors (car (process-lines "opam" "config" "var" "share")))))
-    (when (and opam-share (file-directory-p opam-share))
-      ;; Register Merlin
-      (add-to-list 'load-path (expand-file-name "emacs/site-lisp" opam-share))
-      (autoload 'merlin-mode "merlin" nil t nil)
-      ;; Automatically start it in OCaml buffers
-      (add-hook 'tuareg-mode-hook 'merlin-mode t)
-      (add-hook 'caml-mode-hook 'merlin-mode t)
-      ;; Use opam switch to lookup ocamlmerlin binary
-      (setq merlin-command 'opam)))
-  (setq merlin-use-auto-complete-mode t)
-  (setq merlin-error-after-save nil))
-#+END_SRC
-
-** Tuareg
-#+BEGIN_SRC emacs-lisp
-(use-package tuareg
-  :straight t
-  :hook
-  (tuareg-mode . merlin-mode))
-#+END_SRC
-
-** Utop
-#+BEGIN_SRC emacs-lisp
-(use-package utop
-  :straight t)
-#+END_SRC
 ** Hindent
 #+BEGIN_SRC emacs-lisp
 (use-package hindent :straight t)
@@ -647,6 +587,12 @@ Esup is a startup profiler. M-x esup calculates which packages delay startup
 (use-package yaml-mode :straight t)
 #+END_SRC
 
+** Rust-mode
+#+BEGIN_SRC emacs-lisp
+(use-package rust-mode
+  :straight t)
+#+END_SRC
+
 ** C-mode
 Tab = 4 spaces, bsd indentation style
 #+BEGIN_SRC emacs-lisp
@@ -655,9 +601,8 @@ Tab = 4 spaces, bsd indentation style
   (setq-default c-basic-offset 4)
   (setq-default c-default-style "bsd")
   :hook
-  (c-mode . flycheck-mode)
   (c-mode . company-mode)
-  (c-mode . lsp))
+  (c-mode . eglot-ensure))
 #+END_SRC
 
 ** Js-mode
@@ -691,30 +636,11 @@ Tab = 4 spaces, bsd indentation style
 #+END_SRC
 
 ** Modeline
-Enable doom-modeline
 #+BEGIN_SRC emacs-lisp
-(use-package moody
+(use-package telephone-line
   :straight t
   :config
-  (setq x-underline-at-descent-line t)
-  (moody-replace-mode-line-buffer-identification)
-  (moody-replace-vc-mode)
-  (column-number-mode t)
-  (display-time-mode 1)
-  (let ((line (face-attribute 'mode-line :underline)))
-    (set-face-attribute 'mode-line          nil :overline   line)
-    (set-face-attribute 'mode-line-inactive nil :overline   line)
-    (set-face-attribute 'mode-line-inactive nil :underline  line)
-    (set-face-attribute 'mode-line          nil :box        nil)
-    (set-face-attribute 'mode-line-inactive nil :box        nil)
-    (set-face-attribute 'mode-line-inactive nil :background "#282828")))
-
-(use-package minions
-  :straight t
-  :config (minions-mode 1))
-
-
-
+  (telephone-line-mode t))
 #+END_SRC
 
 * My functions
@@ -742,4 +668,3 @@ Toggle opacity
                100)
                '(87 . 87) '(100 . 100)))))
 #+END_SRC
-
