@@ -64,13 +64,13 @@ When emacs requires a yes/no answer make it one character.
 
 ** Visual lines
 #+BEGIN_SRC emacs-lisp
-;; (global-visual-line-mode t)
+(global-visual-line-mode t)
 #+END_SRC
 ** Font
 The font used.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Fira Code 11" ))
-(set-face-attribute 'default nil :family "Fira Code" :height 110 :weight 'normal)
+(set-face-attribute 'default nil :family "Jetbrains Mono" :height 108 :weight 'normal)
+(add-to-list 'default-frame-alist '(font . "Jetbrains Mono 11" ))
 #+END_SRC
 
 ** Disabled Commands
@@ -96,7 +96,7 @@ navigation with ~M-a~ and ~M-e~.
   ("C-c t a" . ansi-term)
   :hook (eshell-mode . 
     (lambda ()
-      (bind-key "C-l" (lambda () (interactive) (eshell/clear 1)) eshell-mode-map)
+      (eshell/alias "c" "clear 1")
       (eshell/alias "f" "find-file $1")
       (eshell/alias "fo" "find-file-other-window $1")
       (eshell/alias "d" "dired $1")
@@ -148,10 +148,9 @@ Guess resulting directory on dired operations
    #+END_SRC
 
 ** Org-mode
- #+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package org
-  ;; :straight (:type built-in)
-  :straight t
+  :straight (:type built-in)
   :config
   (setq org-agenda-files '("~/.emacs.d/notes/schedule.org"))
   (setq org-src-window-setup 'current-window)
@@ -163,7 +162,7 @@ Guess resulting directory on dired operations
   ("C-c o a" . org-agenda)
   ("C-c c"   . org-capture)
   ("C-c o l" . org-store-link))
- #+END_SRC
+#+END_SRC
 
 ** Electric
    Enable electric pair and indent mode.
@@ -238,6 +237,7 @@ Guess resulting directory on dired operations
   ("C-M-<down>"  . shrink-window)               
   ("C-M-<up>"    . enlarge-window)
   ("M-o"         . other-window)
+  ("M-S-d"       . delete-pair)
   ("C-<tab>"     . indent-relative)
   ("<f5>"        . compile)
   ("<C-f9>"      . set-frame-font)
@@ -252,23 +252,37 @@ Guess resulting directory on dired operations
 #+END_SRC
 
 * Other Package Settings
-** Org-roam
+** Avy
 #+BEGIN_SRC emacs-lisp
-(use-package org-roam
-  :straight (:host github :repo "jethrokuan/org-roam" :branch "master")
-  :hook 
-  ((after-init . org-roam-mode)
-  (org-roam-backlinks-mode . visual-line-mode))
-  :custom
-  (org-roam-directory (expand-file-name "~/Notes/"))
-  :bind (:map org-roam-mode-map
-     (("C-c n l" . org-roam)
-      ("C-c n f" . org-roam-find-file)
-      ("C-c n t" . org-roam-today)
-      ("C-c n b" . org-roam-switch-to-buffer)
-      ("C-c n g" . org-roam-show-graph))
-     :map org-mode-map
-     (("C-c n i" . org-roam-insert))))
+(use-package avy
+  :straight t
+  :bind ("C-;" . avy-goto-char))
+#+END_SRC
+** Deft
+#+BEGIN_SRC emacs-lisp
+(use-package deft
+  :straight t
+  :init
+  (setq deft-directory "~/notes"
+        deft-extensions '("org")
+        deft-use-filename-as-title t
+        deft-recursive t
+        deft-new-file-format "%Y-%m-%dT%H%M"))
+#+END_SRC
+** Zetteldeft
+#+BEGIN_SRC emacs-lisp
+(use-package zetteldeft
+  :straight t 
+  :after deft
+  :bind (("C-c n f" . zetteldeft-find-file)
+         ("C-c n n" . zetteldeft-new-file)
+         ("C-c n N" . zetteldeft-new-file-and-link)
+         ("C-c n i" . zetteldeft-find-file-id-insert)
+         ("C-c n l" . zetteldeft-follow-link)
+         ("C-c n a l" . zetteldeft-avy-link-search)
+         ("C-c n a t" . zetteldeft-avy-tag-search)
+         ("C-c n s" . zetteldeft-search-at-point)
+         ("C-c n c" . zetteldeft-search-current-id)))
 #+END_SRC
 
 ** Ivy, Counsel, Swiper
@@ -369,31 +383,6 @@ Load flycheck
   (ivy-set-display-transformer 'ivy-switch-buffer 'all-the-icons-ivy-buffer-transformer))
 #+END_SRC
 
-** Impatient-mode
-#+BEGIN_SRC emacs-lisp
-(use-package impatient-mode
-  :straight t)
-
-(defun markdown-html (buffer)
-  (princ (with-current-buffer buffer
-           (format "<!DOCTYPE html><html><script src=\"https://cdnjs.cloudflare.com/ajax/libs/he/1.1.1/he.js\"></script><link rel=\"stylesheet\" href=\"https://assets-cdn.github.com/assets/github-e6bb18b320358b77abe040d2eb46b547.css\"><link rel=\"stylesheet\" href=\"https://assets-cdn.github.com/assets/frameworks-95aff0b550d3fe338b645a4deebdcb1b.css\"><title>Impatient Markdown</title><div id=\"markdown-content\" style=\"display:none\">%s</div><div class=\"markdown-body\" style=\"max-width:968px;margin:0 auto;\"></div><script>fetch('https://api.github.com/markdown', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ \"text\": document.getElementById('markdown-content').innerHTML, \"mode\": \"gfm\", \"context\": \"knit-pk/homepage-nuxtjs\"}) }).then(response => response.text()).then(response => {document.querySelector('.markdown-body').innerHTML = he.decode(response)}).then(() => { fetch(\"https://gist.githubusercontent.com/FieryCod/b6938b29531b6ec72de25c76fa978b2c/raw/\").then(response => response.text()).then(eval)});</script></html>"
-                   (buffer-substring-no-properties (point-min) (point-max))))
-         (current-buffer)))
-
-(defun markdown-preview-like-god ()
-  (interactive)
-  (impatient-mode 1)
-  (setq imp-user-filter #'markdown-html)
-  (cl-incf imp-last-state)
-  (imp--notify-clients))
-#+END_SRC
-
-** Simple-mpc
-#+BEGIN_SRC emacs-lisp
-(use-package simple-mpc
-  :straight t)
-#+END_SRC
-
 ** Company
    Enable company with various settings
 #+BEGIN_SRC emacs-lisp
@@ -427,9 +416,10 @@ Load flycheck
 (use-package eglot
   :straight t
   :config
-  (add-to-list 'eglot-server-programs '(haskell-mode . ("ghcide" "--lsp"))))
+  (add-to-list 'eglot-server-programs '(haskell-mode . ("ghcide" "--lsp")))
+  (add-to-list 'eglot-server-programs '(nim-mode     . ("nimlsp" "")))
   (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode)
-                                        . ("digestif")))
+                                        . ("digestif"))))
 #+END_SRC
 
 ** Magit
@@ -456,7 +446,7 @@ Access it with C-x g.
 #+BEGIN_SRC emacs-lisp
 (use-package iedit
   :straight t
-    :bind ("C-;" . iedit-mode))
+    :bind ("C-c i" . iedit-mode))
 #+END_SRC
 
 ** Org Bullets
@@ -489,14 +479,6 @@ Access it with C-x g.
   :bind ("<f6>" . quickrun-shell))
 #+END_SRC
 
-** Ace Jump Mode
-#+BEGIN_SRC emacs-lisp
-  (use-package ace-jump-mode
-    :straight t
-    :bind
-    ("C-c SPC" . ace-jump-mode))
-#+END_SRC
-
 ** Emmet
    Offers snippets for html and css
 #+BEGIN_SRC emacs-lisp
@@ -522,24 +504,11 @@ Access it with C-x g.
 ** Themes
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
-(use-package noctilux-theme :straight t)
-(use-package gotham-theme :straight t)
 (use-package gruber-darker-theme :straight t)
-(use-package srcery-theme :straight t)
-(load-theme 'gotham t)
+(use-package base16-theme :straight t)
+(load-theme 'base16-default-dark t)
 #+END_SRC
 
-** Esup
-Esup is a startup profiler. M-x esup calculates which packages delay startup
-#+BEGIN_SRC emacs-lisp
-(use-package esup :straight t)
-#+END_SRC
-
-** Utop
-#+BEGIN_SRC emacs-lisp
-(use-package utop
-  :straight t)
-#+END_SRC
 ** Aggressive-indent-mode
 #+BEGIN_SRC emacs-lisp
 (use-package aggressive-indent :straight t)
@@ -587,6 +556,13 @@ Esup is a startup profiler. M-x esup calculates which packages delay startup
 (use-package yaml-mode :straight t)
 #+END_SRC
 
+** Nim-mode
+#+BEGIN_SRC emacs-lisp
+(use-package nim-mode
+  :straight t
+  :hook
+  (nim-mode . company-mode))
+#+END_SRC
 ** Rust-mode
 #+BEGIN_SRC emacs-lisp
 (use-package rust-mode
