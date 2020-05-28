@@ -3,7 +3,32 @@
 #+STARTUP: overview
 #+OPTIONS: num:nil
 
+* Package Init
+** Archives
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(package-initialize)
+
+(when (not package-archive-contents)
+    (ignore-errors (package-refresh-contents)))
+#+END_SRC
+
+** Use-package
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+(eval-when-compile (require 'use-package))
+#+END_SRC
+
 * Core Settings
+** Font
+The font used.
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'default-frame-alist '(font . "Cascadia Mono 10" ))
+(set-face-attribute 'default nil :family "Cascadia Mono" :height 100 :weight 'normal)
+#+END_SRC
+
 ** Starting Directory
 Configure emacs to start in the home directory.
 #+BEGIN_SRC emacs-lisp
@@ -17,6 +42,11 @@ Smooth scrolling.
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-follow-mouse 't)
 (setq scroll-step 1)
+#+END_SRC
+
+** Column numbers
+#+BEGIN_SRC emacs-lisp
+(setq column-number-mode t)
 #+END_SRC
 
 ** Splash Screen
@@ -66,13 +96,6 @@ When emacs requires a yes/no answer make it one character.
 #+BEGIN_SRC emacs-lisp
 (global-visual-line-mode t)
 #+END_SRC
-** Font
-The font used.
-#+BEGIN_SRC emacs-lisp
-(set-face-attribute 'default nil :family "Jetbrains Mono" :height 108 :weight 'normal)
-(add-to-list 'default-frame-alist '(font . "Jetbrains Mono 11" ))
-#+END_SRC
-
 ** Disabled Commands
 Enable all disabled commands.
 #+BEGIN_SRC emacs-lisp
@@ -90,11 +113,7 @@ navigation with ~M-a~ and ~M-e~.
 ** Eshell
 #+BEGIN_SRC emacs-lisp
 (use-package eshell
-  :straight nil
-  :bind 
-  ("C-c t e" . eshell)
-  ("C-c t a" . ansi-term)
-  :hook (eshell-mode . 
+  :hook (eshell-mode .
     (lambda ()
       (eshell/alias "c" "clear 1")
       (eshell/alias "f" "find-file $1")
@@ -107,14 +126,12 @@ navigation with ~M-a~ and ~M-e~.
 ** Re-builder
 #+BEGIN_SRC emacs-lisp
 (use-package re-builder
-  :straight nil
   :config
   (setq reb-re-syntax 'string))
 #+END_SRC
 ** Flymake
 #+BEGIN_SRC emacs-lisp
 (use-package flymake
-  :straight t
   :config
   (setq flymake-no-changes-timeout nil)
   (setq flymake-start-syntax-check-on-newline nil))
@@ -129,7 +146,6 @@ Guess resulting directory on dired operations
    Easily undo and redo window changes.
    #+BEGIN_SRC emacs-lisp
 (use-package winner
-  :straight nil
   :demand
   :config
   (winner-mode 1)
@@ -138,19 +154,9 @@ Guess resulting directory on dired operations
   ("C-c w r" . winner-redo))
    #+END_SRC
 
-** Superword mode
-   Enable subword mode on certain major modes (treat CamelCase as multiple words).
-   #+BEGIN_SRC emacs-lisp
-(use-package subword
-  :straight nil
-  :hook((haskell-mode . subword-mode)
-        (js-mode      . subword-mode)))
-   #+END_SRC
-
 ** Org-mode
 #+BEGIN_SRC emacs-lisp
 (use-package org
-  :straight (:type built-in)
   :config
   (setq org-agenda-files '("~/.emacs.d/notes/schedule.org"))
   (setq org-src-window-setup 'current-window)
@@ -169,7 +175,6 @@ Guess resulting directory on dired operations
    A newline between adjacent parentheses opens an extra one.
    #+BEGIN_SRC emacs-lisp
 (use-package electric
-  :straight nil
   :config
   (electric-pair-mode 1)
   (electric-indent-mode 1)
@@ -180,7 +185,6 @@ Guess resulting directory on dired operations
    Make isearch search for regexes by default.
    #+BEGIN_SRC emacs-lisp
 (use-package isearch
-  :straight nil
   :bind
   ("C-s" . isearch-forward-regexp))
    #+END_SRC
@@ -189,7 +193,6 @@ Guess resulting directory on dired operations
    Highlight matching parentheses.
    #+BEGIN_SRC emacs-lisp
 (use-package paren
-  :straight nil
   :config
   (setq show-paren-style 'parenthesis)
   (setq show-paren-when-point-in-periphery t)
@@ -200,11 +203,10 @@ Guess resulting directory on dired operations
 ** Hippie-expand
 #+BEGIN_SRC emacs-lisp
 (use-package hippie-exp
-  :straight nil
   :bind
   ("M-/" . hippie-expand)
   :config
-  (setq hippie-expand-try-functions-list '(try-complete-file-name-partially 
+  (setq hippie-expand-try-functions-list '(try-complete-file-name-partially
                                            try-complete-file-name
                                            try-expand-dabbrev
                                            try-expand-dabbrev-all-buffers
@@ -219,25 +221,21 @@ Guess resulting directory on dired operations
 ** Misc
 #+BEGIN_SRC emacs-lisp
 (use-package view
-  :straight nil
   :bind ("C-v" . View-scroll-half-page-forward)
         ("M-v" . View-scroll-half-page-backward))
 
 (use-package align
-  :straight nil
   :bind ("C-c e a a" . align)
         ("C-c e a r" . align-regexp)
-        ("C-c e a s" . align-current))        
+        ("C-c e a s" . align-current))
 
 (use-package emacs
-  :straight nil
   :bind
-  ("C-M-<left>"  . shrink-window-horizontally)  
+  ("C-M-<left>"  . shrink-window-horizontally)
   ("C-M-<right>" . enlarge-window-horizontally)
-  ("C-M-<down>"  . shrink-window)               
+  ("C-M-<down>"  . shrink-window)
   ("C-M-<up>"    . enlarge-window)
   ("M-o"         . other-window)
-  ("M-S-d"       . delete-pair)
   ("C-<tab>"     . indent-relative)
   ("<f5>"        . compile)
   ("<C-f9>"      . set-frame-font)
@@ -255,13 +253,13 @@ Guess resulting directory on dired operations
 ** Avy
 #+BEGIN_SRC emacs-lisp
 (use-package avy
-  :straight t
+  :ensure t
   :bind ("C-;" . avy-goto-char))
 #+END_SRC
 ** Deft
 #+BEGIN_SRC emacs-lisp
 (use-package deft
-  :straight t
+  :ensure t
   :init
   (setq deft-directory "~/notes"
         deft-extensions '("org")
@@ -272,7 +270,7 @@ Guess resulting directory on dired operations
 ** Zetteldeft
 #+BEGIN_SRC emacs-lisp
 (use-package zetteldeft
-  :straight t 
+  :ensure t
   :after deft
   :bind (("C-c n f" . zetteldeft-find-file)
          ("C-c n n" . zetteldeft-new-file)
@@ -290,7 +288,7 @@ Enable ivy globally (replacement for ido).
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
   :diminish ivy-mode
-  :straight t
+  :ensure t
   :bind (("C-c C-r" . ivy-resume))
   :config
     (ivy-mode t)
@@ -304,7 +302,7 @@ Enable ivy globally (replacement for ido).
    Enable swiper (enhanced isearch for ivy) and assign C-s to search
 #+BEGIN_SRC emacs-lisp
 (use-package swiper
-  :straight t
+  :ensure t
   :bind (("C-M-s" . swiper))
 )
 #+END_SRC
@@ -313,7 +311,7 @@ Enable ivy globally (replacement for ido).
    Bind some keys to common commands
 #+BEGIN_SRC emacs-lisp
 (use-package counsel
-  :straight t
+  :ensure t
   :config
   (counsel-mode t)
   :bind (("C-x C-f" . counsel-find-file)
@@ -333,7 +331,7 @@ Enable ivy globally (replacement for ido).
 Replacement for smex with good recents support and counsel integration
 #+BEGIN_SRC emacs-lisp
 (use-package amx
-  :straight t
+  :ensure t
   :config
   (setq amx-backend 'auto)
   (setq amx-save-file "~/.emacs.d/amx-items")
@@ -345,7 +343,7 @@ Replacement for smex with good recents support and counsel integration
 Load flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :straight t
+  :ensure t
   :config
   (setq flycheck-check-syntax-automatically '(save mode-enabled)))
 #+END_SRC
@@ -353,7 +351,7 @@ Load flycheck
 ** Yasnippet
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
-  :straight t
+  :ensure t
   :diminish yas-minor-mode
   :config
   ;; (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
@@ -366,13 +364,13 @@ Load flycheck
 ** All-the-icons
 #+BEGIN_SRC emacs-lisp
 (use-package all-the-icons-dired
-  :straight t
+  :ensure t
   :hook
   (dired-mode . all-the-icons-dired-mode))
 
 (use-package all-the-icons-ivy
-  :straight t
-  :config 
+  :ensure t
+  :config
   (setq all-the-icons-ivy-file-commands
     '(counsel-find-file
       counsel-file-jump
@@ -387,7 +385,7 @@ Load flycheck
    Enable company with various settings
 #+BEGIN_SRC emacs-lisp
 (use-package company
-  :straight t
+  :ensure t
   :diminish
   :config
    (setq company-idle-delay 0.3)
@@ -402,7 +400,7 @@ Load flycheck
 ** Projectile
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
-  :straight t
+  :ensure t
   :config
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'etags-select)
@@ -414,10 +412,10 @@ Load flycheck
 ** Eglot
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
-  :straight t
+  :ensure t
   :config
   (add-to-list 'eglot-server-programs '(haskell-mode . ("ghcide" "--lsp")))
-  (add-to-list 'eglot-server-programs '(nim-mode     . ("nimlsp" "")))
+  (add-to-list 'eglot-server-programs '(nim-mode     . ("nimlsp")))
   (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode)
                                         . ("digestif"))))
 #+END_SRC
@@ -428,7 +426,7 @@ We also install magit-annex for git-annex compatibility.
 Access it with C-x g.
 #+BEGIN_SRC emacs-lisp
 (use-package magit
-  :straight t
+  :ensure t
   :bind ("C-x g". magit-status))
 #+END_SRC
 
@@ -436,7 +434,7 @@ Access it with C-x g.
    Which-key is a keybinding preview utility to show all subsequent keys when waiting for commands.
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
-  :straight t
+  :ensure t
   :diminish which-key-mode
   :config
     (which-key-mode t))
@@ -445,14 +443,14 @@ Access it with C-x g.
 ** Iedit
 #+BEGIN_SRC emacs-lisp
 (use-package iedit
-  :straight t
+  :ensure t
     :bind ("C-c i" . iedit-mode))
 #+END_SRC
 
 ** Org Bullets
 #+BEGIN_SRC emacs-lisp
 (use-package org-bullets
-  :straight t
+  :ensure t
   :hook (org-mode . org-bullets-mode))
 #+END_SRC
 
@@ -460,10 +458,10 @@ Access it with C-x g.
 #+BEGIN_SRC emacs-lisp
 (use-package tex
   :defer t
-  :straight auctex
+  :ensure auctex
   :hook
-  (LaTeX-mode . company-mode)
   (LaTeX-mode . eglot-ensure)
+  (LaTeX-mode . company-mode)
   :config
   (setq TeX-auto-save t)
   (setq TeX-engine 'luatex)
@@ -475,7 +473,7 @@ Access it with C-x g.
    F6 runs a program in eshell
 #+BEGIN_SRC emacs-lisp
 (use-package quickrun
-  :straight t
+  :ensure t
   :bind ("<f6>" . quickrun-shell))
 #+END_SRC
 
@@ -483,46 +481,192 @@ Access it with C-x g.
    Offers snippets for html and css
 #+BEGIN_SRC emacs-lisp
 (use-package emmet-mode
-  :straight t
+  :ensure t
   :hook ((sgml-mode . emmet-mode)
          (css-mode . emmet-mode)))
 #+END_SRC
 
 ** Neotree
 #+BEGIN_SRC emacs-lisp
-(use-package neotree
-  :straight t
-  :bind
-  ("<f8>" . neotree-toggle)
+(use-package treemacs
+  :ensure t
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
   :config
-  (setq neo-theme (if (display-graphic-p) 'icons 'arrow)
-        neo-smart-open t
-        neo-auto-indent-point t
-        neo-autorefresh t))
+  (progn
+    (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
+          treemacs-deferred-git-apply-delay      0.5
+          treemacs-directory-name-transformer    #'identity
+          treemacs-display-in-side-window        t
+          treemacs-eldoc-display                 t
+          treemacs-file-event-delay              5000
+          treemacs-file-extension-regex          treemacs-last-period-regex-value
+          treemacs-file-follow-delay             0.2
+          treemacs-file-name-transformer         #'identity
+          treemacs-follow-after-init             t
+          treemacs-git-command-pipe              ""
+          treemacs-goto-tag-strategy             'refetch-index
+          treemacs-indentation                   2
+          treemacs-indentation-string            " "
+          treemacs-is-never-other-window         t
+          treemacs-max-git-entries               5000
+          treemacs-missing-project-action        'ask
+          treemacs-move-forward-on-expand        nil
+          treemacs-no-png-images                 nil
+          treemacs-no-delete-other-windows       t
+          treemacs-project-follow-cleanup        nil
+          treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                      'left
+          treemacs-recenter-distance             0.1
+          treemacs-recenter-after-file-follow    nil
+          treemacs-recenter-after-tag-follow     nil
+          treemacs-recenter-after-project-jump   'always
+          treemacs-recenter-after-project-expand 'on-distance
+          treemacs-show-cursor                   nil
+          treemacs-show-hidden-files             t
+          treemacs-silent-filewatch              nil
+          treemacs-silent-refresh                nil
+          treemacs-sorting                       'alphabetic-asc
+          treemacs-space-between-root-nodes      t
+          treemacs-tag-follow-cleanup            t
+          treemacs-tag-follow-delay              1.5
+          treemacs-user-mode-line-format         nil
+          treemacs-width                         35)
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;;(treemacs-resize-icons 44)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode t)
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null treemacs-python-executable)))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple))))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t)
+
+(use-package treemacs-icons-dired
+  :after treemacs dired
+  :ensure t
+  :config (treemacs-icons-dired-mode))
+
+(use-package treemacs-magit
+  :after treemacs magit
+  :ensure t)
 #+END_SRC
 
-** Themes
-Install the themes and set the default one
+** Paredit
 #+BEGIN_SRC emacs-lisp
-(use-package gruber-darker-theme :straight t)
-(use-package base16-theme :straight t)
-(load-theme 'base16-default-dark t)
+(use-package paredit
+  :ensure t)
 #+END_SRC
 
 ** Aggressive-indent-mode
 #+BEGIN_SRC emacs-lisp
-(use-package aggressive-indent :straight t)
+(use-package aggressive-indent
+  :ensure t
+  :hook
+  (html-mode . aggressive-indent-mode)
+  (css-mode  . aggressive-indent-mode)
+  (clojure-mode . aggressive-indent-mode))
 #+END_SRC
 
 ** Htmlize
 #+BEGIN_SRC emacs-lisp
-(use-package htmlize :straight t)
+(use-package htmlize :ensure t)
+#+END_SRC
+
+** Hindent
+#+BEGIN_SRC emacs-lisp
+(use-package hindent :ensure t)
+#+END_SRC
+
+** Doom-Modeline
+#+BEGIN_SRC emacs-lisp
+(use-package doom-modeline
+  :ensure t
+  :config
+  (doom-modeline-mode)
+  (setq doom-modeline-icon t))
+#+END_SRC
+
+** Rainbow delimiters
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-delimiters
+  :ensure t)
+#+END_SRC
+** Cider
+#+BEGIN_SRC emacs-lisp
+(use-package cider
+  :ensure t
+  :bind (:map cider-repl-mode-map
+              ("C-c C-k" . cider-repl-clear-buffer)))
+#+END_SRC
+
+** Clojure-mode
+#+BEGIN_SRC emacs-lisp
+(use-package clojure-mode
+  :ensure t
+  :hook
+  (clojure-mode . company-mode)
+  (clojure-mode . rainbow-delimiters-mode)
+  (clojure-mode . paredit-mode))
+#+END_SRC
+
+** YAML-mode
+#+BEGIN_SRC emacs-lisp
+(use-package yaml-mode :ensure t)
+#+END_SRC
+
+** Nim-mode
+#+BEGIN_SRC emacs-lisp
+(use-package nim-mode
+  :hook
+  (nim-mode . eglot-ensure)
+  (nim-mode . company-mode)
+  :ensure t)
+#+END_SRC
+
+** C-mode
+Tab = 4 spaces, bsd indentation style
+#+BEGIN_SRC emacs-lisp
+(use-package cc-mode
+  :hook
+  (c-mode . eglot-ensure)
+  (c-mode . company-mode)
+  :config
+  (setq-default c-basic-offset 4)
+  (setq-default c-default-style "bsd"))
+#+END_SRC
+
+** Js-mode
+#+BEGIN_SRC emacs-lisp
+(use-package js
+  :hook
+  (js-mode . flycheck-mode)
+  (js-mode . company-mode)
+  (js-mode . subword-mode))
 #+END_SRC
 
 ** Haskell-mode
 #+BEGIN_SRC emacs-lisp
   (use-package haskell-mode
-    :straight t
+    :ensure t
     :bind (:map haskell-mode-map
           ("C-c C-c" . haskell-compile)
           ("C-c C-l" . haskell-process-load-or-reload)
@@ -543,80 +687,25 @@ Install the themes and set the default one
      (haskell-mode . interactive-haskell-mode)
      (haskell-mode . company-mode)
      (haskell-mode . flycheck-mode)
-     (haskell-mode . hindent-mode)))
-#+END_SRC
-
-** Hindent
-#+BEGIN_SRC emacs-lisp
-(use-package hindent :straight t)
-#+END_SRC
-
-** YAML-mode
-#+BEGIN_SRC emacs-lisp
-(use-package yaml-mode :straight t)
-#+END_SRC
-
-** Nim-mode
-#+BEGIN_SRC emacs-lisp
-(use-package nim-mode
-  :straight t
-  :hook
-  (nim-mode . company-mode))
-#+END_SRC
-** Rust-mode
-#+BEGIN_SRC emacs-lisp
-(use-package rust-mode
-  :straight t)
-#+END_SRC
-
-** C-mode
-Tab = 4 spaces, bsd indentation style
-#+BEGIN_SRC emacs-lisp
-(use-package cc-mode
-  :config
-  (setq-default c-basic-offset 4)
-  (setq-default c-default-style "bsd")
-  :hook
-  (c-mode . company-mode)
-  (c-mode . eglot-ensure))
-#+END_SRC
-
-** Js-mode
-#+BEGIN_SRC emacs-lisp
-(use-package js
-  :hook
-  (js-mode . company-mode)
-  (js-mode . flycheck-mode))
-#+END_SRC
-
-** HTML-mode
-#+BEGIN_SRC emacs-lisp
-(use-package html-mode
-  :straight nil
-  :hook
-  (html-mode . aggressive-indent-mode))
-#+END_SRC
-
-** Fish-mode
-#+BEGIN_SRC emacs-lisp
-(use-package fish-mode :straight t)
+     (haskell-mode . hindent-mode)
+     (haskell-mode . subword-mode)))
 #+END_SRC
 
 ** CSS-mode
 #+BEGIN_SRC emacs-lisp
 (use-package css-mode
-  :straight t
+  :ensure t
   :hook
-  (css-mode . aggressive-indent-mode)
   (css-mode . company-mode))
 #+END_SRC
 
-** Modeline
+** Themes
+Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
-(use-package telephone-line
-  :straight t
-  :config
-  (telephone-line-mode t))
+(use-package solarized-theme :ensure t)
+(use-package challenger-deep-theme :ensure t)
+(use-package ujelly-theme :ensure t)
+(load-theme 'challenger-deep t)
 #+END_SRC
 
 * My functions
@@ -628,19 +717,4 @@ Tab = 4 spaces, bsd indentation style
   (delete-trailing-whitespace)
   (indent-region (point-min) (point-max) nil)
   (untabify (point-min) (point-max)))
-#+END_SRC
-
-Toggle opacity
-#+BEGIN_SRC emacs-lisp
- (defun toggle-transparency ()
-   (interactive)
-   (let ((alpha (frame-parameter nil 'alpha)))
-     (set-frame-parameter
-      nil 'alpha
-      (if (eql (cond ((numberp alpha) alpha)
-                     ((numberp (cdr alpha)) (cdr alpha))
-                     ;; Also handle undocumented (<active> <inactive>) form.
-                     ((numberp (cadr alpha)) (cadr alpha)))
-               100)
-               '(87 . 87) '(100 . 100)))))
 #+END_SRC
