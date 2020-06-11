@@ -109,6 +109,41 @@ navigation with ~M-a~ and ~M-e~.
 (setq sentence-end-double-space nil)
 #+END_SRC
 
+** Misc
+#+BEGIN_SRC emacs-lisp
+(use-package newcomment
+  :bind
+  ("C-x M-;" . comment-box))
+
+(use-package view
+  :bind ("C-v" . View-scroll-half-page-forward)
+        ("M-v" . View-scroll-half-page-backward))
+
+(use-package align
+  :bind ("C-c e a a" . align)
+        ("C-c e a r" . align-regexp)
+        ("C-c e a s" . align-current))
+
+(use-package emacs
+  :bind
+  ("C-M-<left>"  . shrink-window-horizontally)
+  ("C-M-<right>" . enlarge-window-horizontally)
+  ("C-M-<down>"  . shrink-window)
+  ("C-M-<up>"    . enlarge-window)
+  ("M-o"         . other-window)
+  ("C-<tab>"     . indent-relative)
+  ("<f5>"        . compile)
+  ("<C-f9>"      . set-frame-font)
+  ("C-x C-b"     . ibuffer)
+  ("<f7>"        . toggle-transparency)
+  ("M-j"         . (lambda () (interactive) (join-line -1)))
+  :config
+  (setq window-divider-default-right-width 1)
+  (setq window-divider-default-bottom-width 1)
+  (setq window-divider-default-places 'right-only)
+  :hook (after-init . window-divider-mode))
+#+END_SRC
+
 * Base Package Settings
 ** Eshell
 #+BEGIN_SRC emacs-lisp
@@ -206,47 +241,18 @@ Guess resulting directory on dired operations
   :bind
   ("M-/" . hippie-expand)
   :config
-  (setq hippie-expand-try-functions-list '(try-complete-file-name-partially
-                                           try-complete-file-name
+  (setq hippie-expand-try-functions-list '(try-expand-dabbrev-visible
                                            try-expand-dabbrev
                                            try-expand-dabbrev-all-buffers
-                                           try-expand-line
-                                           try-expand-list
+                                           try-expand-dabbrev-from-kill
+                                           try-complete-file-name-partially
+                                           try-complete-file-name
                                            try-expand-all-abbrevs
+                                           try-expand-list
+                                           try-expand-line
                                            try-expand-dabbrev-from-kill
                                            try-complete-lisp-symbol-partially
                                            try-complete-lisp-symbol)))
-#+END_SRC
-
-** Misc
-#+BEGIN_SRC emacs-lisp
-(use-package view
-  :bind ("C-v" . View-scroll-half-page-forward)
-        ("M-v" . View-scroll-half-page-backward))
-
-(use-package align
-  :bind ("C-c e a a" . align)
-        ("C-c e a r" . align-regexp)
-        ("C-c e a s" . align-current))
-
-(use-package emacs
-  :bind
-  ("C-M-<left>"  . shrink-window-horizontally)
-  ("C-M-<right>" . enlarge-window-horizontally)
-  ("C-M-<down>"  . shrink-window)
-  ("C-M-<up>"    . enlarge-window)
-  ("M-o"         . other-window)
-  ("C-<tab>"     . indent-relative)
-  ("<f5>"        . compile)
-  ("<C-f9>"      . set-frame-font)
-  ("C-x C-b"     . ibuffer)
-  ("<f7>"        . toggle-transparency)
-  ("M-j"         . (lambda () (interactive) (join-line -1)))
-  :config
-  (setq window-divider-default-right-width 1)
-  (setq window-divider-default-bottom-width 1)
-  (setq window-divider-default-places 'right-only)
-  :hook (after-init . window-divider-mode))
 #+END_SRC
 
 * Other Package Settings
@@ -323,8 +329,7 @@ Enable ivy globally (replacement for ido).
          ("C-c s l" . counsel-locate)
          ("C-x r i" . counsel-register)
          ("M-i"     . counsel-imenu)
-         ("<f9>"    . counsel-load-theme)
-         ("<f1> x"  . counsel-descbinds)))
+         ("<f9>"    . counsel-load-theme)))
 #+END_SRC
 
 ** AMX
