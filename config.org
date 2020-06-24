@@ -263,6 +263,7 @@ Guess resulting directory on dired operations
   :ensure t
   :bind ("C-;" . avy-goto-char))
 #+END_SRC
+
 ** Deft
 #+BEGIN_SRC emacs-lisp
 (use-package deft
@@ -274,6 +275,7 @@ Guess resulting directory on dired operations
         deft-recursive t
         deft-new-file-format "%Y-%m-%dT%H%M"))
 #+END_SRC
+
 ** Zetteldeft
 #+BEGIN_SRC emacs-lisp
 (use-package zetteldeft
@@ -616,6 +618,7 @@ Access it with C-x g.
 (use-package rainbow-delimiters
   :ensure t)
 #+END_SRC
+
 ** Cider
 #+BEGIN_SRC emacs-lisp
 (use-package cider
@@ -724,3 +727,4 @@ Install the themes and set the default one
   (indent-region (point-min) (point-max) nil)
   (untabify (point-min) (point-max)))
 #+END_SRC
+
