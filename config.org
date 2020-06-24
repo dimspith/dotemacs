@@ -133,6 +133,7 @@ navigation with ~M-a~ and ~M-e~.
   ("M-o"         . other-window)
   ("C-<tab>"     . indent-relative)
   ("<f5>"        . compile)
+  ("C-<f5>"      . recompile)
   ("<C-f9>"      . set-frame-font)
   ("C-x C-b"     . ibuffer)
   ("<f7>"        . toggle-transparency)
