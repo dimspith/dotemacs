@@ -311,9 +311,7 @@ Enable ivy globally (replacement for ido).
    Enable swiper (enhanced isearch for ivy) and assign C-s to search
 #+BEGIN_SRC emacs-lisp
 (use-package swiper
-  :ensure t
-  :bind (("C-M-s" . swiper))
-)
+  :ensure t)
 #+END_SRC
 
    Counsel is a collection of ivy enhanced base commands
@@ -323,16 +321,17 @@ Enable ivy globally (replacement for ido).
   :ensure t
   :config
   (counsel-mode t)
-  :bind (("C-x C-f" . counsel-find-file)
-         ("<f2> u"  . counsel-unicode-char)
+  :bind (("C-x C-f"   . counsel-find-file)
+         ("<f2> u"    . counsel-unicode-char)
+         ("C-s"       . counsel-grep-or-swiper)
          ("C-c s g f" . counsel-git)
-         ("C-c s d" . counsel-dired-jump)
+         ("C-c s d"   . counsel-dired-jump)
          ("C-c s g g" . counsel-git-grep)
-         ("C-c s f" . counsel-fzf)
-         ("C-c s l" . counsel-locate)
-         ("C-x r i" . counsel-register)
-         ("M-i"     . counsel-imenu)
-         ("<f9>"    . counsel-load-theme)))
+         ("C-c s f"   . counsel-fzf)
+         ("C-c s l"   . counsel-locate)
+         ("C-x r i"   . counsel-register)
+         ("M-i"       . counsel-imenu)
+         ("<f9>"      . counsel-load-theme)))
 #+END_SRC
 
 ** AMX
@@ -344,8 +343,10 @@ Replacement for smex with good recents support and counsel integration
   (setq amx-backend 'auto)
   (setq amx-save-file "~/.emacs.d/amx-items")
   (setq amx-history-length 50)
-  (amx-mode 1))
-#+END_SRC
+  (amx-mode 1)
+  :bind
+  ("M-x". amx))
+#+End_SRC
 
 ** Flycheck
 Load flycheck
@@ -713,7 +714,7 @@ Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
 (use-package solarized-theme :ensure t)
 (use-package kaolin-themes :ensure t)
-(load-theme 'kaolin-blossom t)
+(load-theme 'kaolin-valley-dark t)
 #+END_SRC
 
 * My functions
