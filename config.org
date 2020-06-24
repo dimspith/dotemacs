@@ -712,9 +712,8 @@ Tab = 4 spaces, bsd indentation style
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
 (use-package solarized-theme :ensure t)
-(use-package challenger-deep-theme :ensure t)
-(use-package ujelly-theme :ensure t)
-(load-theme 'challenger-deep t)
+(use-package kaolin-themes :ensure t)
+(load-theme 'kaolin-blossom t)
 #+END_SRC
 
 * My functions
