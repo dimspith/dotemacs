@@ -25,8 +25,8 @@
 ** Font
 The font used.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Cascadia Mono 10" ))
-(set-face-attribute 'default nil :family "Cascadia Mono" :height 100 :weight 'normal)
+(add-to-list 'default-frame-alist '(font . "Anonymous Pro 11" ))
+(set-face-attribute 'default nil :family "Anonymous Pro" :height 110 :weight 'normal)
 #+END_SRC
 
 ** Starting Directory
@@ -165,6 +165,7 @@ navigation with ~M-a~ and ~M-e~.
   :config
   (setq reb-re-syntax 'string))
 #+END_SRC
+
 ** Flymake
 #+BEGIN_SRC emacs-lisp
 (use-package flymake
@@ -172,6 +173,7 @@ navigation with ~M-a~ and ~M-e~.
   (setq flymake-no-changes-timeout nil)
   (setq flymake-start-syntax-check-on-newline nil))
 #+END_SRC
+
 ** Dired
 Guess resulting directory on dired operations
 #+BEGIN_SRC emacs-lisp
