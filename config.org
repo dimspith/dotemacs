@@ -25,8 +25,8 @@
 ** Font
 The font used.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Anonymous Pro 11" ))
-(set-face-attribute 'default nil :family "Anonymous Pro" :height 110 :weight 'normal)
+(add-to-list 'default-frame-alist '(font . "Iosevka Slab 11" ))
+(set-face-attribute 'default nil :family "Iosevka Slab" :height 110 :weight 'normal)
 #+END_SRC
 
 ** Starting Directory
@@ -96,6 +96,7 @@ When emacs requires a yes/no answer make it one character.
 #+BEGIN_SRC emacs-lisp
 (global-visual-line-mode t)
 #+END_SRC
+
 ** Disabled Commands
 Enable all disabled commands.
 #+BEGIN_SRC emacs-lisp
@@ -196,7 +197,8 @@ Guess resulting directory on dired operations
 #+BEGIN_SRC emacs-lisp
 (use-package org
   :config
-  (setq org-agenda-files '("~/.emacs.d/notes/schedule.org"))
+  (setq org-agenda-span 14)
+  (setq org-agenda-files (quote ("~/notes/schedule.org")))
   (setq org-src-window-setup 'current-window)
   (setq org-src-fontify-natively t)
   (setq org-src-preserve-indentation t)
@@ -336,6 +338,12 @@ Enable ivy globally (replacement for ido).
          ("<f9>"      . counsel-load-theme)))
 #+END_SRC
 
+** Ripgrep
+#+BEGIN_SRC emacs-lisp
+(use-package ripgrep
+  :ensure t)
+#+END_SRC
+
 ** AMX
 Replacement for smex with good recents support and counsel integration
 #+BEGIN_SRC emacs-lisp
@@ -399,7 +407,7 @@ Load flycheck
   :ensure t
   :diminish
   :config
-   (setq company-idle-delay 0.3)
+   (setq company-idle-delay 0.15)
    (setq company-minimum-prefix-length 1)
    (setq company-selection-wrap-around t)
    (setq company-tooltip-align-annotations t)
@@ -607,22 +615,14 @@ Access it with C-x g.
 (use-package hindent :ensure t)
 #+END_SRC
 
-** Doom-Modeline
-#+BEGIN_SRC emacs-lisp
-(use-package doom-modeline
-  :ensure t
-  :config
-  (doom-modeline-mode)
-  (setq doom-modeline-icon t))
-#+END_SRC
-
 ** Rainbow delimiters
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-delimiters
   :ensure t)
 #+END_SRC
 
-** Cider
+** CLOJURE-LANG
+*** Cider
 #+BEGIN_SRC emacs-lisp
 (use-package cider
   :ensure t
@@ -630,7 +630,7 @@ Access it with C-x g.
               ("C-c C-k" . cider-repl-clear-buffer)))
 #+END_SRC
 
-** Clojure-mode
+*** Clojure-mode
 #+BEGIN_SRC emacs-lisp
 (use-package clojure-mode
   :ensure t
@@ -640,12 +640,14 @@ Access it with C-x g.
   (clojure-mode . paredit-mode))
 #+END_SRC
 
-** YAML-mode
+** YAML-LANG
+*** YAML-mode
 #+BEGIN_SRC emacs-lisp
 (use-package yaml-mode :ensure t)
 #+END_SRC
 
-** Nim-mode
+** NIM-LANG
+*** Nim-mode
 #+BEGIN_SRC emacs-lisp
 (use-package nim-mode
   :hook
@@ -654,7 +656,8 @@ Access it with C-x g.
   :ensure t)
 #+END_SRC
 
-** C-mode
+** C-LANG
+*** C-mode
 Tab = 4 spaces, bsd indentation style
 #+BEGIN_SRC emacs-lisp
 (use-package cc-mode
@@ -666,7 +669,8 @@ Tab = 4 spaces, bsd indentation style
   (setq-default c-default-style "bsd"))
 #+END_SRC
 
-** Js-mode
+** JS-LANG
+*** Js-mode
 #+BEGIN_SRC emacs-lisp
 (use-package js
   :hook
@@ -675,7 +679,8 @@ Tab = 4 spaces, bsd indentation style
   (js-mode . subword-mode))
 #+END_SRC
 
-** Haskell-mode
+** HASKELL-LANG
+*** Haskell-mode
 #+BEGIN_SRC emacs-lisp
   (use-package haskell-mode
     :ensure t
@@ -703,7 +708,8 @@ Tab = 4 spaces, bsd indentation style
      (haskell-mode . subword-mode)))
 #+END_SRC
 
-** CSS-mode
+** CSS-LANG
+*** CSS-mode
 #+BEGIN_SRC emacs-lisp
 (use-package css-mode
   :ensure t
@@ -714,9 +720,19 @@ Tab = 4 spaces, bsd indentation style
 ** Themes
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
-(use-package solarized-theme :ensure t)
-(use-package kaolin-themes :ensure t)
-(load-theme 'kaolin-valley-dark t)
+(use-package ujelly-theme :ensure t)
+(use-package doom-themes :ensure t)
+(load-theme 'doom-tomorrow-night t)
+#+END_SRC
+
+** Smart-modeline
+#+BEGIN_SRC emacs-lisp
+(use-package smart-mode-line
+  :ensure t
+  :config
+  (setq sml/no-confirm-load-theme t)
+  (sml/setup)
+  (sml/apply-theme 'respectful))
 #+END_SRC
 
 * My functions
