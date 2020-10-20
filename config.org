@@ -201,6 +201,7 @@ Guess resulting directory on dired operations
   (setq org-agenda-files (quote ("~/notes/schedule.org")))
   (setq org-src-window-setup 'current-window)
   (setq org-src-fontify-natively t)
+  (setq org-list-allow-alphabetical t)
   (setq org-src-preserve-indentation t)
   (setq org-src-tab-acts-natively t)
   (setq org-edit-src-content-indentation 0)
@@ -323,11 +324,11 @@ Enable ivy globally (replacement for ido).
 #+BEGIN_SRC emacs-lisp
 (use-package counsel
   :ensure t
-  :config
-  (counsel-mode t)
+  ;; :config
+  ;; (counsel-mode t)
   :bind (("C-x C-f"   . counsel-find-file)
          ("<f2> u"    . counsel-unicode-char)
-         ("C-s"       . counsel-grep-or-swiper)
+         ("C-M-s"     . counsel-grep-or-swiper)
          ("C-c s g f" . counsel-git)
          ("C-c s d"   . counsel-dired-jump)
          ("C-c s g g" . counsel-git-grep)
@@ -407,7 +408,7 @@ Load flycheck
   :ensure t
   :diminish
   :config
-   (setq company-idle-delay 0.15)
+   (setq company-idle-delay 0.1)
    (setq company-minimum-prefix-length 1)
    (setq company-selection-wrap-around t)
    (setq company-tooltip-align-annotations t)
