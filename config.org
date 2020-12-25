@@ -25,8 +25,8 @@
 ** Font
 The font used.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Iosevka Slab 11" ))
-(set-face-attribute 'default nil :family "Iosevka Slab" :height 110 :weight 'normal)
+(add-to-list 'default-frame-alist '(font . "JuliaMono 10" ))
+(set-face-attribute 'default nil :family "JuliaMono" :height 100 :weight 'normal)
 #+END_SRC
 
 ** Starting Directory
@@ -444,11 +444,14 @@ Load flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
   :ensure t
+  :bind (:map rustic-mode-map
+              ("C-c l c" . eglot-code-actions))
   :config
   (add-to-list 'eglot-server-programs '(haskell-mode . ("ghcide" "--lsp")))
   (add-to-list 'eglot-server-programs '(nim-mode     . ("nimlsp")))
   (add-to-list 'eglot-server-programs '(c-mode       . ("clangd")))
   (add-to-list 'eglot-server-programs '(c++-mode     . ("clangd")))
+  (add-to-list 'eglot-server-programs '(rust-mode    . ("rust-analyzer")))
   (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode)
                                         . ("digestif"))))
 #+END_SRC
@@ -635,7 +638,21 @@ Access it with C-x g.
   :ensure t)
 #+END_SRC
 
-** CLOJURE-LANG
+** Rust-lang
+#+begin_src emacs-lisp
+(use-package rustic
+  :ensure t
+  :mode "\\.rs\\'"
+  :hook
+  (rustic-mode . (lambda () (flymake-mode -1)))
+  (rustic-mode . company-mode)
+  :config
+  (setq rustic-lsp-server 'rust-analyzer)
+  (setq rustic-lsp-client 'eglot)
+  (setq rustic-format-on-save nil))
+#+end_src
+
+** Clojure-lang
 *** Cider
 #+BEGIN_SRC emacs-lisp
 (use-package cider
@@ -654,13 +671,13 @@ Access it with C-x g.
   (clojure-mode . paredit-mode))
 #+END_SRC
 
-** YAML-LANG
+** Yaml-lang
 *** YAML-mode
 #+BEGIN_SRC emacs-lisp
 (use-package yaml-mode :ensure t)
 #+END_SRC
 
-** NIM-LANG
+** Nim-lang
 *** Nim-mode
 #+BEGIN_SRC emacs-lisp
 (use-package nim-mode
@@ -670,7 +687,7 @@ Access it with C-x g.
   :ensure t)
 #+END_SRC
 
-** C/C++-LANG
+** C/C++-lang
 *** C-mode
 Tab = 4 spaces, bsd indentation style
 #+BEGIN_SRC emacs-lisp
@@ -690,7 +707,7 @@ Tab = 4 spaces, bsd indentation style
   (c++-mode . company-mode))
 #+end_src
 
-** JS-LANG
+** Js-lang
 *** Js-mode
 #+BEGIN_SRC emacs-lisp
 (use-package js
@@ -700,7 +717,7 @@ Tab = 4 spaces, bsd indentation style
   (js-mode . subword-mode))
 #+END_SRC
 
-** HASKELL-LANG
+** Haskell-lang
 *** Haskell-mode
 #+BEGIN_SRC emacs-lisp
   (use-package haskell-mode
@@ -729,7 +746,7 @@ Tab = 4 spaces, bsd indentation style
      (haskell-mode . subword-mode)))
 #+END_SRC
 
-** CSS-LANG
+** Css-lang
 *** CSS-mode
 #+BEGIN_SRC emacs-lisp
 (use-package css-mode
