@@ -385,12 +385,17 @@ Load flycheck
   :ensure t
   :diminish yas-minor-mode
   :config
-  ;; (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-global-mode)
   :bind
-  ("C-c C-<tab>"    . company-yasnippet)
+  ("C-'"    . company-yasnippet)
   ("C-c <tab>". yas-expand))
 #+END_SRC
+
+#+begin_src emacs-lisp
+(use-package yasnippet-snippets
+  :ensure t
+  :after (yasnippet))
+#+end_src
 
 ** All-the-icons
 #+BEGIN_SRC emacs-lisp
@@ -444,14 +449,12 @@ Load flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
   :ensure t
-  :bind (:map rustic-mode-map
-              ("C-c l c" . eglot-code-actions))
   :config
-  (add-to-list 'eglot-server-programs '(haskell-mode . ("ghcide" "--lsp")))
-  (add-to-list 'eglot-server-programs '(nim-mode     . ("nimlsp")))
-  (add-to-list 'eglot-server-programs '(c-mode       . ("clangd")))
-  (add-to-list 'eglot-server-programs '(c++-mode     . ("clangd")))
-  (add-to-list 'eglot-server-programs '(rust-mode    . ("rust-analyzer")))
+  (add-to-list 'eglot-server-programs '(haskell-mode    . ("ghcide" "--lsp")))
+  (add-to-list 'eglot-server-programs '(nim-mode        . ("nimlsp")))
+  (add-to-list 'eglot-server-programs '(c-mode          . ("clangd")))
+  (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
+  (add-to-list 'eglot-server-programs '(c++-mode        . ("clangd")))
   (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode)
                                         . ("digestif"))))
 #+END_SRC
@@ -598,8 +601,8 @@ Access it with C-x g.
 
 (use-package treemacs-icons-dired
   :after treemacs dired
-  :ensure t
-  :config (treemacs-icons-dired-mode))
+  :ensure t)
+  ;; :config (treemacs-icons-dired-mode))
 
 (use-package treemacs-magit
   :after treemacs magit
@@ -642,9 +645,7 @@ Access it with C-x g.
 #+begin_src emacs-lisp
 (use-package rustic
   :ensure t
-  :mode "\\.rs\\'"
   :hook
-  (rustic-mode . (lambda () (flymake-mode -1)))
   (rustic-mode . company-mode)
   :config
   (setq rustic-lsp-server 'rust-analyzer)
@@ -653,7 +654,6 @@ Access it with C-x g.
 #+end_src
 
 ** Clojure-lang
-*** Cider
 #+BEGIN_SRC emacs-lisp
 (use-package cider
   :ensure t
@@ -661,7 +661,6 @@ Access it with C-x g.
               ("C-c C-k" . cider-repl-clear-buffer)))
 #+END_SRC
 
-*** Clojure-mode
 #+BEGIN_SRC emacs-lisp
 (use-package clojure-mode
   :ensure t
@@ -671,14 +670,27 @@ Access it with C-x g.
   (clojure-mode . paredit-mode))
 #+END_SRC
 
+** Elixir-lang
+#+begin_src emacs-lisp
+(use-package elixir-mode
+  :ensure t
+  :hook
+  (elixir-mode . mix-minor-mode)
+  :bind (:map elixir-mode-map
+              ("C-c C-f" . elixir-format)))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package mix
+  :ensure t)
+#+end_src
+
 ** Yaml-lang
-*** YAML-mode
 #+BEGIN_SRC emacs-lisp
 (use-package yaml-mode :ensure t)
 #+END_SRC
 
 ** Nim-lang
-*** Nim-mode
 #+BEGIN_SRC emacs-lisp
 (use-package nim-mode
   :hook
@@ -687,8 +699,16 @@ Access it with C-x g.
   :ensure t)
 #+END_SRC
 
+** Typescript-lang
+#+begin_src emacs-lisp
+(use-package typescript-mode
+  :hook
+  (typescript-mode . company-mode)
+  (typescript-mode . eglot-ensure)
+  :ensure t)
+#+end_src
+
 ** C/C++-lang
-*** C-mode
 Tab = 4 spaces, bsd indentation style
 #+BEGIN_SRC emacs-lisp
 (use-package cc-mode
@@ -708,7 +728,6 @@ Tab = 4 spaces, bsd indentation style
 #+end_src
 
 ** Js-lang
-*** Js-mode
 #+BEGIN_SRC emacs-lisp
 (use-package js
   :hook
@@ -718,7 +737,6 @@ Tab = 4 spaces, bsd indentation style
 #+END_SRC
 
 ** Haskell-lang
-*** Haskell-mode
 #+BEGIN_SRC emacs-lisp
   (use-package haskell-mode
     :ensure t
@@ -747,7 +765,6 @@ Tab = 4 spaces, bsd indentation style
 #+END_SRC
 
 ** Css-lang
-*** CSS-mode
 #+BEGIN_SRC emacs-lisp
 (use-package css-mode
   :ensure t
@@ -760,7 +777,7 @@ Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
 (use-package ujelly-theme :ensure t)
 (use-package doom-themes :ensure t)
-(load-theme 'doom-tomorrow-night t)
+(load-theme 'doom-old-hope t)
 #+END_SRC
 
 ** Smart-modeline
