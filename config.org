@@ -407,6 +407,7 @@ Load flycheck
 (use-package all-the-icons-ivy
   :ensure t
   :config
+  (add-to-list 'projectile-globally-ignored-directories "_build") ;; Elixir projects
   (setq all-the-icons-ivy-file-commands
     '(counsel-find-file
       counsel-file-jump
@@ -453,6 +454,7 @@ Load flycheck
   (add-to-list 'eglot-server-programs '(haskell-mode    . ("ghcide" "--lsp")))
   (add-to-list 'eglot-server-programs '(nim-mode        . ("nimlsp")))
   (add-to-list 'eglot-server-programs '(c-mode          . ("clangd")))
+  (add-to-list 'eglot-server-programs '(elixir-mode     . ("~/programs/elixir-ls/language_server.sh")))
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(c++-mode        . ("clangd")))
   (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode)
@@ -676,6 +678,7 @@ Access it with C-x g.
   :ensure t
   :hook
   (elixir-mode . mix-minor-mode)
+  (elixir-mode . company-mode)
   :bind (:map elixir-mode-map
               ("C-c C-f" . elixir-format)))
 #+end_src
