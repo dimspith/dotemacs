@@ -25,8 +25,8 @@
 ** Font
 The font used.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "JuliaMono 10" ))
-(set-face-attribute 'default nil :family "JuliaMono" :height 100 :weight 'normal)
+(add-to-list 'default-frame-alist '(font . "Fira Code 10" ))
+(set-face-attribute 'default nil :family "Fira Code" :height 100 :weight 'normal)
 #+END_SRC
 
 ** Starting Directory
@@ -297,15 +297,7 @@ Guess resulting directory on dired operations
 (use-package zetteldeft
   :ensure t
   :after deft
-  :bind (("C-c n f" . zetteldeft-find-file)
-         ("C-c n n" . zetteldeft-new-file)
-         ("C-c n N" . zetteldeft-new-file-and-link)
-         ("C-c n i" . zetteldeft-find-file-id-insert)
-         ("C-c n l" . zetteldeft-follow-link)
-         ("C-c n a l" . zetteldeft-avy-link-search)
-         ("C-c n a t" . zetteldeft-avy-tag-search)
-         ("C-c n s" . zetteldeft-search-at-point)
-         ("C-c n c" . zetteldeft-search-current-id)))
+  (zetteldeft-set-classic-keybindings))
 #+END_SRC
 
 ** Ivy, Counsel, Swiper
@@ -370,6 +362,22 @@ Replacement for smex with good recents support and counsel integration
   ("M-x". amx))
 #+End_SRC
 
+** Company
+   Enable company with various settings
+#+BEGIN_SRC emacs-lisp
+(use-package company
+  :ensure t
+  :diminish
+  :config
+   (setq company-idle-delay 0.1)
+   (setq company-minimum-prefix-length 1)
+   (setq company-selection-wrap-around t)
+   (setq company-tooltip-align-annotations t)
+   (setq company-tooltip-limit 10)
+   (setq company-dabbrev-downcase nil)
+   (company-tng-configure-default))
+#+END_SRC
+
 ** Flycheck
 Load flycheck
 #+BEGIN_SRC emacs-lisp
@@ -387,8 +395,8 @@ Load flycheck
   :config
   (yas-global-mode)
   :bind
-  ("C-'"    . company-yasnippet)
-  ("C-c <tab>". yas-expand))
+  ("C-'"      . yas-expand)
+  ("C-c <tab>". company-yasnippet))
 #+END_SRC
 
 #+begin_src emacs-lisp
@@ -407,7 +415,6 @@ Load flycheck
 (use-package all-the-icons-ivy
   :ensure t
   :config
-  (add-to-list 'projectile-globally-ignored-directories "_build") ;; Elixir projects
   (setq all-the-icons-ivy-file-commands
     '(counsel-find-file
       counsel-file-jump
@@ -416,22 +423,6 @@ Load flycheck
       projectile-find-dir))
   (all-the-icons-ivy-setup)
   (ivy-set-display-transformer 'ivy-switch-buffer 'all-the-icons-ivy-buffer-transformer))
-#+END_SRC
-
-** Company
-   Enable company with various settings
-#+BEGIN_SRC emacs-lisp
-(use-package company
-  :ensure t
-  :diminish
-  :config
-   (setq company-idle-delay 0.1)
-   (setq company-minimum-prefix-length 1)
-   (setq company-selection-wrap-around t)
-   (setq company-tooltip-align-annotations t)
-   (setq company-tooltip-limit 10)
-   (setq company-dabbrev-downcase nil)
-   (company-tng-configure-default))
 #+END_SRC
 
 ** Projectile
@@ -614,7 +605,9 @@ Access it with C-x g.
 ** Paredit
 #+BEGIN_SRC emacs-lisp
 (use-package paredit
-  :ensure t)
+  :ensure t
+  :bind (:map paredit-mode-map
+              ("M-[" . paredit-wrap-square)))
 #+END_SRC
 
 ** Aggressive-indent-mode
@@ -696,10 +689,10 @@ Access it with C-x g.
 ** Nim-lang
 #+BEGIN_SRC emacs-lisp
 (use-package nim-mode
+  :ensure t
   :hook
   (nim-mode . eglot-ensure)
-  (nim-mode . company-mode)
-  :ensure t)
+  (nim-mode . company-mode))
 #+END_SRC
 
 ** Typescript-lang
@@ -778,19 +771,16 @@ Tab = 4 spaces, bsd indentation style
 ** Themes
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
-(use-package ujelly-theme :ensure t)
+(use-package spacemacs-themes :ensure t)
 (use-package doom-themes :ensure t)
-(load-theme 'doom-old-hope t)
+(load-theme 'doom-dracula t)
 #+END_SRC
 
 ** Smart-modeline
 #+BEGIN_SRC emacs-lisp
-(use-package smart-mode-line
+(use-package doom-modeline
   :ensure t
-  :config
-  (setq sml/no-confirm-load-theme t)
-  (sml/setup)
-  (sml/apply-theme 'respectful))
+  :init (doom-modeline-mode 1))
 #+END_SRC
 
 * My functions
