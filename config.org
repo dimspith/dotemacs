@@ -297,6 +297,7 @@ Guess resulting directory on dired operations
 (use-package zetteldeft
   :ensure t
   :after deft
+  :config
   (zetteldeft-set-classic-keybindings))
 #+END_SRC
 
@@ -695,6 +696,12 @@ Access it with C-x g.
   (nim-mode . company-mode))
 #+END_SRC
 
+** Fennel-lang
+#+begin_src emacs-lisp
+(use-package fennel-mode
+  :ensure t)
+#+end_src
+
 ** Typescript-lang
 #+begin_src emacs-lisp
 (use-package typescript-mode
@@ -771,7 +778,6 @@ Tab = 4 spaces, bsd indentation style
 ** Themes
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
-(use-package spacemacs-themes :ensure t)
 (use-package doom-themes :ensure t)
 (load-theme 'doom-dracula t)
 #+END_SRC
