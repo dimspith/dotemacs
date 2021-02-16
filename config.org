@@ -18,15 +18,24 @@
 #+BEGIN_SRC emacs-lisp
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
-(eval-when-compile (require 'use-package))
+(require 'use-package)
+(setq use-package-always-ensure t)
+
 #+END_SRC
 
 * Core Settings
+** GC Tweak
+#+begin_src emacs-lisp
+;; Make gc pauses faster by decreasing the threshold.
+(setq gc-cons-threshold (* 2 1000 1000))
+#+end_src
+
 ** Font
 The font used.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(font . "Fira Code 10" ))
-(set-face-attribute 'default nil :family "Fira Code" :height 100 :weight 'normal)
+(set-face-attribute 'default nil :family "Fira Code" :height 110)
+(set-face-attribute 'fixed-pitch nil :family "Fira Code" :height 110)
+(set-face-attribute 'variable-pitch nil :family "Cantarell" :height 110 :weight 'regular)
 #+END_SRC
 
 ** Starting Directory
@@ -56,6 +65,20 @@ Skip the splash screen/message and make the scratch buffer empty.
 (setq initial-scratch-message nil)
 (setq inhibit-startup-echo-message t)
 #+END_SRC
+
+** Line numbers
+#+begin_src emacs-lisp
+(global-linum-mode t)
+
+;; Disable line numbers for some modes
+(dolist (mode '(org-mode-hook
+                term-mode-hook
+                shell-mode-hook
+                dired-mode-hook
+                treemacs-mode-hook
+                eshell-mode-hook))
+  (add-hook mode (lambda () (linum-mode 0))))
+#+end_src
 
 ** Bars
 Turn off the scroll bar, menu bar and the tool bar.
@@ -113,19 +136,23 @@ navigation with ~M-a~ and ~M-e~.
 ** Misc
 #+BEGIN_SRC emacs-lisp
 (use-package newcomment
+  :ensure nil
   :bind
   ("C-x M-;" . comment-box))
 
 (use-package view
+  :ensure nil
   :bind ("C-v" . View-scroll-half-page-forward)
         ("M-v" . View-scroll-half-page-backward))
 
 (use-package align
+  :ensure nil
   :bind ("C-c e a a" . align)
         ("C-c e a r" . align-regexp)
         ("C-c e a s" . align-current))
 
 (use-package emacs
+  :ensure nil
   :bind
   ("C-M-<left>"  . shrink-window-horizontally)
   ("C-M-<right>" . enlarge-window-horizontally)
@@ -196,6 +223,10 @@ Guess resulting directory on dired operations
 ** Org-mode
 #+BEGIN_SRC emacs-lisp
 (use-package org
+  :bind
+  ("C-c o a" . org-agenda)
+  ("C-c c"   . org-capture)
+  ("C-c o l" . org-store-link)
   :config
   (setq org-agenda-span 14)
   (setq org-agenda-files (quote ("~/notes/schedule.org")))
@@ -205,10 +236,16 @@ Guess resulting directory on dired operations
   (setq org-src-preserve-indentation t)
   (setq org-src-tab-acts-natively t)
   (setq org-edit-src-content-indentation 0)
-  :bind
-  ("C-c o a" . org-agenda)
-  ("C-c c"   . org-capture)
-  ("C-c o l" . org-store-link))
+  (setq org-hide-emphasis-markers t))
+
+;; Center text when in org-mode buffers
+(defun org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . org-mode-visual-fill))
 #+END_SRC
 
 ** Electric
@@ -226,6 +263,7 @@ Guess resulting directory on dired operations
    Make isearch search for regexes by default.
    #+BEGIN_SRC emacs-lisp
 (use-package isearch
+  :ensure nil
   :bind
   ("C-s" . isearch-forward-regexp))
    #+END_SRC
@@ -262,17 +300,24 @@ Guess resulting directory on dired operations
 #+END_SRC
 
 * Other Package Settings
+** doom-modeline
+#+BEGIN_SRC emacs-lisp
+(use-package doom-modeline
+  :init (doom-modeline-mode))
+#+END_SRC
+
 ** Avy
 #+BEGIN_SRC emacs-lisp
 (use-package avy
-  :ensure t
-  :bind ("C-;" . avy-goto-char))
+  :bind
+  ("C-;" . avy-goto-char)
+  ("C-M-;" . avy-goto-line))
 #+END_SRC
 
 ** Xterm-color
    #+BEGIN_SRC emacs-lisp
    (use-package xterm-color
-     :ensure t
+     :defer t
      :config
      (setq compilation-environment '("TERM=xterm-256color"))
      (defun my/advice-compilation-filter (f proc string)
@@ -283,7 +328,7 @@ Guess resulting directory on dired operations
 ** Deft
 #+BEGIN_SRC emacs-lisp
 (use-package deft
-  :ensure t
+  :defer t
   :init
   (setq deft-directory "~/notes"
         deft-extensions '("org")
@@ -295,7 +340,6 @@ Guess resulting directory on dired operations
 ** Zetteldeft
 #+BEGIN_SRC emacs-lisp
 (use-package zetteldeft
-  :ensure t
   :after deft
   :config
   (zetteldeft-set-classic-keybindings))
@@ -306,28 +350,24 @@ Enable ivy globally (replacement for ido).
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
   :diminish ivy-mode
-  :ensure t
   :bind (("C-c C-r" . ivy-resume))
   :config
     (ivy-mode t)
     (setq ivy-initial-inputs-alist nil)
     (setq ivy-use-virtual-buffers t)
     (setq enable-recursive-minibuffers t)
-    (setq ivy-count-format "(%d/%d) ")
-  )
+    (setq ivy-count-format "(%d/%d) "))
 #+END_SRC
 
    Enable swiper (enhanced isearch for ivy) and assign C-s to search
 #+BEGIN_SRC emacs-lisp
-(use-package swiper
-  :ensure t)
+(use-package swiper)
 #+END_SRC
 
    Counsel is a collection of ivy enhanced base commands
    Bind some keys to common commands
 #+BEGIN_SRC emacs-lisp
 (use-package counsel
-  :ensure t
   ;; :config
   ;; (counsel-mode t)
   :bind (("C-x C-f"   . counsel-find-file)
@@ -343,31 +383,22 @@ Enable ivy globally (replacement for ido).
          ("<f9>"      . counsel-load-theme)))
 #+END_SRC
 
-** Ripgrep
-#+BEGIN_SRC emacs-lisp
-(use-package ripgrep
-  :ensure t)
-#+END_SRC
-
-** AMX
+** Ivy-prescient
 Replacement for smex with good recents support and counsel integration
 #+BEGIN_SRC emacs-lisp
-(use-package amx
-  :ensure t
+(use-package ivy-prescient
+  :after counsel
+  :custom
+  (ivy-prescient-enable-filtering nil)
   :config
-  (setq amx-backend 'auto)
-  (setq amx-save-file "~/.emacs.d/amx-items")
-  (setq amx-history-length 50)
-  (amx-mode 1)
-  :bind
-  ("M-x". amx))
+  (prescient-persist-mode 1)
+  (ivy-prescient-mode 1))
 #+End_SRC
 
 ** Company
    Enable company with various settings
 #+BEGIN_SRC emacs-lisp
 (use-package company
-  :ensure t
   :diminish
   :config
    (setq company-idle-delay 0.1)
@@ -383,7 +414,6 @@ Replacement for smex with good recents support and counsel integration
 Load flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :ensure t
   :config
   (setq flycheck-check-syntax-automatically '(save mode-enabled)))
 #+END_SRC
@@ -391,7 +421,6 @@ Load flycheck
 ** Yasnippet
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
-  :ensure t
   :diminish yas-minor-mode
   :config
   (yas-global-mode)
@@ -402,19 +431,16 @@ Load flycheck
 
 #+begin_src emacs-lisp
 (use-package yasnippet-snippets
-  :ensure t
   :after (yasnippet))
 #+end_src
 
 ** All-the-icons
 #+BEGIN_SRC emacs-lisp
 (use-package all-the-icons-dired
-  :ensure t
   :hook
   (dired-mode . all-the-icons-dired-mode))
 
 (use-package all-the-icons-ivy
-  :ensure t
   :config
   (setq all-the-icons-ivy-file-commands
     '(counsel-find-file
@@ -429,7 +455,6 @@ Load flycheck
 ** Projectile
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
-  :ensure t
   :config
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'etags-select)
@@ -441,7 +466,7 @@ Load flycheck
 ** Eglot
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
-  :ensure t
+  :defer t
   :config
   (add-to-list 'eglot-server-programs '(haskell-mode    . ("ghcide" "--lsp")))
   (add-to-list 'eglot-server-programs '(nim-mode        . ("nimlsp")))
@@ -459,7 +484,6 @@ We also install magit-annex for git-annex compatibility.
 Access it with C-x g.
 #+BEGIN_SRC emacs-lisp
 (use-package magit
-  :ensure t
   :bind ("C-x g". magit-status))
 #+END_SRC
 
@@ -467,7 +491,6 @@ Access it with C-x g.
    Which-key is a keybinding preview utility to show all subsequent keys when waiting for commands.
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
-  :ensure t
   :diminish which-key-mode
   :config
     (which-key-mode t))
@@ -476,14 +499,12 @@ Access it with C-x g.
 ** Iedit
 #+BEGIN_SRC emacs-lisp
 (use-package iedit
-  :ensure t
     :bind ("C-c i" . iedit-mode))
 #+END_SRC
 
 ** Org Bullets
 #+BEGIN_SRC emacs-lisp
 (use-package org-bullets
-  :ensure t
   :hook (org-mode . org-bullets-mode))
 #+END_SRC
 
@@ -501,12 +522,11 @@ Access it with C-x g.
   (setq TeX-parse-self t))
 #+END_SRC
 
-** Quickrun
+** Quinckrun
    Quickrun provides utilities to quickly compile and execute programs
    F6 runs a program in eshell
 #+BEGIN_SRC emacs-lisp
 (use-package quickrun
-  :ensure t
   :bind ("<f6>" . quickrun-shell))
 #+END_SRC
 
@@ -514,7 +534,6 @@ Access it with C-x g.
    Offers snippets for html and css
 #+BEGIN_SRC emacs-lisp
 (use-package emmet-mode
-  :ensure t
   :hook ((sgml-mode . emmet-mode)
          (css-mode . emmet-mode)))
 #+END_SRC
@@ -522,7 +541,6 @@ Access it with C-x g.
 ** Neotree
 #+BEGIN_SRC emacs-lisp
 (use-package treemacs
-  :ensure t
   :defer t
   :init
   (with-eval-after-load 'winum
@@ -590,23 +608,19 @@ Access it with C-x g.
         ("C-x t M-t" . treemacs-find-tag)))
 
 (use-package treemacs-projectile
-  :after treemacs projectile
-  :ensure t)
+  :after treemacs projectile)
 
 (use-package treemacs-icons-dired
-  :after treemacs dired
-  :ensure t)
+  :after treemacs dired)
   ;; :config (treemacs-icons-dired-mode))
 
 (use-package treemacs-magit
-  :after treemacs magit
-  :ensure t)
+  :after treemacs magit)
 #+END_SRC
 
 ** Paredit
 #+BEGIN_SRC emacs-lisp
 (use-package paredit
-  :ensure t
   :bind (:map paredit-mode-map
               ("M-[" . paredit-wrap-square)))
 #+END_SRC
@@ -614,7 +628,6 @@ Access it with C-x g.
 ** Aggressive-indent-mode
 #+BEGIN_SRC emacs-lisp
 (use-package aggressive-indent
-  :ensure t
   :hook
   (html-mode . aggressive-indent-mode)
   (css-mode  . aggressive-indent-mode)
@@ -623,24 +636,23 @@ Access it with C-x g.
 
 ** Htmlize
 #+BEGIN_SRC emacs-lisp
-(use-package htmlize :ensure t)
+(use-package htmlize)
 #+END_SRC
 
 ** Hindent
 #+BEGIN_SRC emacs-lisp
-(use-package hindent :ensure t)
+(use-package hindent)
 #+END_SRC
 
 ** Rainbow delimiters
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-delimiters
-  :ensure t)
+ )
 #+END_SRC
 
 ** Rust-lang
 #+begin_src emacs-lisp
 (use-package rustic
-  :ensure t
   :hook
   (rustic-mode . company-mode)
   :config
@@ -652,14 +664,12 @@ Access it with C-x g.
 ** Clojure-lang
 #+BEGIN_SRC emacs-lisp
 (use-package cider
-  :ensure t
   :bind (:map cider-repl-mode-map
               ("C-c C-k" . cider-repl-clear-buffer)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
 (use-package clojure-mode
-  :ensure t
   :hook
   (clojure-mode . company-mode)
   (clojure-mode . rainbow-delimiters-mode)
@@ -669,7 +679,6 @@ Access it with C-x g.
 ** Elixir-lang
 #+begin_src emacs-lisp
 (use-package elixir-mode
-  :ensure t
   :hook
   (elixir-mode . mix-minor-mode)
   (elixir-mode . company-mode)
@@ -679,27 +688,26 @@ Access it with C-x g.
 
 #+begin_src emacs-lisp
 (use-package mix
-  :ensure t)
+  )
 #+end_src
 
 ** Yaml-lang
 #+BEGIN_SRC emacs-lisp
-(use-package yaml-mode :ensure t)
+(use-package yaml-mode)
 #+END_SRC
 
 ** Nim-lang
 #+BEGIN_SRC emacs-lisp
 (use-package nim-mode
-  :ensure t
   :hook
   (nim-mode . eglot-ensure)
   (nim-mode . company-mode))
 #+END_SRC
 
-** Fennel-lang
+** Lua/Fennel-lang
 #+begin_src emacs-lisp
-(use-package fennel-mode
-  :ensure t)
+(use-package fennel-mode)
+(use-package lua-mode)
 #+end_src
 
 ** Typescript-lang
@@ -707,8 +715,7 @@ Access it with C-x g.
 (use-package typescript-mode
   :hook
   (typescript-mode . company-mode)
-  (typescript-mode . eglot-ensure)
-  :ensure t)
+  (typescript-mode . eglot-ensure))
 #+end_src
 
 ** C/C++-lang
@@ -725,6 +732,7 @@ Tab = 4 spaces, bsd indentation style
 
 #+begin_src emacs-lisp
 (use-package c++-mode
+  :ensure nil
   :hook
   (c++-mode . eglot-ensure)
   (c++-mode . company-mode))
@@ -742,7 +750,7 @@ Tab = 4 spaces, bsd indentation style
 ** Haskell-lang
 #+BEGIN_SRC emacs-lisp
   (use-package haskell-mode
-    :ensure t
+ 
     :bind (:map haskell-mode-map
           ("C-c C-c" . haskell-compile)
           ("C-c C-l" . haskell-process-load-or-reload)
@@ -770,7 +778,6 @@ Tab = 4 spaces, bsd indentation style
 ** Css-lang
 #+BEGIN_SRC emacs-lisp
 (use-package css-mode
-  :ensure t
   :hook
   (css-mode . company-mode))
 #+END_SRC
@@ -778,25 +785,25 @@ Tab = 4 spaces, bsd indentation style
 ** Themes
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
-(use-package doom-themes :ensure t)
-(load-theme 'doom-dracula t)
+(use-package doom-themes
+  :init (load-theme 'doom-palenight t))
 #+END_SRC
 
-** Smart-modeline
+* Custom
+Display emacs startup time
 #+BEGIN_SRC emacs-lisp
-(use-package doom-modeline
-  :ensure t
-  :init (doom-modeline-mode 1))
+(defun display-startup-time ()
+  (message "Emacs loaded in %s with %d garbage collections."
+           (format "%.2f seconds"
+                   (float-time
+                   (time-subtract after-init-time before-init-time)))
+           gcs-done))
+
+(add-hook 'emacs-startup-hook #'display-startup-time)
 #+END_SRC
 
-* My functions
-  Indent the whole buffer
-#+BEGIN_SRC emacs-lisp
-(defun iwb ()
-  "indent whole buffer"
-  (interactive)
-  (delete-trailing-whitespace)
-  (indent-region (point-min) (point-max) nil)
-  (untabify (point-min) (point-max)))
-#+END_SRC
+#+begin_src emacs-lisp
+;; Reset gc threshold
+(setq gc-cons-threshold (* 2 1000 1000))
+#+end_src
 
