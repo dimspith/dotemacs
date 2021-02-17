@@ -24,20 +24,6 @@
 #+END_SRC
 
 * Core Settings
-** GC Tweak
-#+begin_src emacs-lisp
-;; Make gc pauses faster by decreasing the threshold.
-(setq gc-cons-threshold (* 2 1000 1000))
-#+end_src
-
-** Font
-The font used.
-#+BEGIN_SRC emacs-lisp
-(set-face-attribute 'default nil :family "Fira Code" :height 110)
-(set-face-attribute 'fixed-pitch nil :family "Fira Code" :height 110)
-(set-face-attribute 'variable-pitch nil :family "Cantarell" :height 110 :weight 'regular)
-#+END_SRC
-
 ** Starting Directory
 Configure emacs to start in the home directory.
 #+BEGIN_SRC emacs-lisp
@@ -58,14 +44,6 @@ Smooth scrolling.
 (setq column-number-mode t)
 #+END_SRC
 
-** Splash Screen
-Skip the splash screen/message and make the scratch buffer empty.
-#+BEGIN_SRC emacs-lisp
-(setq inhibit-splash-screen t)
-(setq initial-scratch-message nil)
-(setq inhibit-startup-echo-message t)
-#+END_SRC
-
 ** Line numbers
 #+begin_src emacs-lisp
 (global-linum-mode t)
@@ -79,14 +57,6 @@ Skip the splash screen/message and make the scratch buffer empty.
                 eshell-mode-hook))
   (add-hook mode (lambda () (linum-mode 0))))
 #+end_src
-
-** Bars
-Turn off the scroll bar, menu bar and the tool bar.
-#+BEGIN_SRC emacs-lisp
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-#+END_SRC
 
 ** Indentation
 Default tab width is 4 and tabs are now spaces.
@@ -145,12 +115,6 @@ navigation with ~M-a~ and ~M-e~.
   :bind ("C-v" . View-scroll-half-page-forward)
         ("M-v" . View-scroll-half-page-backward))
 
-(use-package align
-  :ensure nil
-  :bind ("C-c e a a" . align)
-        ("C-c e a r" . align-regexp)
-        ("C-c e a s" . align-current))
-
 (use-package emacs
   :ensure nil
   :bind
@@ -174,19 +138,6 @@ navigation with ~M-a~ and ~M-e~.
 #+END_SRC
 
 * Base Package Settings
-** Eshell
-#+BEGIN_SRC emacs-lisp
-(use-package eshell
-  :hook (eshell-mode .
-    (lambda ()
-      (eshell/alias "c" "clear 1")
-      (eshell/alias "f" "find-file $1")
-      (eshell/alias "fo" "find-file-other-window $1")
-      (eshell/alias "d" "dired $1")
-      (eshell/alias "ll" "ls -l")
-      (eshell/alias "la" "ls -al"))))
-#+END_SRC
-
 ** Re-builder
 #+BEGIN_SRC emacs-lisp
 (use-package re-builder
@@ -303,7 +254,11 @@ Guess resulting directory on dired operations
 ** doom-modeline
 #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
-  :init (doom-modeline-mode))
+  :init (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-major-mode-icon t)
+  (setq doom-modeline-major-mode-color-icon t)
+  (setq doom-modeline-unicode-fallback nil))
 #+END_SRC
 
 ** Avy
@@ -328,7 +283,6 @@ Guess resulting directory on dired operations
 ** Deft
 #+BEGIN_SRC emacs-lisp
 (use-package deft
-  :defer t
   :init
   (setq deft-directory "~/notes"
         deft-extensions '("org")
@@ -361,7 +315,9 @@ Enable ivy globally (replacement for ido).
 
    Enable swiper (enhanced isearch for ivy) and assign C-s to search
 #+BEGIN_SRC emacs-lisp
-(use-package swiper)
+(use-package swiper
+  :bind
+  ("C-M-s" . swiper))
 #+END_SRC
 
    Counsel is a collection of ivy enhanced base commands
@@ -372,7 +328,6 @@ Enable ivy globally (replacement for ido).
   ;; (counsel-mode t)
   :bind (("C-x C-f"   . counsel-find-file)
          ("<f2> u"    . counsel-unicode-char)
-         ("C-M-s"     . counsel-grep-or-swiper)
          ("C-c s g f" . counsel-git)
          ("C-c s d"   . counsel-dired-jump)
          ("C-c s g g" . counsel-git-grep)
@@ -414,6 +369,7 @@ Replacement for smex with good recents support and counsel integration
 Load flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
+  :defer t
   :config
   (setq flycheck-check-syntax-automatically '(save mode-enabled)))
 #+END_SRC
@@ -459,8 +415,9 @@ Load flycheck
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'etags-select)
   (add-to-list 'projectile-globally-ignored-modes "org-mode")
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (projectile-mode +1))
+  (projectile-mode +1)
+  :bind (:map projectile-mode-map
+              ("C-c p" . projectile-command-map)))
 #+END_SRC
 
 ** Eglot
@@ -704,10 +661,10 @@ Access it with C-x g.
   (nim-mode . company-mode))
 #+END_SRC
 
-** Lua/Fennel-lang
+** Lua-lang
 #+begin_src emacs-lisp
-(use-package fennel-mode)
-(use-package lua-mode)
+(use-package lua-mode
+  :defer t)
 #+end_src
 
 ** Typescript-lang
@@ -786,7 +743,12 @@ Tab = 4 spaces, bsd indentation style
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
-  :init (load-theme 'doom-palenight t))
+  :init (load-theme 'doom-palenight t)
+  :config
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t)
+  (doom-themes-org-config)
+  (doom-themes-treemacs-config))
 #+END_SRC
 
 * Custom
