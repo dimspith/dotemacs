@@ -210,15 +210,6 @@ Guess resulting directory on dired operations
   (setq electric-pair-open-newline-between-pairs t))
    #+END_SRC
 
-** Isearch
-   Make isearch search for regexes by default.
-   #+BEGIN_SRC emacs-lisp
-(use-package isearch
-  :ensure nil
-  :bind
-  ("C-s" . isearch-forward-regexp))
-   #+END_SRC
-
 ** Show-paren-mode
    Highlight matching parentheses.
    #+BEGIN_SRC emacs-lisp
@@ -317,7 +308,8 @@ Enable ivy globally (replacement for ido).
 #+BEGIN_SRC emacs-lisp
 (use-package swiper
   :bind
-  ("C-M-s" . swiper))
+  ("C-s" . swiper)
+  ("C-r" . swiper))
 #+END_SRC
 
    Counsel is a collection of ivy enhanced base commands
@@ -327,6 +319,7 @@ Enable ivy globally (replacement for ido).
   ;; :config
   ;; (counsel-mode t)
   :bind (("C-x C-f"   . counsel-find-file)
+         ("M-x"       . counsel-M-x)
          ("<f2> u"    . counsel-unicode-char)
          ("C-c s g f" . counsel-git)
          ("C-c s d"   . counsel-dired-jump)
@@ -338,16 +331,14 @@ Enable ivy globally (replacement for ido).
          ("<f9>"      . counsel-load-theme)))
 #+END_SRC
 
-** Ivy-prescient
+** Amx
 Replacement for smex with good recents support and counsel integration
 #+BEGIN_SRC emacs-lisp
-(use-package ivy-prescient
-  :after counsel
-  :custom
-  (ivy-prescient-enable-filtering nil)
-  :config
-  (prescient-persist-mode 1)
-  (ivy-prescient-mode 1))
+;; (use-package amx
+;;   :bind
+;;   ("M-x" . amx)
+;;   :config
+;;   (amx-mode))
 #+End_SRC
 
 ** Company
