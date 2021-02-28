@@ -20,3 +20,7 @@
 (set-face-attribute 'default nil :family "Fira Code" :height 100)
 (set-face-attribute 'fixed-pitch nil :family "Fira Code" :height 100)
 (set-face-attribute 'variable-pitch nil :family "Cantarell" :height 100 :weight 'regular)
+
+(package-initialize)
+(add-to-list 'package-archives
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)

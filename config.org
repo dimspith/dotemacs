@@ -3,24 +3,12 @@
 #+STARTUP: overview
 #+OPTIONS: num:nil
 
-* Package Init
-** Archives
-#+BEGIN_SRC emacs-lisp
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(package-initialize)
-
-(when (not package-archive-contents)
-    (ignore-errors (package-refresh-contents)))
-#+END_SRC
-
-** Use-package
+* Use-package
 #+BEGIN_SRC emacs-lisp
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 (require 'use-package)
 (setq use-package-always-ensure t)
-
 #+END_SRC
 
 * Core Settings
@@ -148,6 +136,7 @@ navigation with ~M-a~ and ~M-e~.
 ** Flymake
 #+BEGIN_SRC emacs-lisp
 (use-package flymake
+  :defer t
   :config
   (setq flymake-no-changes-timeout nil)
   (setq flymake-start-syntax-check-on-newline nil))
@@ -274,6 +263,7 @@ Guess resulting directory on dired operations
 ** Deft
 #+BEGIN_SRC emacs-lisp
 (use-package deft
+  :defer 5
   :init
   (setq deft-directory "~/notes"
         deft-extensions '("org")
@@ -316,8 +306,6 @@ Enable ivy globally (replacement for ido).
    Bind some keys to common commands
 #+BEGIN_SRC emacs-lisp
 (use-package counsel
-  ;; :config
-  ;; (counsel-mode t)
   :bind (("C-x C-f"   . counsel-find-file)
          ("M-x"       . counsel-M-x)
          ("<f2> u"    . counsel-unicode-char)
@@ -346,6 +334,18 @@ Replacement for smex with good recents support and counsel integration
 #+BEGIN_SRC emacs-lisp
 (use-package company
   :diminish
+  :hook
+   (LaTeX-mode . company-mode)
+   (rustic-mode . company-mode)
+   (clojure-mode . company-mode)
+   (elixir-mode . company-mode)
+   (nim-mode . company-mode)
+   (typescript-mode . company-mode)
+   (c-mode . company-mode)
+   (c++-mode . company-mode)
+   (js-mode . company-mode)
+   (haskell-mode . company-mode)
+   (css-mode . company-mode)
   :config
    (setq company-idle-delay 0.1)
    (setq company-minimum-prefix-length 1)
@@ -402,10 +402,12 @@ Load flycheck
 ** Projectile
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
+  :defer 5
   :config
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'etags-select)
   (add-to-list 'projectile-globally-ignored-modes "org-mode")
+  (add-to-list 'projectile-globally-ignored-directories ".ccls-cache")
   (projectile-mode +1)
   :bind (:map projectile-mode-map
               ("C-c p" . projectile-command-map)))
@@ -418,7 +420,7 @@ Load flycheck
   :config
   (add-to-list 'eglot-server-programs '(haskell-mode    . ("ghcide" "--lsp")))
   (add-to-list 'eglot-server-programs '(nim-mode        . ("nimlsp")))
-  (add-to-list 'eglot-server-programs '(c-mode          . ("clangd")))
+  (add-to-list 'eglot-server-programs '(c-mode          . ("ccls")))
   (add-to-list 'eglot-server-programs '(elixir-mode     . ("~/programs/elixir-ls/language_server.sh")))
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(c++-mode        . ("clangd")))
@@ -463,14 +465,13 @@ Access it with C-x g.
   :ensure auctex
   :hook
   (LaTeX-mode . eglot-ensure)
-  (LaTeX-mode . company-mode)
   :config
   (setq TeX-auto-save t)
   (setq TeX-engine 'luatex)
   (setq TeX-parse-self t))
 #+END_SRC
 
-** Quinckrun
+** Quickrun
    Quickrun provides utilities to quickly compile and execute programs
    F6 runs a program in eshell
 #+BEGIN_SRC emacs-lisp
@@ -584,7 +585,8 @@ Access it with C-x g.
 
 ** Htmlize
 #+BEGIN_SRC emacs-lisp
-(use-package htmlize)
+(use-package htmlize
+  :defer 5)
 #+END_SRC
 
 ** Hindent
@@ -601,8 +603,7 @@ Access it with C-x g.
 ** Rust-lang
 #+begin_src emacs-lisp
 (use-package rustic
-  :hook
-  (rustic-mode . company-mode)
+  :defer t
   :config
   (setq rustic-lsp-server 'rust-analyzer)
   (setq rustic-lsp-client 'eglot)
@@ -619,7 +620,6 @@ Access it with C-x g.
 #+BEGIN_SRC emacs-lisp
 (use-package clojure-mode
   :hook
-  (clojure-mode . company-mode)
   (clojure-mode . rainbow-delimiters-mode)
   (clojure-mode . paredit-mode))
 #+END_SRC
@@ -629,7 +629,6 @@ Access it with C-x g.
 (use-package elixir-mode
   :hook
   (elixir-mode . mix-minor-mode)
-  (elixir-mode . company-mode)
   :bind (:map elixir-mode-map
               ("C-c C-f" . elixir-format)))
 #+end_src
@@ -648,8 +647,7 @@ Access it with C-x g.
 #+BEGIN_SRC emacs-lisp
 (use-package nim-mode
   :hook
-  (nim-mode . eglot-ensure)
-  (nim-mode . company-mode))
+  (nim-mode . eglot-ensure))
 #+END_SRC
 
 ** Lua-lang
@@ -662,7 +660,6 @@ Access it with C-x g.
 #+begin_src emacs-lisp
 (use-package typescript-mode
   :hook
-  (typescript-mode . company-mode)
   (typescript-mode . eglot-ensure))
 #+end_src
 
@@ -672,7 +669,6 @@ Tab = 4 spaces, bsd indentation style
 (use-package cc-mode
   :hook
   (c-mode . eglot-ensure)
-  (c-mode . company-mode)
   :config
   (setq-default c-basic-offset 4)
   (setq-default c-default-style "bsd"))
@@ -682,8 +678,7 @@ Tab = 4 spaces, bsd indentation style
 (use-package c++-mode
   :ensure nil
   :hook
-  (c++-mode . eglot-ensure)
-  (c++-mode . company-mode))
+  (c++-mode . eglot-ensure))
 #+end_src
 
 ** Js-lang
@@ -691,14 +686,13 @@ Tab = 4 spaces, bsd indentation style
 (use-package js
   :hook
   (js-mode . flycheck-mode)
-  (js-mode . company-mode)
   (js-mode . subword-mode))
 #+END_SRC
 
 ** Haskell-lang
 #+BEGIN_SRC emacs-lisp
   (use-package haskell-mode
- 
+
     :bind (:map haskell-mode-map
           ("C-c C-c" . haskell-compile)
           ("C-c C-l" . haskell-process-load-or-reload)
@@ -717,7 +711,6 @@ Tab = 4 spaces, bsd indentation style
     :hook
     ((haskell-mode . haskell-indentation-mode)
      (haskell-mode . interactive-haskell-mode)
-     (haskell-mode . company-mode)
      (haskell-mode . flycheck-mode)
      (haskell-mode . hindent-mode)
      (haskell-mode . subword-mode)))
@@ -726,18 +719,18 @@ Tab = 4 spaces, bsd indentation style
 ** Css-lang
 #+BEGIN_SRC emacs-lisp
 (use-package css-mode
-  :hook
-  (css-mode . company-mode))
+  :defer t)
 #+END_SRC
 
 ** Themes
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
-  :init (load-theme 'doom-palenight t)
+  :init (load-theme 'doom-city-lights t)
   :config
   (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t)
+        doom-themes-enable-italic t
+        doom-modeline-icon t)
   (doom-themes-org-config)
   (doom-themes-treemacs-config))
 #+END_SRC
@@ -759,4 +752,3 @@ Display emacs startup time
 ;; Reset gc threshold
 (setq gc-cons-threshold (* 2 1000 1000))
 #+end_src
-
