@@ -9,7 +9,7 @@
 ;; Skip the splash screen and empty the scratch buffer
 (setq inhibit-splash-screen t)
 (setq initial-scratch-message nil)
-(setq inhibit-startup-echo-message t)
+(setq inhibit-startup-screen t)
 
 ;; Turn off the scroll bar, menu bar and the tool bar.
 (scroll-bar-mode -1)
@@ -24,3 +24,6 @@
 (package-initialize)
 (add-to-list 'package-archives
              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+
+(provide 'early-init)
+;;; early-init.el ends here

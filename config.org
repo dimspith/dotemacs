@@ -1,25 +1,61 @@
-#+TITLE: My Emacs Configuration
+#+TITLE: Dotemacs
 #+AUTHOR: Dimitris Spythouris
+#+SETUPFILE: html-theme/comfy_inline.theme
 #+STARTUP: overview
 #+OPTIONS: num:nil
 
+* What is this?
+This document contains my configurations for GNU Emacs. It aims to be easy to
+read for a beginner and contains descriptions for every category so that anyone
+can learn from it and understand what is going on. It is written using =org-mode=
+and the final config is generated from [[file:init.el][init.el]], by parsing this file and
+extracting the source code.
+
+Most beginners (myself included) initially won't be able to grasp the seemingly
+arcane syntax of emacs-lisp used throughout the configuration so my
+recommendation is to take it slow and read about it either through the [[info:elisp#Top][E-lisp
+Reference Manual]] through emacs or online [[https://www.gnu.org/software/emacs/manual/elisp.html][here]].
+
+If you want to know more about emacs i heavily suggest the [[https://masteringemacs.org/book][Mastering Emacs]] book
+or the [[https://www.emacswiki.org/emacs/LearningEmacs][Learning Emacs]] list on the Emacs wiki. The most efficient way to learn
+though is by using it so have fun and enjoy!
+
+The theme used in the html export is =comfy_inline= which can be found in this
+amazing list of themes [[https://olmon.gitlab.io/org-themes/][here]].
+
 * Use-package
+
+[[https://github.com/jwiegley/use-package][Use-package]] is a macro that allows you to isolate package configuration in your
+init file in both a performance-oriented and a tidy way. It is used to make
+package initialization and configuration easier to write and read while also
+reducing loading times drastically when emacs starts up. It is invoked by the
+~(use-package <package>)~ command  as you'll soon notice.
+
+I find it's the most useful package here as  it makes everything a lot
+easier so before doing anything else we make sure it's installed and loaded.
+
+- The ~(setq use-package-always-ensure t)~ line ensures every package specified is
+  installed before proceeding. Everything is installed through [[https://melpa.org/#/][MELPA]] and [[https://elpa.gnu.org/][ELPA]].
+
 #+BEGIN_SRC emacs-lisp
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-(require 'use-package)
-(setq use-package-always-ensure t)
+  (unless (package-installed-p 'use-package)
+    (package-install 'use-package))
+  (eval-when-compile
+    (require 'use-package))
+  (setq use-package-always-ensure t)
 #+END_SRC
 
 * Core Settings
+  In this section we modify some default settings that address some minor pains
+  with emacs and/or personal preferences.
 ** Starting Directory
-Configure emacs to start in the home directory.
+Always start in the user's home directory
 #+BEGIN_SRC emacs-lisp
 (setq default-directory "~/")
 #+END_SRC
 
 ** Scrolling
-Smooth scrolling.
+Options for smooth scrolling using the mouse
 #+BEGIN_SRC emacs-lisp
 (setq mouse-wheel-scroll-amount '(3 ((shift) . 3)))
 (setq mouse-wheel-progressive-speed nil)
@@ -28,26 +64,14 @@ Smooth scrolling.
 #+END_SRC
 
 ** Column numbers
+Toggle column number display in the mode line
 #+BEGIN_SRC emacs-lisp
 (setq column-number-mode t)
 #+END_SRC
 
-** Line numbers
-#+begin_src emacs-lisp
-(global-linum-mode t)
-
-;; Disable line numbers for some modes
-(dolist (mode '(org-mode-hook
-                term-mode-hook
-                shell-mode-hook
-                dired-mode-hook
-                treemacs-mode-hook
-                eshell-mode-hook))
-  (add-hook mode (lambda () (linum-mode 0))))
-#+end_src
-
 ** Indentation
-Default tab width is 4 and tabs are now spaces.
+Set the default tab width to 4 spaces and replace tab characters with spaces.
+Also unless specified otherwise, <tab> indents the current line.
 #+BEGIN_SRC emacs-lisp
 (setq-default tab-always-indent t)
 (setq-default indent-tabs-mode nil)
@@ -55,8 +79,9 @@ Default tab width is 4 and tabs are now spaces.
 #+END_SRC
 
 ** Backup Files
+Create backups of edited files in case of a disaster.
 All backup files are saved in the ~/.emacs.d/saves directory.
-Some versioning of files is used to prevent disasters.
+A form of versioning is used to keep them safe.
 #+BEGIN_SRC emacs-lisp
 (setq backup-directory-alist '(("." . "~/.emacs.d/saves"))
   backup-by-copying t
@@ -68,18 +93,22 @@ Some versioning of files is used to prevent disasters.
 #+END_SRC
 
 ** Yes/No
-When emacs requires a yes/no answer make it one character.
+When emacs requires a yes/no answer make it one character instead of typing =yes=
+or =no=
 #+BEGIN_SRC emacs-lisp
 (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
 ** Visual lines
+Editing commands like movement or insertion/deletion act on visual lines, not
+logical. This is useful when working on long lines of text that wrap through the screen.
 #+BEGIN_SRC emacs-lisp
 (global-visual-line-mode t)
 #+END_SRC
 
 ** Disabled Commands
-Enable all disabled commands.
+Enable all disabled commands. By default emacs disables some commands to save
+the user from headaches but this is kind of redundant so we disable this functionality.
 #+BEGIN_SRC emacs-lisp
 (setq disabled-command-function nil)
 #+END_SRC
@@ -180,7 +209,7 @@ Guess resulting directory on dired operations
 
 ;; Center text when in org-mode buffers
 (defun org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
+  (setq visual-fill-column-width 150
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
@@ -306,6 +335,8 @@ Enable ivy globally (replacement for ido).
    Bind some keys to common commands
 #+BEGIN_SRC emacs-lisp
 (use-package counsel
+  :config
+  (setq counsel-fzf-cmd "fzf -f \"%s\"")
   :bind (("C-x C-f"   . counsel-find-file)
          ("M-x"       . counsel-M-x)
          ("<f2> u"    . counsel-unicode-char)
@@ -335,17 +366,18 @@ Replacement for smex with good recents support and counsel integration
 (use-package company
   :diminish
   :hook
-   (LaTeX-mode . company-mode)
-   (rustic-mode . company-mode)
-   (clojure-mode . company-mode)
-   (elixir-mode . company-mode)
-   (nim-mode . company-mode)
+   (LaTeX-mode      . company-mode)
+   (rustic-mode     . company-mode)
+   (clojure-mode    . company-mode)
+   (elixir-mode     . company-mode)
+   (nim-mode        . company-mode)
    (typescript-mode . company-mode)
-   (c-mode . company-mode)
-   (c++-mode . company-mode)
-   (js-mode . company-mode)
-   (haskell-mode . company-mode)
-   (css-mode . company-mode)
+   (c-mode          . company-mode)
+   (c++-mode        . company-mode)
+   (js-mode         . company-mode)
+   (haskell-mode    . company-mode)
+   (css-mode        . company-mode)
+   (emacs-lisp-mode . company-mode)
   :config
    (setq company-idle-delay 0.1)
    (setq company-minimum-prefix-length 1)
@@ -361,6 +393,10 @@ Load flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
   :defer t
+  :hook
+  (js-mode . flycheck-mode)
+  (haskell-mode . flycheck-mode)
+  (emacs-lisp-mode . flycheck-mode)
   :config
   (setq flycheck-check-syntax-automatically '(save mode-enabled)))
 #+END_SRC
@@ -407,16 +443,26 @@ Load flycheck
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'etags-select)
   (add-to-list 'projectile-globally-ignored-modes "org-mode")
-  (add-to-list 'projectile-globally-ignored-directories ".ccls-cache")
+  (add-to-list 'projectile-globally-ignored-directories "*.ccls-cache")
   (projectile-mode +1)
   :bind (:map projectile-mode-map
               ("C-c p" . projectile-command-map)))
 #+END_SRC
 
+#+begin_src emacs-lisp
+(use-package counsel-projectile
+  :after (counsel projectile))
+#+end_src
+
 ** Eglot
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
   :defer t
+  :hook
+  (LaTeX-mode . eglot-ensure)
+  (nim-mode . eglot-ensure)
+  (c-mode . eglot-ensure)
+  (c++-mode . eglot-ensure)
   :config
   (add-to-list 'eglot-server-programs '(haskell-mode    . ("ghcide" "--lsp")))
   (add-to-list 'eglot-server-programs '(nim-mode        . ("nimlsp")))
@@ -424,8 +470,7 @@ Load flycheck
   (add-to-list 'eglot-server-programs '(elixir-mode     . ("~/programs/elixir-ls/language_server.sh")))
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(c++-mode        . ("clangd")))
-  (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode)
-                                        . ("digestif"))))
+  (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode) . ("digestif"))))
 #+END_SRC
 
 ** Magit
@@ -463,8 +508,6 @@ Access it with C-x g.
 (use-package tex
   :defer t
   :ensure auctex
-  :hook
-  (LaTeX-mode . eglot-ensure)
   :config
   (setq TeX-auto-save t)
   (setq TeX-engine 'luatex)
@@ -570,6 +613,9 @@ Access it with C-x g.
 ** Paredit
 #+BEGIN_SRC emacs-lisp
 (use-package paredit
+  :hook
+  (clojure-mode    . paredit-mode)
+  (emacs-lisp-mode . paredit-mode)
   :bind (:map paredit-mode-map
               ("M-[" . paredit-wrap-square)))
 #+END_SRC
@@ -596,8 +642,7 @@ Access it with C-x g.
 
 ** Rainbow delimiters
 #+BEGIN_SRC emacs-lisp
-(use-package rainbow-delimiters
- )
+(use-package rainbow-delimiters)
 #+END_SRC
 
 ** Rust-lang
@@ -620,8 +665,7 @@ Access it with C-x g.
 #+BEGIN_SRC emacs-lisp
 (use-package clojure-mode
   :hook
-  (clojure-mode . rainbow-delimiters-mode)
-  (clojure-mode . paredit-mode))
+  (clojure-mode . rainbow-delimiters-mode))
 #+END_SRC
 
 ** Elixir-lang
@@ -645,9 +689,7 @@ Access it with C-x g.
 
 ** Nim-lang
 #+BEGIN_SRC emacs-lisp
-(use-package nim-mode
-  :hook
-  (nim-mode . eglot-ensure))
+(use-package nim-mode)
 #+END_SRC
 
 ** Lua-lang
@@ -663,29 +705,19 @@ Access it with C-x g.
   (typescript-mode . eglot-ensure))
 #+end_src
 
-** C/C++-lang
+** C-lang
 Tab = 4 spaces, bsd indentation style
 #+BEGIN_SRC emacs-lisp
 (use-package cc-mode
-  :hook
-  (c-mode . eglot-ensure)
   :config
   (setq-default c-basic-offset 4)
   (setq-default c-default-style "bsd"))
 #+END_SRC
 
-#+begin_src emacs-lisp
-(use-package c++-mode
-  :ensure nil
-  :hook
-  (c++-mode . eglot-ensure))
-#+end_src
-
 ** Js-lang
 #+BEGIN_SRC emacs-lisp
 (use-package js
   :hook
-  (js-mode . flycheck-mode)
   (js-mode . subword-mode))
 #+END_SRC
 
@@ -711,7 +743,6 @@ Tab = 4 spaces, bsd indentation style
     :hook
     ((haskell-mode . haskell-indentation-mode)
      (haskell-mode . interactive-haskell-mode)
-     (haskell-mode . flycheck-mode)
      (haskell-mode . hindent-mode)
      (haskell-mode . subword-mode)))
 #+END_SRC
@@ -722,17 +753,25 @@ Tab = 4 spaces, bsd indentation style
   :defer t)
 #+END_SRC
 
+** Elisp-lang
+   #+begin_src emacs-lisp
+(use-package elisp-mode
+  :ensure nil
+  :bind (:map emacs-lisp-mode-map
+              ("C-c C-k" . eval-buffer)))
+   #+end_src
+
 ** Themes
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
-  :init (load-theme 'doom-city-lights t)
   :config
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t
         doom-modeline-icon t)
   (doom-themes-org-config)
-  (doom-themes-treemacs-config))
+  (doom-themes-treemacs-config)
+  (load-theme 'doom-city-lights t))
 #+END_SRC
 
 * Custom
