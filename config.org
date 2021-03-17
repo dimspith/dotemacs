@@ -46,8 +46,8 @@ easier so before doing anything else we make sure it's installed and loaded.
 #+END_SRC
 
 * Core Settings
-  In this section we modify some default settings that address some minor pains
-  with emacs and/or personal preferences.
+In this section we modify some default settings that address some minor pains
+with emacs and/or personal preferences.
 ** Starting Directory
 Always start in the user's home directory
 #+BEGIN_SRC emacs-lisp
@@ -155,7 +155,10 @@ navigation with ~M-a~ and ~M-e~.
 #+END_SRC
 
 * Base Package Settings
+In this section we modify some base emacs packages and functionality of emacs
 ** Re-builder
+Emacs's built-in regex builder. Invoking this in a buffer allows you to match
+regexes against it, very useful.
 #+BEGIN_SRC emacs-lisp
 (use-package re-builder
   :config
@@ -163,49 +166,99 @@ navigation with ~M-a~ and ~M-e~.
 #+END_SRC
 
 ** Flymake
+Flymake is a built-in linter. It shows errors/warnings and diagnostics when
+enabled.
 #+BEGIN_SRC emacs-lisp
 (use-package flymake
   :defer t
+  :bind (:map flymake-mode-map
+              ("C-c ! s" . flymake-start)
+              ("C-c ! d" . flymake-show-diagnostics-buffer)
+              ("C-c ! n" . flymake-goto-next-error)
+              ("C-c ! p" . flymake-goto-prev-error))
+  :hook
+  (emacs-lisp-mode . flymake-mode)
   :config
   (setq flymake-no-changes-timeout nil)
   (setq flymake-start-syntax-check-on-newline nil))
 #+END_SRC
 
 ** Dired
-Guess resulting directory on dired operations
+Various settings for dired for better QoL.
 #+BEGIN_SRC emacs-lisp
 (setq dired-dwim-target t)
+(setq dired-recursive-copies 'always)
+(setq dired-recursive-deletes 'always)
 #+END_SRC
 
 ** Winner-mode
-   Easily undo and redo window changes.
-   #+BEGIN_SRC emacs-lisp
+Emacs built-in window history. Allows for undoing and redoing window changes.
+#+BEGIN_SRC emacs-lisp
 (use-package winner
-  :demand
+  :defer 2
   :config
   (winner-mode 1)
   :bind
   ("C-c w u" . winner-undo)
   ("C-c w r" . winner-redo))
-   #+END_SRC
+#+END_SRC
 
 ** Org-mode
+Org-mode is a markup language similar to markdown but with many more features
+and plugins. We configure some basic keybinds for link management and set up the
+agenda files. This document is an example of org-mode in action.
 #+BEGIN_SRC emacs-lisp
 (use-package org
   :bind
   ("C-c o a" . org-agenda)
-  ("C-c c"   . org-capture)
+  ("C-c o c" . org-capture)
   ("C-c o l" . org-store-link)
   :config
-  (setq org-agenda-span 14)
-  (setq org-agenda-files (quote ("~/notes/schedule.org")))
+  (setq org-agenda-span 30)
+  (setq org-agenda-files (quote ("~/notes/")))
+  (setq org-agenda-restore-windows-after-quit t)
+  (setq org-agenda-compact-blocks t)
+  (setq org-agenda-skip-deadline-if-done t)
+  (setq org-agenda-skip-scheduled-if-done t)
+  (setq org-agenda-start-on-weekday nil)
+  (setq org-agenda-sorting-strategy
+      (quote
+       ((agenda priority-down alpha-up)
+        (todo priority-down alpha-up)
+        (tags priority-down alpha-up))))
+  (setq org-agenda-prefix-format
+      (quote
+       ((agenda . "%s %?-12t %e ")
+        (timeline . "  %s")
+        (todo . " %i %e ")
+        (tags . " %i %e ")
+        (search . " %i %e "))))
+
+  (setq org-todo-keywords
+      (quote
+       ((sequence "TODO" "PROG" "PAUS" "|" "DONE" "CANC"))))
+
+  (setq org-todo-keyword-faces
+      '(("PROG" . "orange") ("PAUS" . "magenta") ("CANC" . "red") ("DONE" . "green")))
+
+  (setq org-default-priority 72)
+  (setq org-highest-priority 65)
+  (setq org-lowest-priority 90)
+
+  (setq org-bullets-bullet-list (quote ("◉" "◆" "✚" "☀" "○")))
+
   (setq org-src-window-setup 'current-window)
   (setq org-src-fontify-natively t)
-  (setq org-list-allow-alphabetical t)
   (setq org-src-preserve-indentation t)
   (setq org-src-tab-acts-natively t)
   (setq org-edit-src-content-indentation 0)
+  (setq org-list-allow-alphabetical t)
   (setq org-hide-emphasis-markers t))
+
+(use-package org-indent
+  :ensure nil
+  :config
+  (setq org-startup-indented t))
 
 ;; Center text when in org-mode buffers
 (defun org-mode-visual-fill ()
@@ -218,8 +271,9 @@ Guess resulting directory on dired operations
 #+END_SRC
 
 ** Electric
-   Enable electric pair and indent mode.
-   A newline between adjacent parentheses opens an extra one.
+Emacs labels as "electric" any behaviour that involves contextual auto-insertion
+of characters. In this case we enable this functionality for brackets,
+parentheses and other usual candidates as well as opening two newlines between them.
    #+BEGIN_SRC emacs-lisp
 (use-package electric
   :config
@@ -229,7 +283,7 @@ Guess resulting directory on dired operations
    #+END_SRC
 
 ** Show-paren-mode
-   Highlight matching parentheses.
+Highlight matching parentheses and delimiters when the pointer is above them.
    #+BEGIN_SRC emacs-lisp
 (use-package paren
   :config
@@ -240,6 +294,8 @@ Guess resulting directory on dired operations
    #+END_SRC
 
 ** Hippie-expand
+Hippie-expand is an alternative to dabbrev which offers dynamic word completion,
+or "dynamic abbreviation". We define the set of rules to try on each keypress.
 #+BEGIN_SRC emacs-lisp
 (use-package hippie-exp
   :bind
@@ -263,11 +319,12 @@ Guess resulting directory on dired operations
 ** doom-modeline
 #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
-  :init (doom-modeline-mode 1)
-  :config
+  :init
   (setq doom-modeline-major-mode-icon t)
   (setq doom-modeline-major-mode-color-icon t)
-  (setq doom-modeline-unicode-fallback nil))
+  (setq doom-modeline-unicode-fallback nil)
+  :config
+  (doom-modeline-mode 1))
 #+END_SRC
 
 ** Avy
@@ -292,7 +349,7 @@ Guess resulting directory on dired operations
 ** Deft
 #+BEGIN_SRC emacs-lisp
 (use-package deft
-  :defer 5
+  :defer 0.5
   :init
   (setq deft-directory "~/notes"
         deft-extensions '("org")
@@ -396,7 +453,6 @@ Load flycheck
   :hook
   (js-mode . flycheck-mode)
   (haskell-mode . flycheck-mode)
-  (emacs-lisp-mode . flycheck-mode)
   :config
   (setq flycheck-check-syntax-automatically '(save mode-enabled)))
 #+END_SRC
@@ -506,11 +562,10 @@ Access it with C-x g.
 ** Latex
 #+BEGIN_SRC emacs-lisp
 (use-package tex
-  :defer t
   :ensure auctex
   :config
   (setq TeX-auto-save t)
-  (setq TeX-engine 'luatex)
+  (setq TeX-engine 'lualatex)
   (setq TeX-parse-self t))
 #+END_SRC
 
