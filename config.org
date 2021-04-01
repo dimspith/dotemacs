@@ -335,6 +335,11 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
   ("C-M-;" . avy-goto-line))
 #+END_SRC
 
+** Writeroom-mode
+#+begin_src emacs-lisp
+(use-package writeroom-mode
+  :defer 3)
+#+end_src
 ** Xterm-color
    #+BEGIN_SRC emacs-lisp
    (use-package xterm-color
@@ -352,10 +357,9 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
   :defer 0.5
   :init
   (setq deft-directory "~/notes"
-        deft-extensions '("org")
+        deft-extensions '("org" "md" "txt")
         deft-use-filename-as-title t
-        deft-recursive t
-        deft-new-file-format "%Y-%m-%dT%H%M"))
+        deft-recursive t))
 #+END_SRC
 
 ** Zetteldeft
@@ -765,7 +769,7 @@ Tab = 4 spaces, bsd indentation style
 #+BEGIN_SRC emacs-lisp
 (use-package cc-mode
   :config
-  (setq-default c-basic-offset 4)
+  (setq-default c-basic-offset 8)
   (setq-default c-default-style "bsd"))
 #+END_SRC
 
