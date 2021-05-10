@@ -340,6 +340,7 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
 (use-package writeroom-mode
   :defer 3)
 #+end_src
+
 ** Xterm-color
    #+BEGIN_SRC emacs-lisp
    (use-package xterm-color
@@ -526,10 +527,10 @@ Load flycheck
   :config
   (add-to-list 'eglot-server-programs '(haskell-mode    . ("ghcide" "--lsp")))
   (add-to-list 'eglot-server-programs '(nim-mode        . ("nimlsp")))
-  (add-to-list 'eglot-server-programs '(c-mode          . ("ccls")))
+  (add-to-list 'eglot-server-programs '(c-mode          . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
   (add-to-list 'eglot-server-programs '(elixir-mode     . ("~/programs/elixir-ls/language_server.sh")))
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
-  (add-to-list 'eglot-server-programs '(c++-mode        . ("clangd")))
+  (add-to-list 'eglot-server-programs '(c++-mode        . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
   (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode) . ("digestif"))))
 #+END_SRC
 
