@@ -831,7 +831,7 @@ Install the themes and set the default one
         doom-modeline-icon t)
   (doom-themes-org-config)
   (doom-themes-treemacs-config)
-  (load-theme 'doom-city-lights t))
+  (load-theme 'doom-sourcerer t))
 #+END_SRC
 
 * Custom

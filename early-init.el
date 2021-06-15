@@ -17,9 +17,9 @@
 (menu-bar-mode -1)
 
 ;; Set default, fixed and variable fonts
-(set-face-attribute 'default nil :family "Fira Code" :height 100)
-(set-face-attribute 'fixed-pitch nil :family "Fira Code" :height 100)
-(set-face-attribute 'variable-pitch nil :family "Cantarell" :height 100 :weight 'regular)
+(set-face-attribute 'default nil :family "Iosevka Fixed Extended" :height 100)
+(set-face-attribute 'fixed-pitch nil :family "Iosevka Fixed Extended" :height 100)
+(set-face-attribute 'variable-pitch nil :family "IBM Plex Sans" :height 100 :weight 'regular)
 
 (package-initialize)
 (add-to-list 'package-archives
