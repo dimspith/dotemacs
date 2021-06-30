@@ -39,6 +39,7 @@ easier so before doing anything else we make sure it's installed and loaded.
 
 #+BEGIN_SRC emacs-lisp
   (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
     (package-install 'use-package))
   (eval-when-compile
     (require 'use-package))
@@ -316,14 +317,6 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
 #+END_SRC
 
 * Other Package Settings
-** Telephone-line
-#+BEGIN_SRC emacs-lisp
-(use-package telephone-line
-  ;; :init
-  :config
-  (telephone-line-mode 1))
-#+END_SRC
-
 ** Avy
 #+BEGIN_SRC emacs-lisp
 (use-package avy
@@ -342,11 +335,7 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
 #+begin_src emacs-lisp
 (use-package solaire-mode
   :config
-  (solaire-global-mode +1)
-
-  ;; Disable mode-line face remapping (for telephone-line)
-  (dolist (face '(mode-line mode-line-inactive))
-  (setf (alist-get face solaire-mode-remap-modeline) nil)))
+  (solaire-global-mode +1))
 #+end_src
 
 ** Xterm-color
@@ -363,7 +352,7 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
 ** Deft
 #+BEGIN_SRC emacs-lisp
 (use-package deft
-  :defer 0.5
+  ;;:defer 0.5
   :init
   (setq deft-directory "~/notes"
         deft-extensions '("org" "md" "txt")
@@ -374,7 +363,6 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
 ** Zetteldeft
 #+BEGIN_SRC emacs-lisp
 (use-package zetteldeft
-  :after deft
   :config
   (zetteldeft-set-classic-keybindings))
 #+END_SRC
@@ -466,8 +454,8 @@ load flycheck
   :config
   (yas-global-mode)
   :bind
-  ("c-'"      . yas-expand)
-  ("c-c <tab>". company-yasnippet))
+  ("C-'"      . yas-expand)
+  ("C-c <tab>". company-yasnippet))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -504,7 +492,7 @@ load flycheck
   (add-to-list 'projectile-globally-ignored-directories "*.ccls-cache")
   (projectile-mode +1)
   :bind (:map projectile-mode-map
-              ("c-c p" . projectile-command-map)))
+              ("C-c p" . projectile-command-map)))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -537,7 +525,7 @@ we also install magit-annex for git-annex compatibility.
 access it with c-x g.
 #+begin_src emacs-lisp
 (use-package magit
-  :bind ("c-x g". magit-status))
+  :bind ("C-x g". magit-status))
 #+end_src
 
 ** Which-key
@@ -549,19 +537,19 @@ access it with c-x g.
     (which-key-mode t))
 #+end_src
 
-** iedit
+** Iedit
 #+begin_src emacs-lisp
 (use-package iedit
-    :bind ("c-c i" . iedit-mode))
+    :bind ("C-c i" . iedit-mode))
 #+end_src
 
-** org bullets
+** Org Bullets
 #+begin_src emacs-lisp
 (use-package org-bullets
   :hook (org-mode . org-bullets-mode))
 #+end_src
 
-** latex
+** Latex
 #+begin_src emacs-lisp
 (use-package tex
   :ensure auctex
@@ -571,7 +559,7 @@ access it with c-x g.
   (setq tex-parse-self t))
 #+end_src
 
-** emmet
+** Emmet
    offers snippets for html and css
 #+begin_src emacs-lisp
 (use-package emmet-mode
@@ -579,7 +567,7 @@ access it with c-x g.
          (css-mode . emmet-mode)))
 #+end_src
 
-** neotree
+** Treemacs
 #+begin_src emacs-lisp
 (use-package treemacs
   :defer t
@@ -641,12 +629,12 @@ access it with c-x g.
        (treemacs-git-mode 'simple))))
   :bind
   (:map global-map
-        ("m-0"       . treemacs-select-window)
-        ("c-x t 1"   . treemacs-delete-other-windows)
-        ("c-x t t"   . treemacs)
-        ("c-x t b"   . treemacs-bookmark)
-        ("c-x t c-t" . treemacs-find-file)
-        ("c-x t m-t" . treemacs-find-tag)))
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t b"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
 
 (use-package treemacs-projectile
   :after treemacs projectile)
@@ -659,17 +647,17 @@ access it with c-x g.
   :after treemacs magit)
 #+end_src
 
-** paredit
+** Paredit
 #+begin_src emacs-lisp
 (use-package paredit
   :hook
   (clojure-mode    . paredit-mode)
   (emacs-lisp-mode . paredit-mode)
   :bind (:map paredit-mode-map
-              ("m-[" . paredit-wrap-square)))
+              ("M-[" . paredit-wrap-square)))
 #+end_src
 
-** aggressive-indent-mode
+** Aggressive-Indent-Mode
 #+begin_src emacs-lisp
 (use-package aggressive-indent
   :hook
@@ -678,7 +666,7 @@ access it with c-x g.
   (clojure-mode . aggressive-indent-mode))
 #+end_src
 
-** htmlize
+** Htmlize
 #+begin_src emacs-lisp
 (use-package htmlize
   :defer 5)
@@ -698,7 +686,6 @@ access it with c-x g.
 *** Rust-lang
 #+begin_src emacs-lisp
 (use-package rustic
-  :defer t
   :config
   (setq rustic-lsp-server 'rust-analyzer)
   (setq rustic-lsp-client 'eglot)
@@ -725,11 +712,6 @@ access it with c-x g.
   (elixir-mode . mix-minor-mode)
   :bind (:map elixir-mode-map
               ("C-c C-f" . elixir-format)))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package mix
-  )
 #+end_src
 
 *** Yaml-lang
@@ -811,17 +793,22 @@ Tab = 4 spaces, bsd indentation style
               ("C-c C-k" . eval-buffer)))
    #+end_src
 
+** Simple-Modeline
+#+BEGIN_SRC emacs-lisp
+(use-package simple-modeline
+  :hook (after-init . simple-modeline-mode))
+#+END_SRC
+
 ** Themes
 Install the themes and set the default one
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
   :config
   (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t
-        doom-modeline-icon t)
+        doom-themes-enable-italic t)
   (doom-themes-org-config)
   (doom-themes-treemacs-config)
-  (load-theme 'doom-sourcerer t))
+  (load-theme 'doom-dracula t))
 #+END_SRC
 
 * Custom
