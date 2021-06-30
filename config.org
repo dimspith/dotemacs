@@ -413,7 +413,8 @@ Enable ivy globally (replacement for ido).
          ("C-c g"     . counsel-git)
          ("C-c j"     . counsel-git-grep)
          ("C-x l"     . counsel-locate)
-         ("C-c s d"   . counsel-dired-jump)
+         ("C-c f d"   . counsel-dired-jump)
+         ("C-c f f"   . counsel-dired-jump)
          ("M-i"       . counsel-imenu)
          ("<f9>"      . counsel-load-theme)))
 #+end_src
