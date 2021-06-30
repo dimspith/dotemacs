@@ -316,15 +316,12 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
 #+END_SRC
 
 * Other Package Settings
-** doom-modeline
+** Telephone-line
 #+BEGIN_SRC emacs-lisp
-(use-package doom-modeline
-  :init
-  (setq doom-modeline-major-mode-icon t)
-  (setq doom-modeline-major-mode-color-icon t)
-  (setq doom-modeline-unicode-fallback nil)
+(use-package telephone-line
+  ;; :init
   :config
-  (doom-modeline-mode 1))
+  (telephone-line-mode 1))
 #+END_SRC
 
 ** Avy
@@ -339,6 +336,17 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
 #+begin_src emacs-lisp
 (use-package writeroom-mode
   :defer 3)
+#+end_src
+
+** Solaire-mode
+#+begin_src emacs-lisp
+(use-package solaire-mode
+  :config
+  (solaire-global-mode +1)
+
+  ;; Disable mode-line face remapping (for telephone-line)
+  (dolist (face '(mode-line mode-line-inactive))
+  (setf (alist-get face solaire-mode-remap-modeline) nil)))
 #+end_src
 
 ** Xterm-color
@@ -402,33 +410,21 @@ Enable ivy globally (replacement for ido).
   :bind (("C-x C-f"   . counsel-find-file)
          ("M-x"       . counsel-M-x)
          ("<f2> u"    . counsel-unicode-char)
-         ("C-c s g f" . counsel-git)
+         ("C-c g"     . counsel-git)
+         ("C-c j"     . counsel-git-grep)
+         ("C-x l"     . counsel-locate)
          ("C-c s d"   . counsel-dired-jump)
-         ("C-c s g g" . counsel-git-grep)
-         ("C-c s f"   . counsel-fzf)
-         ("C-c s l"   . counsel-locate)
-         ("C-x r i"   . counsel-register)
          ("M-i"       . counsel-imenu)
          ("<f9>"      . counsel-load-theme)))
-#+END_SRC
-
-** Amx
-Replacement for smex with good recents support and counsel integration
-#+BEGIN_SRC emacs-lisp
-;; (use-package amx
-;;   :bind
-;;   ("M-x" . amx)
-;;   :config
-;;   (amx-mode))
-#+End_SRC
+#+end_src
 
 ** Company
-   Enable company with various settings
-#+BEGIN_SRC emacs-lisp
+   enable company with various settings
+#+begin_src emacs-lisp
 (use-package company
   :diminish
   :hook
-   (LaTeX-mode      . company-mode)
+   (latex-mode      . company-mode)
    (rustic-mode     . company-mode)
    (clojure-mode    . company-mode)
    (elixir-mode     . company-mode)
@@ -448,11 +444,11 @@ Replacement for smex with good recents support and counsel integration
    (setq company-tooltip-limit 10)
    (setq company-dabbrev-downcase nil)
    (company-tng-configure-default))
-#+END_SRC
+#+end_src
 
 ** Flycheck
-Load flycheck
-#+BEGIN_SRC emacs-lisp
+load flycheck
+#+begin_src emacs-lisp
 (use-package flycheck
   :defer t
   :hook
@@ -460,26 +456,26 @@ Load flycheck
   (haskell-mode . flycheck-mode)
   :config
   (setq flycheck-check-syntax-automatically '(save mode-enabled)))
-#+END_SRC
+#+end_src
 
 ** Yasnippet
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package yasnippet
   :diminish yas-minor-mode
   :config
   (yas-global-mode)
   :bind
-  ("C-'"      . yas-expand)
-  ("C-c <tab>". company-yasnippet))
-#+END_SRC
+  ("c-'"      . yas-expand)
+  ("c-c <tab>". company-yasnippet))
+#+end_src
 
 #+begin_src emacs-lisp
 (use-package yasnippet-snippets
   :after (yasnippet))
 #+end_src
 
-** All-the-icons
-#+BEGIN_SRC emacs-lisp
+** All-The-Icons
+#+begin_src emacs-lisp
 (use-package all-the-icons-dired
   :hook
   (dired-mode . all-the-icons-dired-mode))
@@ -494,10 +490,10 @@ Load flycheck
       projectile-find-dir))
   (all-the-icons-ivy-setup)
   (ivy-set-display-transformer 'ivy-switch-buffer 'all-the-icons-ivy-buffer-transformer))
-#+END_SRC
+#+end_src
 
 ** Projectile
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package projectile
   :defer 5
   :config
@@ -507,8 +503,8 @@ Load flycheck
   (add-to-list 'projectile-globally-ignored-directories "*.ccls-cache")
   (projectile-mode +1)
   :bind (:map projectile-mode-map
-              ("C-c p" . projectile-command-map)))
-#+END_SRC
+              ("c-c p" . projectile-command-map)))
+#+end_src
 
 #+begin_src emacs-lisp
 (use-package counsel-projectile
@@ -516,11 +512,11 @@ Load flycheck
 #+end_src
 
 ** Eglot
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package eglot
   :defer t
   :hook
-  (LaTeX-mode . eglot-ensure)
+  (latex-mode . eglot-ensure)
   (nim-mode . eglot-ensure)
   (c-mode . eglot-ensure)
   (c++-mode . eglot-ensure)
@@ -532,71 +528,63 @@ Load flycheck
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(c++-mode        . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
   (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode) . ("digestif"))))
-#+END_SRC
+#+end_src
 
 ** Magit
-Magit is an interface to git.
-We also install magit-annex for git-annex compatibility.
-Access it with C-x g.
-#+BEGIN_SRC emacs-lisp
+magit is an interface to git.
+we also install magit-annex for git-annex compatibility.
+access it with c-x g.
+#+begin_src emacs-lisp
 (use-package magit
-  :bind ("C-x g". magit-status))
-#+END_SRC
+  :bind ("c-x g". magit-status))
+#+end_src
 
 ** Which-key
-   Which-key is a keybinding preview utility to show all subsequent keys when waiting for commands.
-#+BEGIN_SRC emacs-lisp
+   which-key is a keybinding preview utility to show all subsequent keys when waiting for commands.
+#+begin_src emacs-lisp
 (use-package which-key
   :diminish which-key-mode
   :config
     (which-key-mode t))
-#+END_SRC
+#+end_src
 
-** Iedit
-#+BEGIN_SRC emacs-lisp
+** iedit
+#+begin_src emacs-lisp
 (use-package iedit
-    :bind ("C-c i" . iedit-mode))
-#+END_SRC
+    :bind ("c-c i" . iedit-mode))
+#+end_src
 
-** Org Bullets
-#+BEGIN_SRC emacs-lisp
+** org bullets
+#+begin_src emacs-lisp
 (use-package org-bullets
   :hook (org-mode . org-bullets-mode))
-#+END_SRC
+#+end_src
 
-** Latex
-#+BEGIN_SRC emacs-lisp
+** latex
+#+begin_src emacs-lisp
 (use-package tex
   :ensure auctex
   :config
-  (setq TeX-auto-save t)
-  (setq TeX-engine 'lualatex)
-  (setq TeX-parse-self t))
-#+END_SRC
+  (setq tex-auto-save t)
+  (setq tex-engine 'lualatex)
+  (setq tex-parse-self t))
+#+end_src
 
-** Quickrun
-   Quickrun provides utilities to quickly compile and execute programs
-   F6 runs a program in eshell
-#+BEGIN_SRC emacs-lisp
-(use-package quickrun
-  :bind ("<f6>" . quickrun-shell))
-#+END_SRC
-
-** Emmet
-   Offers snippets for html and css
-#+BEGIN_SRC emacs-lisp
+** emmet
+   offers snippets for html and css
+#+begin_src emacs-lisp
 (use-package emmet-mode
   :hook ((sgml-mode . emmet-mode)
          (css-mode . emmet-mode)))
-#+END_SRC
+#+end_src
 
-** Neotree
-#+BEGIN_SRC emacs-lisp
+** neotree
+#+begin_src emacs-lisp
 (use-package treemacs
   :defer t
   :init
   (with-eval-after-load 'winum
-    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+    (define-key winum-keymap (kbd "m-0") #'treemacs-select-window))
   :config
   (progn
     (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
@@ -637,8 +625,8 @@ Access it with C-x g.
           treemacs-tag-follow-delay              1.5
           treemacs-user-mode-line-format         nil
           treemacs-width                         35)
-    ;; The default width and height of the icons is 22 pixels. If you are
-    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;; the default width and height of the icons is 22 pixels. if you are
+    ;; using a hi-dpi display, uncomment this to double the icon size.
     ;;(treemacs-resize-icons 44)
 
     (treemacs-follow-mode t)
@@ -652,12 +640,12 @@ Access it with C-x g.
        (treemacs-git-mode 'simple))))
   :bind
   (:map global-map
-        ("M-0"       . treemacs-select-window)
-        ("C-x t 1"   . treemacs-delete-other-windows)
-        ("C-x t t"   . treemacs)
-        ("C-x t B"   . treemacs-bookmark)
-        ("C-x t C-t" . treemacs-find-file)
-        ("C-x t M-t" . treemacs-find-tag)))
+        ("m-0"       . treemacs-select-window)
+        ("c-x t 1"   . treemacs-delete-other-windows)
+        ("c-x t t"   . treemacs)
+        ("c-x t b"   . treemacs-bookmark)
+        ("c-x t c-t" . treemacs-find-file)
+        ("c-x t m-t" . treemacs-find-tag)))
 
 (use-package treemacs-projectile
   :after treemacs projectile)
@@ -668,29 +656,29 @@ Access it with C-x g.
 
 (use-package treemacs-magit
   :after treemacs magit)
-#+END_SRC
+#+end_src
 
-** Paredit
-#+BEGIN_SRC emacs-lisp
+** paredit
+#+begin_src emacs-lisp
 (use-package paredit
   :hook
   (clojure-mode    . paredit-mode)
   (emacs-lisp-mode . paredit-mode)
   :bind (:map paredit-mode-map
-              ("M-[" . paredit-wrap-square)))
-#+END_SRC
+              ("m-[" . paredit-wrap-square)))
+#+end_src
 
-** Aggressive-indent-mode
-#+BEGIN_SRC emacs-lisp
+** aggressive-indent-mode
+#+begin_src emacs-lisp
 (use-package aggressive-indent
   :hook
   (html-mode . aggressive-indent-mode)
   (css-mode  . aggressive-indent-mode)
   (clojure-mode . aggressive-indent-mode))
-#+END_SRC
+#+end_src
 
-** Htmlize
-#+BEGIN_SRC emacs-lisp
+** htmlize
+#+begin_src emacs-lisp
 (use-package htmlize
   :defer 5)
 #+END_SRC
@@ -705,7 +693,8 @@ Access it with C-x g.
 (use-package rainbow-delimiters)
 #+END_SRC
 
-** Rust-lang
+** LANGUAGES
+*** Rust-lang
 #+begin_src emacs-lisp
 (use-package rustic
   :defer t
@@ -715,7 +704,7 @@ Access it with C-x g.
   (setq rustic-format-on-save nil))
 #+end_src
 
-** Clojure-lang
+*** Clojure-lang
 #+BEGIN_SRC emacs-lisp
 (use-package cider
   :bind (:map cider-repl-mode-map
@@ -728,7 +717,7 @@ Access it with C-x g.
   (clojure-mode . rainbow-delimiters-mode))
 #+END_SRC
 
-** Elixir-lang
+*** Elixir-lang
 #+begin_src emacs-lisp
 (use-package elixir-mode
   :hook
@@ -742,30 +731,30 @@ Access it with C-x g.
   )
 #+end_src
 
-** Yaml-lang
+*** Yaml-lang
 #+BEGIN_SRC emacs-lisp
 (use-package yaml-mode)
 #+END_SRC
 
-** Nim-lang
+*** Nim-lang
 #+BEGIN_SRC emacs-lisp
 (use-package nim-mode)
 #+END_SRC
 
-** Lua-lang
+*** Lua-lang
 #+begin_src emacs-lisp
 (use-package lua-mode
   :defer t)
 #+end_src
 
-** Typescript-lang
+*** Typescript-lang
 #+begin_src emacs-lisp
 (use-package typescript-mode
   :hook
   (typescript-mode . eglot-ensure))
 #+end_src
 
-** C-lang
+*** C-lang
 Tab = 4 spaces, bsd indentation style
 #+BEGIN_SRC emacs-lisp
 (use-package cc-mode
@@ -774,14 +763,14 @@ Tab = 4 spaces, bsd indentation style
   (setq-default c-default-style "bsd"))
 #+END_SRC
 
-** Js-lang
+*** Js-lang
 #+BEGIN_SRC emacs-lisp
 (use-package js
   :hook
   (js-mode . subword-mode))
 #+END_SRC
 
-** Haskell-lang
+*** Haskell-lang
 #+BEGIN_SRC emacs-lisp
   (use-package haskell-mode
 
@@ -807,13 +796,13 @@ Tab = 4 spaces, bsd indentation style
      (haskell-mode . subword-mode)))
 #+END_SRC
 
-** Css-lang
+*** Css-lang
 #+BEGIN_SRC emacs-lisp
 (use-package css-mode
   :defer t)
 #+END_SRC
 
-** Elisp-lang
+*** Elisp-lang
    #+begin_src emacs-lisp
 (use-package elisp-mode
   :ensure nil
