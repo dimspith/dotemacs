@@ -22,8 +22,9 @@
 (set-face-attribute 'variable-pitch nil :family "IBM Plex Sans" :height 100 :weight 'regular)
 
 (package-initialize)
+
 (add-to-list 'package-archives
-             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+             '("melpa" . "https://melpa.org/packages/") t)
 
 (provide 'early-init)
 ;;; early-init.el ends here
