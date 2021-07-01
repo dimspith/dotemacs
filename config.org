@@ -23,29 +23,6 @@ though is by using it so have fun and enjoy!
 The theme used in the html export is =comfy_inline= which can be found in this
 amazing list of themes [[https://olmon.gitlab.io/org-themes/][here]].
 
-* Use-package
-
-[[https://github.com/jwiegley/use-package][Use-package]] is a macro that allows you to isolate package configuration in your
-init file in both a performance-oriented and a tidy way. It is used to make
-package initialization and configuration easier to write and read while also
-reducing loading times drastically when emacs starts up. It is invoked by the
-~(use-package <package>)~ command  as you'll soon notice.
-
-I find it's the most useful package here as  it makes everything a lot
-easier so before doing anything else we make sure it's installed and loaded.
-
-- The ~(setq use-package-always-ensure t)~ line ensures every package specified is
-  installed before proceeding. Everything is installed through [[https://melpa.org/#/][MELPA]] and [[https://elpa.gnu.org/][ELPA]].
-
-#+BEGIN_SRC emacs-lisp
-  (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
-    (package-install 'use-package))
-  (eval-when-compile
-    (require 'use-package))
-  (setq use-package-always-ensure t)
-#+END_SRC
-
 * Core Settings
 In this section we modify some default settings that address some minor pains
 with emacs and/or personal preferences.
@@ -124,17 +101,17 @@ navigation with ~M-a~ and ~M-e~.
 ** Misc
 #+BEGIN_SRC emacs-lisp
 (use-package newcomment
-  :ensure nil
+  :straight (:type built-in)
   :bind
   ("C-x M-;" . comment-box))
 
-(use-package view
-  :ensure nil
-  :bind ("C-v" . View-scroll-half-page-forward)
-        ("M-v" . View-scroll-half-page-backward))
+;; (use-package view
+;;   :straight (:type built-in)
+;;   :bind ("C-v" . View-scroll-half-page-forward)
+;;         ("M-v" . View-scroll-half-page-backward))
 
 (use-package emacs
-  :ensure nil
+  :straight (:type built-in)
   :bind
   ("C-M-<left>"  . shrink-window-horizontally)
   ("C-M-<right>" . enlarge-window-horizontally)
@@ -162,6 +139,7 @@ Emacs's built-in regex builder. Invoking this in a buffer allows you to match
 regexes against it, very useful.
 #+BEGIN_SRC emacs-lisp
 (use-package re-builder
+  :straight (:type built-in)
   :config
   (setq reb-re-syntax 'string))
 #+END_SRC
@@ -171,7 +149,7 @@ Flymake is a built-in linter. It shows errors/warnings and diagnostics when
 enabled.
 #+BEGIN_SRC emacs-lisp
 (use-package flymake
-  :defer t
+  :straight (:type built-in)
   :bind (:map flymake-mode-map
               ("C-c ! s" . flymake-start)
               ("C-c ! d" . flymake-show-diagnostics-buffer)
@@ -196,7 +174,7 @@ Various settings for dired for better QoL.
 Emacs built-in window history. Allows for undoing and redoing window changes.
 #+BEGIN_SRC emacs-lisp
 (use-package winner
-  :defer 2
+  :straight (:type built-in)
   :config
   (winner-mode 1)
   :bind
@@ -210,6 +188,7 @@ and plugins. We configure some basic keybinds for link management and set up the
 agenda files. This document is an example of org-mode in action.
 #+BEGIN_SRC emacs-lisp
 (use-package org
+  :straight (:type built-in)
   :bind
   ("C-c o a" . org-agenda)
   ("C-c o c" . org-capture)
@@ -257,7 +236,7 @@ agenda files. This document is an example of org-mode in action.
   (setq org-hide-emphasis-markers t))
 
 (use-package org-indent
-  :ensure nil
+  :straight (:type built-in)
   :config
   (setq org-startup-indented t))
 
@@ -277,6 +256,7 @@ of characters. In this case we enable this functionality for brackets,
 parentheses and other usual candidates as well as opening two newlines between them.
    #+BEGIN_SRC emacs-lisp
 (use-package electric
+  :straight (:type built-in)
   :config
   (electric-pair-mode 1)
   (electric-indent-mode 1)
@@ -287,6 +267,7 @@ parentheses and other usual candidates as well as opening two newlines between t
 Highlight matching parentheses and delimiters when the pointer is above them.
    #+BEGIN_SRC emacs-lisp
 (use-package paren
+  :straight (:type built-in)
   :config
   (setq show-paren-style 'parenthesis)
   (setq show-paren-when-point-in-periphery t)
@@ -299,6 +280,7 @@ Hippie-expand is an alternative to dabbrev which offers dynamic word completion,
 or "dynamic abbreviation". We define the set of rules to try on each keypress.
 #+BEGIN_SRC emacs-lisp
 (use-package hippie-exp
+  :straight (:type built-in)
   :bind
   ("M-/" . hippie-expand)
   :config
@@ -322,20 +304,16 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
 (use-package avy
   :bind
   ("C-;" . avy-goto-char)
-  ("C-M-;" . avy-goto-line))
+  ("C-M-;" . avy-goto-char-2)
+  ("M-g f" . avy-goto-line)
+  ("M-g w" . avy-goto-word-1)
+  ("M-g e" . avy-goto-word-0))
 #+END_SRC
 
 ** Writeroom-mode
 #+begin_src emacs-lisp
 (use-package writeroom-mode
   :defer 3)
-#+end_src
-
-** Solaire-mode
-#+begin_src emacs-lisp
-(use-package solaire-mode
-  :config
-  (solaire-global-mode +1))
 #+end_src
 
 ** Xterm-color
@@ -367,44 +345,67 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
   (zetteldeft-set-classic-keybindings))
 #+END_SRC
 
-** Ivy, Counsel, Swiper
-Enable ivy globally (replacement for ido).
+** Selectrum
+Enable selectrum globally (replacement for ido)
 #+BEGIN_SRC emacs-lisp
-(use-package ivy
-  :diminish ivy-mode
-  :bind (("C-c C-r" . ivy-resume))
+(use-package selectrum
   :config
-    (ivy-mode t)
-    (setq ivy-initial-inputs-alist nil)
-    (setq ivy-use-virtual-buffers t)
-    (setq enable-recursive-minibuffers t)
-    (setq ivy-count-format "(%d/%d) "))
+  (selectrum-mode +1))
+
 #+END_SRC
 
-   Enable swiper (enhanced isearch for ivy) and assign C-s to search
+** Consult
 #+BEGIN_SRC emacs-lisp
-(use-package swiper
+(use-package consult
+  :bind (("M-g g"   . consult-goto-line)
+         ("M-g M-g" . consult-goto-line)
+         ("M-i"     . consult-imenu)
+         ("C-c j"   . consult-git-grep)
+         ("C-x l"   . consult-locate)
+         ("M-y"     . consult-yank-pop)
+         ("C-x r b" . consult-bookmark)
+         ("C-x b"   . consult-buffer)
+         ("<f9>"    . consult-theme)))
+#+end_src
+
+** Ctrlf
+#+begin_src emacs-lisp
+(use-package ctrlf
+  :config
+  (ctrlf-mode +1))
+#+end_src
+
+** Prescient
+#+begin_src emacs-lisp
+(use-package prescient
+  :config
+  (prescient-persist-mode t))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package selectrum-prescient
+  :config
+  (selectrum-prescient-mode +1))
+#+end_src
+
+** Marginalia
+#+begin_src emacs-lisp
+(use-package marginalia
+  :bind (:map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+  :init
+  (marginalia-mode))
+#+end_src
+
+** Affe
+#+begin_src emacs-lisp
+(use-package affe
+  :config
+  ;; Manual preview key for `affe-grep'
+  (consult-customize affe-grep :preview-key (kbd "M-."))
   :bind
-  ("C-s" . swiper)
-  ("C-r" . swiper))
-#+END_SRC
-
-   Counsel is a collection of ivy enhanced base commands
-   Bind some keys to common commands
-#+BEGIN_SRC emacs-lisp
-(use-package counsel
-  :config
-  (setq counsel-fzf-cmd "fzf -f \"%s\"")
-  :bind (("C-x C-f"   . counsel-find-file)
-         ("M-x"       . counsel-M-x)
-         ("<f2> u"    . counsel-unicode-char)
-         ("C-c g"     . counsel-git)
-         ("C-c j"     . counsel-git-grep)
-         ("C-x l"     . counsel-locate)
-         ("C-c f d"   . counsel-dired-jump)
-         ("C-c f f"   . counsel-dired-jump)
-         ("M-i"       . counsel-imenu)
-         ("<f9>"      . counsel-load-theme)))
+  (("C-c g" . affe-grep)
+   ("C-c f" . affe-find)))
 #+end_src
 
 ** Company
@@ -463,41 +464,23 @@ load flycheck
   :after (yasnippet))
 #+end_src
 
-** All-The-Icons
+** All-The-Icons-Dired
 #+begin_src emacs-lisp
 (use-package all-the-icons-dired
   :hook
   (dired-mode . all-the-icons-dired-mode))
-
-(use-package all-the-icons-ivy
-  :config
-  (setq all-the-icons-ivy-file-commands
-    '(counsel-find-file
-      counsel-file-jump
-      counsel-recentf
-      projectile-find-file
-      projectile-find-dir))
-  (all-the-icons-ivy-setup)
-  (ivy-set-display-transformer 'ivy-switch-buffer 'all-the-icons-ivy-buffer-transformer))
 #+end_src
 
 ** Projectile
 #+begin_src emacs-lisp
 (use-package projectile
-  :defer 5
   :config
-  (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'etags-select)
   (add-to-list 'projectile-globally-ignored-modes "org-mode")
   (add-to-list 'projectile-globally-ignored-directories "*.ccls-cache")
   (projectile-mode +1)
-  :bind (:map projectile-mode-map
-              ("C-c p" . projectile-command-map)))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package counsel-projectile
-  :after (counsel projectile))
+  :bind-keymap
+  ("C-c p" . projectile-command-map))
 #+end_src
 
 ** Eglot
@@ -552,7 +535,8 @@ access it with c-x g.
 ** Latex
 #+begin_src emacs-lisp
 (use-package tex
-  :ensure auctex
+  :straight (:type built-in)
+  :requires (auctex)
   :config
   (setq tex-auto-save t)
   (setq tex-engine 'lualatex)
@@ -788,7 +772,7 @@ Tab = 4 spaces, bsd indentation style
 *** Elisp-lang
    #+begin_src emacs-lisp
 (use-package elisp-mode
-  :ensure nil
+  :straight (:type built-in)
   :bind (:map emacs-lisp-mode-map
               ("C-c C-k" . eval-buffer)))
    #+end_src
@@ -808,7 +792,7 @@ Install the themes and set the default one
         doom-themes-enable-italic t)
   (doom-themes-org-config)
   (doom-themes-treemacs-config)
-  (load-theme 'doom-dracula t))
+  (load-theme 'doom-badger t))
 #+END_SRC
 
 * Custom

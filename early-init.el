@@ -21,10 +21,8 @@
 (set-face-attribute 'fixed-pitch nil :family "Iosevka Fixed Extended" :height 100)
 (set-face-attribute 'variable-pitch nil :family "IBM Plex Sans" :height 100 :weight 'regular)
 
-(package-initialize)
-
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
+;; Prevent package.el loading packages
+(setq package-enable-at-startup nil)
 
 (provide 'early-init)
 ;;; early-init.el ends here
