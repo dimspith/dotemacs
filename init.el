@@ -18,14 +18,9 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-;; Allow list-packages to display correctly
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/"))
-
 ;; Replace use-package with straight-use-package
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
 ;; Load config file
-(org-babel-load-file "~/.emacs.d/config.org")
+(org-babel-load-file "~/.config/emacs/config.org")

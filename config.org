@@ -325,13 +325,17 @@ A better replacement for ansi-color.el which translates ansi escape sequences to
   (advice-add 'compilation-filter :around #'my/advice-compilation-filter)
 
   ;; Work with eshell buffers
-  (add-hook 'eshell-before-prompt-hook
-            (lambda ()
-              (setq xterm-color-preserve-properties t)))
+
+  (with-eval-after-load 'esh-mode
+    (add-hook 'eshell-mode-hook
+              (lambda () (progn
+                           (setq xterm-color-preserve-properties t)
+                           (setenv "TERM" "xterm-256color"))))
 
   (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
-  (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
-  (setenv "TERM" "xterm-256color")
+
+  (setq eshell-output-filter-functions
+        (remove 'eshell-handle-ansi-color eshell-output-filter-functions)))
 
   ;; Work with shell-mode
   (setq comint-output-filter-functions
@@ -454,6 +458,7 @@ We enable it for various languages.
    (c++-mode        . company-mode)
    (js-mode         . company-mode)
    (haskell-mode    . company-mode)
+   (php-mode        . company-mode)
    (css-mode        . company-mode)
    (emacs-lisp-mode . company-mode)
   :config
@@ -471,8 +476,9 @@ Syntax checking extension for displaying info about code.
 #+begin_src emacs-lisp
 (use-package flycheck
   :hook
-  (js-mode . flycheck-mode)
+  (js-mode      . flycheck-mode)
   (haskell-mode . flycheck-mode)
+  (php-mode     . flycheck-mode)
   :config
   (setq flycheck-check-syntax-automatically '(save mode-enabled)))
 #+end_src
@@ -789,6 +795,34 @@ Tab = 4 spaces, bsd indentation style
      (haskell-mode . hindent-mode)
      (haskell-mode . subword-mode)))
 #+END_SRC
+
+*** PHP-lang
+#+begin_src emacs-lisp
+(use-package php-mode)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package company-php
+  :init
+  (defun enable-company-php ()
+    (interactive)
+    (ac-php-core-eldoc-setup)
+    (make-local-variable 'company-backends)
+    (add-to-list 'company-backends 'company-ac-php-backend))
+  :hook
+  (php-mode . enable-company-php)
+  :bind (:map php-mode-map
+              ("M-]" . ac-php-find-symbol-at-point)
+              ("M-[" . ac-php-location-stack-back)))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package phpunit
+  :bind (:map php-mode-map
+              ("C-c t p" . phpunit-current-project)
+              ("C-c t t" . phpunit-current-test)
+              ("C-c t c" . phpunit-current-class)))
+#+end_src
 
 *** Css-lang
 #+BEGIN_SRC emacs-lisp
