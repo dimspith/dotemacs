@@ -9,7 +9,7 @@
 ## How to run and configure
 
 Upon starting emacs for the first time, all required packages will be automatically
-downloaded inside the `~/.config/emacs` directory.
+downloaded inside the `~/.config/emacs/straight/repos` directory.
 
 Settings and documentation are included inside the `config.org` file and any changes require emacs to be restarted.
 The file can also be viewed through Github ([config.org](./config.org)).
