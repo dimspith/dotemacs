@@ -20,8 +20,9 @@ If you want to know more about emacs i heavily suggest the [[https://masteringem
 or the [[https://www.emacswiki.org/emacs/LearningEmacs][Learning Emacs]] list on the Emacs wiki. The most efficient way to learn
 though is by using it so have fun and enjoy!
 
-The theme used in the html export is =comfy_inline= which can be found in this
-amazing list of themes [[https://olmon.gitlab.io/org-themes/][here]].
+The =comfy_inline= folder contains a simple html export theme which can be found in this
+amazing list of themes [[https://olmon.gitlab.io/org-themes/][here]]. To export this document in html, open it in emacs and type
+=C-c C-e h o=.
 
 * Core Settings
 In this section we modify some default settings that address some minor pains
@@ -58,16 +59,15 @@ Also unless specified otherwise, <tab> indents the current line.
 
 ** Backup Files
 Create backups of edited files in case of a disaster.
-All backup files are saved in the ~/.emacs.d/saves directory.
+All backup files are saved in the =~/.local/share/emacs/saves= directory.
 A form of versioning is used to keep them safe.
 #+BEGIN_SRC emacs-lisp
-(setq backup-directory-alist '(("." . "~/.emacs.d/saves"))
+(setq backup-directory-alist '(("." . "~/.local/share/emacs/saves"))
   backup-by-copying t
   version-control t
   delete-old-versions t
   kept-new-versions 20
-  kept-old-versions 5
-  )
+  kept-old-versions 5)
 #+END_SRC
 
 ** Yes/No
@@ -98,17 +98,19 @@ navigation with ~M-a~ and ~M-e~.
 (setq sentence-end-double-space nil)
 #+END_SRC
 
+** Delete Selection Mode
+Delete selection mode causes emacs to handle selections like most other editors.
+That is, pasting or deleting while having text selected overwrites it.
+#+begin_src emacs-lisp
+(delete-selection-mode 1)
+#+end_src
+
 ** Misc
 #+BEGIN_SRC emacs-lisp
 (use-package newcomment
   :straight (:type built-in)
   :bind
   ("C-x M-;" . comment-box))
-
-;; (use-package view
-;;   :straight (:type built-in)
-;;   :bind ("C-v" . View-scroll-half-page-forward)
-;;         ("M-v" . View-scroll-half-page-backward))
 
 (use-package emacs
   :straight (:type built-in)
@@ -531,6 +533,7 @@ A simple to use LSP client.
   (nim-mode . eglot-ensure)
   (c-mode . eglot-ensure)
   (c++-mode . eglot-ensure)
+  (php-mode . eglot-ensure)
   :config
   (add-to-list 'eglot-server-programs '(haskell-mode    . ("ghcide" "--lsp")))
   (add-to-list 'eglot-server-programs '(nim-mode        . ("nimlsp")))
@@ -538,7 +541,8 @@ A simple to use LSP client.
   (add-to-list 'eglot-server-programs '(elixir-mode     . ("~/programs/elixir-ls/language_server.sh")))
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(c++-mode        . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
-  (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode) . ("digestif"))))
+  (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode) . ("digestif")))
+  (add-to-list 'eglot-server-programs '(php-mode        . ("intelephense" "--stdio"))))
 #+end_src
 
 ** Magit
@@ -703,6 +707,7 @@ Common packages for a subset of programming languages.
 *** Rust-lang
 #+begin_src emacs-lisp
 (use-package rustic
+  :defer t
   :config
   (setq rustic-lsp-server 'rust-analyzer)
   (setq rustic-lsp-client 'eglot)
@@ -738,7 +743,8 @@ Common packages for a subset of programming languages.
 
 *** Nim-lang
 #+BEGIN_SRC emacs-lisp
-(use-package nim-mode)
+(use-package nim-mode
+  :defer t)
 #+END_SRC
 
 *** Lua-lang
@@ -758,6 +764,7 @@ Common packages for a subset of programming languages.
 Tab = 4 spaces, bsd indentation style
 #+BEGIN_SRC emacs-lisp
 (use-package cc-mode
+  :defer t
   :config
   (setq-default c-basic-offset 8)
   (setq-default c-default-style "bsd"))
@@ -798,7 +805,8 @@ Tab = 4 spaces, bsd indentation style
 
 *** PHP-lang
 #+begin_src emacs-lisp
-(use-package php-mode)
+(use-package php-mode
+  :defer t)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -857,6 +865,14 @@ Doom-themes is a collection of themes made by the community.
   (load-theme 'doom-badger t))
 #+END_SRC
 
+** GCMH
+Enforce a sneaky GC strategy to minimize GC interference with user activity
+#+begin_src emacs-lisp
+(use-package gcmh
+  :config
+  (gcmh-mode 1))
+#+end_src
+
 * Custom
 Display emacs startup time
 #+BEGIN_SRC emacs-lisp
@@ -869,9 +885,3 @@ Display emacs startup time
 
 (add-hook 'emacs-startup-hook #'display-startup-time)
 #+END_SRC
-
-Enable garbage collection. (Was disabled on early-init.el)
-#+begin_src emacs-lisp
-;; Reset gc threshold
-(setq gc-cons-threshold (* 2 1000 1000))
-#+end_src
