@@ -3,7 +3,7 @@
 
 ;; We handle everything slowing down startup here i.e graphical options or fonts
 
-;; We disable gc while loading and enable it later in the config.
+;; We disable gc while loading and enable it later in the config through gcmh.
 (setq gc-cons-threshold most-positive-fixnum)
 
 ;; Skip the splash screen and empty the scratch buffer
@@ -17,9 +17,9 @@
 (menu-bar-mode -1)
 
 ;; Set default, fixed and variable fonts
-(set-face-attribute 'default nil :family "Iosevka Fixed Extended" :height 100)
-(set-face-attribute 'fixed-pitch nil :family "Iosevka Fixed Extended" :height 100)
-(set-face-attribute 'variable-pitch nil :family "IBM Plex Sans" :height 100 :weight 'regular)
+(set-face-attribute 'default nil :family "Iosevka Fixed Extended" :height 105)
+(set-face-attribute 'fixed-pitch nil :family "Iosevka Fixed Extended" :height 105)
+(set-face-attribute 'variable-pitch nil :family "Lato" :height 120 :weight 'regular)
 
 ;; Prevent package.el loading packages
 (setq package-enable-at-startup nil)

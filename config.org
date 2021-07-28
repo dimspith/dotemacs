@@ -27,6 +27,62 @@ amazing list of themes [[https://olmon.gitlab.io/org-themes/][here]]. To export 
 * Core Settings
 In this section we modify some default settings that address some minor pains
 with emacs and/or personal preferences.
+** Reduce *Message* Noise at startup
+#+begin_src emacs-lisp
+(setq inhibit-startup-message t
+      inhibit-startup-echo-area-message user-login-name
+      inhibit-default-init t
+      initial-major-mode 'fundamental-mode
+      initial-scratch-message nil)
+#+end_src
+
+** Misc optimizations (taken from DOOM Emacs)
+#+begin_src emacs-lisp
+;; A second, case-insensitive pass over `auto-mode-alist' is time wasted, and
+;; indicates misconfiguration (don't rely on case insensitivity for file names).
+(setq auto-mode-case-fold nil)
+
+;; Disable bidirectional text scanning for a modest performance boost.
+(setq-default bidi-display-reordering 'left-to-right
+              bidi-paragraph-direction 'left-to-right)
+
+;; Disabling the BPA makes redisplay faster, but might produce incorrect display
+;; reordering of bidirectional text with embedded parentheses and other bracket
+;; characters whose 'paired-bracket' Unicode property is non-nil.
+(setq bidi-inhibit-bpa t)  ; Emacs 27 only
+
+;; Reduce rendering/line scan work for Emacs by not rendering cursors or regions
+;; in non-focused windows.
+(setq-default cursor-in-non-selected-windows nil)
+(setq highlight-nonselected-windows nil)
+
+;; More performant rapid scrolling over unfontified regions. May cause brief
+;; spells of inaccurate syntax highlighting right after scrolling, which should
+;; quickly self-correct.
+(setq fast-but-imprecise-scrolling t)
+
+;; Don't ping things that look like domain names.
+(setq ffap-machine-p-known 'reject)
+
+;; Resizing the Emacs frame can be a terribly expensive part of changing the
+;; font. By inhibiting this, we halve startup times, particularly when we use
+;; fonts that are larger than the system default (which would resize the frame).
+(setq frame-inhibit-implied-resize t)
+
+;; Emacs "updates" its ui more often than it needs to, so slow it down slightly
+(setq idle-update-delay 1.0)  ; default is 0.5
+
+;; Font compacting can be terribly expensive, especially for rendering icon
+;; fonts on Windows. Whether disabling it has a notable affect on Linux and Mac
+;; hasn't been determined, but do it there anyway, just in case. This increases
+;; memory usage, however!
+(setq inhibit-compacting-font-caches t)
+
+;; Increase how much is read from processes in a single chunk (default is 4kb).
+;; This is further increased elsewhere, where needed (like our LSP module).
+(setq read-process-output-max (* 64 1024))  ; 64kb
+#+end_src
+
 ** Starting Directory
 Always start in the user's home directory
 #+BEGIN_SRC emacs-lisp
@@ -171,6 +227,14 @@ Various settings for dired for better QoL.
 (setq dired-recursive-copies 'always)
 (setq dired-recursive-deletes 'always)
 #+END_SRC
+
+** Shell/Term
+#+begin_src emacs-lisp
+(use-package term
+  :straight (:type built-in)
+  :bind (:map term-raw-map
+              ("M-o" . other-window)))
+#+end_src
 
 ** Winner-mode
 Emacs built-in window history. Allows for undoing and redoing window changes.
@@ -358,12 +422,24 @@ Deft is an Emacs mode for quickly browsing, filtering, and editing directories o
 We configure it to watch a specific directory for org, markdown or txt files.
 #+BEGIN_SRC emacs-lisp
 (use-package deft
-  :init
+  :config
   (setq deft-directory "~/notes"
-        deft-extensions '("org" "md" "txt")
+        deft-extensions '("org")
+        deft-default-extension "org"
         deft-use-filename-as-title t
-        deft-recursive t))
+        deft-use-filter-string-for-filename t
+        deft-recursive t)
+  :bind
+  ("C-c d" . deft))
 #+END_SRC
+
+** Org-Variable-Pitch
+Enable variable width font in org mode buffers where applicable (i.e not in code blocks)
+#+begin_src emacs-lisp
+(use-package org-variable-pitch
+  :hook
+  (org-mode . org-variable-pitch-minor-mode))
+#+end_src
 
 ** Zetteldeft
 A zettelkasten system built on top of the =deft= package. We load it after deft and set it's classic keybindings, which start with =C-c d=
@@ -380,7 +456,6 @@ Selectrum provides a better completion UI for selecting items from a list. It re
 (use-package selectrum
   :config
   (selectrum-mode +1))
-
 #+END_SRC
 
 ** Consult
@@ -452,17 +527,20 @@ We enable it for various languages.
   :hook
    (latex-mode      . company-mode)
    (rustic-mode     . company-mode)
+   (vue-mode        . company-mode)
    (clojure-mode    . company-mode)
    (elixir-mode     . company-mode)
    (nim-mode        . company-mode)
    (typescript-mode . company-mode)
    (c-mode          . company-mode)
    (c++-mode        . company-mode)
-   (js-mode         . company-mode)
+   (js2-mode        . company-mode)
    (haskell-mode    . company-mode)
    (php-mode        . company-mode)
    (css-mode        . company-mode)
    (emacs-lisp-mode . company-mode)
+   (julia-mode      . company-mode)
+   (zig-mode        . company-mode)
   :config
    (setq company-idle-delay 0.1)
    (setq company-minimum-prefix-length 1)
@@ -529,20 +607,28 @@ A simple to use LSP client.
 #+begin_src emacs-lisp
 (use-package eglot
   :hook
-  (latex-mode . eglot-ensure)
-  (nim-mode . eglot-ensure)
-  (c-mode . eglot-ensure)
-  (c++-mode . eglot-ensure)
-  (php-mode . eglot-ensure)
+  (latex-mode      . eglot-ensure)
+  (nim-mode        . eglot-ensure)
+  (c-mode          . eglot-ensure)
+  (c++-mode        . eglot-ensure)
+  (php-mode        . eglot-ensure)
+  (vue-mode        . eglot-ensure)
+  (julia-mode      . eglot-ensure)
+  (typescript-mode . eglot-ensure)
+  (zig-mode        . eglot-ensure)
+  (js2-mode        . eglot-ensure)
   :config
   (add-to-list 'eglot-server-programs '(haskell-mode    . ("ghcide" "--lsp")))
   (add-to-list 'eglot-server-programs '(nim-mode        . ("nimlsp")))
-  (add-to-list 'eglot-server-programs '(c-mode          . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
+  (add-to-list 'eglot-server-programs '(c-mode          .
+("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
+(add-to-list 'eglot-server-programs '(c++-mode        . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
   (add-to-list 'eglot-server-programs '(elixir-mode     . ("~/programs/elixir-ls/language_server.sh")))
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
-  (add-to-list 'eglot-server-programs '(c++-mode        . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
+  (add-to-list 'eglot-server-programs '(js2-mode        . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode) . ("digestif")))
-  (add-to-list 'eglot-server-programs '(php-mode        . ("intelephense" "--stdio"))))
+  (add-to-list 'eglot-server-programs '(php-mode        . ("intelephense" "--stdio")))
+  (add-to-list 'eglot-server-programs '(zig-mode        . ("zls"))))
 #+end_src
 
 ** Magit
@@ -704,6 +790,41 @@ Highlight parentheses, brackets and braces according to their depth.
 
 ** LANGUAGES
 Common packages for a subset of programming languages.
+*** HTML
+#+begin_src emacs-lisp
+(use-package sgml-mode
+  :straight (:type built-in)
+  :config
+  (setq sgml-basic-offset 4))
+#+end_src
+
+*** Julia-lang
+#+begin_src emacs-lisp
+(use-package julia-mode)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package julia-repl
+  :hook
+  (julia-mode . julia-repl-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package eglot-jl
+  :hook
+  (julia-mode . eglot-jl-init))
+#+end_src
+
+*** VueJS
+#+begin_src emacs-lisp
+(use-package vue-mode)
+#+end_src
+
+*** Zig-lang
+#+begin_src emacs-lisp
+(use-package zig-mode)
+#+end_src
+
 *** Rust-lang
 #+begin_src emacs-lisp
 (use-package rustic
@@ -749,15 +870,12 @@ Common packages for a subset of programming languages.
 
 *** Lua-lang
 #+begin_src emacs-lisp
-(use-package lua-mode
-  :defer t)
+(use-package lua-mode)
 #+end_src
 
 *** Typescript-lang
 #+begin_src emacs-lisp
-(use-package typescript-mode
-  :hook
-  (typescript-mode . eglot-ensure))
+(use-package typescript-mode)
 #+end_src
 
 *** C-lang
@@ -772,9 +890,10 @@ Tab = 4 spaces, bsd indentation style
 
 *** Js-lang
 #+BEGIN_SRC emacs-lisp
-(use-package js
+(use-package js2-mode
   :hook
-  (js-mode . subword-mode))
+  (js-mode . subword-mode)
+  (js-mode . js2-minor-mode))
 #+END_SRC
 
 *** Haskell-lang
@@ -870,7 +989,9 @@ Enforce a sneaky GC strategy to minimize GC interference with user activity
 #+begin_src emacs-lisp
 (use-package gcmh
   :config
-  (gcmh-mode 1))
+  (gcmh-mode 1)
+  (setq gcmh-idle-delay 5)                          ; default is 15s
+  (setq gcmh-high-cons-threshold (* 16 1024 1024))) ; 16mb
 #+end_src
 
 * Custom
