@@ -1,6 +1,5 @@
 #+TITLE: Dotemacs
-#+AUTHOR: Dimitris Spythouris
-#+SETUPFILE: html-theme/comfy_inline.theme
+#+AUTHOR: dimspith
 #+STARTUP: overview
 #+OPTIONS: num:nil
 
@@ -241,8 +240,9 @@ Emacs built-in window history. Allows for undoing and redoing window changes.
 #+BEGIN_SRC emacs-lisp
 (use-package winner
   :straight (:type built-in)
+
   :config
-  (winner-mode 1)
+  (winner-mode t)
   :bind
   ("C-c w u" . winner-undo)
   ("C-c w r" . winner-redo))
@@ -365,6 +365,26 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
 #+END_SRC
 
 * Other Package Settings
+In this section we install and configure all external packages.
+** Reverse-im
+Translates input sequences to english therefore allowing usage of
+emacs with other keyboard languages. Configured to work with Greek.
+#+begin_src emacs-lisp
+(use-package reverse-im
+  :custom
+  (reverse-im-input-methods '("greek"))
+  :config
+  (reverse-im-mode t))
+#+end_src
+
+** Visual-regexp
+Better =query-replace-regexp= with visual indicators to see what's being replaced.
+#+begin_src emacs-lisp
+(use-package visual-regexp
+  :bind
+  ("C-c r" . vr/query-replace))
+#+end_src
+
 ** Avy
 Avy is a package that allows us to jump to visible text using a char-based decision tree, similar to vim's =vim-easymotion=.
 We bind the most common actions in easy to access keybindings such as =C-;= and =C-M-;= and the other to keys with the =M-g= prefix.
@@ -379,7 +399,7 @@ We bind the most common actions in easy to access keybindings such as =C-;= and 
 #+END_SRC
 
 ** Xterm-color
-A better replacement for ansi-color.el which translates ansi escape sequences to colors.
+A better replacement for ansi-color.el which translates ansi escape sequences to colors in terminal buffers.
    #+BEGIN_SRC emacs-lisp
 (use-package xterm-color
   :config
@@ -424,7 +444,7 @@ We configure it to watch a specific directory for org, markdown or txt files.
 (use-package deft
   :config
   (setq deft-directory "~/notes"
-        deft-extensions '("org")
+        deft-extensions '("org" "md" "txt")
         deft-default-extension "org"
         deft-use-filename-as-title t
         deft-use-filter-string-for-filename t
@@ -440,15 +460,6 @@ Enable variable width font in org mode buffers where applicable (i.e not in code
   :hook
   (org-mode . org-variable-pitch-minor-mode))
 #+end_src
-
-** Zetteldeft
-A zettelkasten system built on top of the =deft= package. We load it after deft and set it's classic keybindings, which start with =C-c d=
-#+BEGIN_SRC emacs-lisp
-(use-package zetteldeft
-  :after deft
-  :config
-  (zetteldeft-set-classic-keybindings))
-#+END_SRC
 
 ** Selectrum
 Selectrum provides a better completion UI for selecting items from a list. It replaces other packages such as Ido, Helm or Ivy. We enable it globally.
@@ -486,7 +497,9 @@ Better sorting/filtering for Emacs. Primarily used for fuzzy searching results p
 #+begin_src emacs-lisp
 (use-package prescient
   :config
-  (prescient-persist-mode t))
+  (prescient-persist-mode t)
+  :custom
+  (prescient-filter-method '(literal regexp initialism fuzzy)))
 #+end_src
 
 Helper package for integrating prescient with selectrum.
@@ -497,7 +510,7 @@ Helper package for integrating prescient with selectrum.
 #+end_src
 
 ** Marginalia
-Adds annotations at the margin of the minibuffer for completion candidates of selectrum such as files or command descriptions.
+Adds annotations at the margin of the minibuffer for completion candidates of selectrum such as files or command descriptions. (i.e pressing =M-x= will show a short description of each command)
 #+begin_src emacs-lisp
 (use-package marginalia
   :bind (:map minibuffer-local-map
@@ -534,7 +547,7 @@ We enable it for various languages.
    (typescript-mode . company-mode)
    (c-mode          . company-mode)
    (c++-mode        . company-mode)
-   (js2-mode        . company-mode)
+   (js2-minor-mode  . company-mode)
    (haskell-mode    . company-mode)
    (php-mode        . company-mode)
    (css-mode        . company-mode)
@@ -546,7 +559,7 @@ We enable it for various languages.
    (setq company-minimum-prefix-length 1)
    (setq company-selection-wrap-around t)
    (setq company-tooltip-align-annotations t)
-   (setq company-tooltip-limit 10)
+   (setq company-tooltip-limit 10)
    (setq company-dabbrev-downcase nil)
    (company-tng-configure-default))
 #+end_src
@@ -556,7 +569,6 @@ Syntax checking extension for displaying info about code.
 #+begin_src emacs-lisp
 (use-package flycheck
   :hook
-  (js-mode      . flycheck-mode)
   (haskell-mode . flycheck-mode)
   (php-mode     . flycheck-mode)
   :config
@@ -616,16 +628,15 @@ A simple to use LSP client.
   (julia-mode      . eglot-ensure)
   (typescript-mode . eglot-ensure)
   (zig-mode        . eglot-ensure)
-  (js2-mode        . eglot-ensure)
+  (js2-minor-mode  . eglot-ensure)
   :config
   (add-to-list 'eglot-server-programs '(haskell-mode    . ("ghcide" "--lsp")))
   (add-to-list 'eglot-server-programs '(nim-mode        . ("nimlsp")))
-  (add-to-list 'eglot-server-programs '(c-mode          .
-("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
-(add-to-list 'eglot-server-programs '(c++-mode        . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
-  (add-to-list 'eglot-server-programs '(elixir-mode     . ("~/programs/elixir-ls/language_server.sh")))
+  (add-to-list 'eglot-server-programs '(c-mode          . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
+  (add-to-list 'eglot-server-programs '(c++-mode        . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
+  (add-to-list 'eglot-server-programs '(elixir-mode     . ("~/.local/bin/language_server.sh")))
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
-  (add-to-list 'eglot-server-programs '(js2-mode        . ("typescript-language-server" "--stdio")))
+  (add-to-list 'eglot-server-programs '(js2-minor-mode  . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode) . ("digestif")))
   (add-to-list 'eglot-server-programs '(php-mode        . ("intelephense" "--stdio")))
   (add-to-list 'eglot-server-programs '(zig-mode        . ("zls"))))
@@ -855,6 +866,10 @@ Common packages for a subset of programming languages.
   (elixir-mode . mix-minor-mode)
   :bind (:map elixir-mode-map
               ("C-c C-f" . elixir-format)))
+
+(use-package mix
+  :hook
+  (elixir-mode . mix-minor-mode))
 #+end_src
 
 *** Yaml-lang
@@ -965,23 +980,20 @@ Tab = 4 spaces, bsd indentation style
               ("C-c C-k" . eval-buffer)))
    #+end_src
 
-** Simple-Modeline
-A simple modeline for emacs that is slightly more beautiful than the default.
-#+BEGIN_SRC emacs-lisp
-(use-package simple-modeline
-  :hook (after-init . simple-modeline-mode))
-#+END_SRC
-
 ** Themes
-Doom-themes is a collection of themes made by the community.
+Install doom-themes and zerodark (which is enabled). Also configure zerodark modeline.
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
   :config
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
   (doom-themes-org-config)
-  (doom-themes-treemacs-config)
-  (load-theme 'doom-badger t))
+  (doom-themes-treemacs-config))
+
+(use-package zerodark-theme
+  :config
+  (load-theme 'zerodark t)
+  (zerodark-setup-modeline-format))
 #+END_SRC
 
 ** GCMH
