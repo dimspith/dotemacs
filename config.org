@@ -180,12 +180,52 @@ That is, pasting or deleting while having text selected overwrites it.
   ("C-<f5>"      . recompile)
   ("<C-f9>"      . set-frame-font)
   ("C-x C-b"     . ibuffer)
-  ("<f7>"        . toggle-transparency)
   ("M-j"         . (lambda () (interactive) (join-line -1)))
   :config
   (setq window-divider-default-right-width 1)
   (setq window-divider-default-bottom-width 1)
   (setq window-divider-default-places 'right-only)
+
+  ;; Text mode is initial mode
+  (setq initial-major-mode 'text-mode)
+
+  ;; Text mode is default major mode
+  (setq default-major-mode 'text-mode)
+
+  ;; Moderate font lock
+  (setq font-lock-maximum-decoration t)
+  
+  ;; No cursor in inactive windows
+  (setq cursor-in-non-selected-windows nil)
+
+  ;; Fill column at 80
+  (setq fill-column 80)
+
+  ;; Default frame settings
+  (setq default-frame-alist
+        (append (list
+                 '(min-height . 1)  '(height . 45)
+                 '(min-width  . 1)  '(width  . 81)
+                 '(vertical-scroll-bars . nil)
+                 '(internal-border-width . 24)
+                 '(left-fringe . 0)
+                 '(right-fringe . 0)
+                 '(tool-bar-lines . 0)
+                 '(menu-bar-lines . 0))))
+
+  ;; Line spacing (in pixels)
+  (setq line-spacing 0)
+
+  ;; Vertical window divider
+  (setq window-divider-default-right-width 24)
+  (setq window-divider-default-places 'right-only)
+
+  ;; Nicer glyphs for continuation and wrap 
+  (set-display-table-slot standard-display-table
+                          'truncation (make-glyph-code ?… 'nano-faded))
+  (set-display-table-slot standard-display-table
+                          'wrap (make-glyph-code ?- 'nano-faded))
+
   :hook (after-init . window-divider-mode))
 #+END_SRC
 
@@ -366,6 +406,14 @@ or "dynamic abbreviation". We define the set of rules to try on each keypress.
 
 * Other Package Settings
 In this section we install and configure all external packages.
+** Helpful
+#+begin_src emacs-lisp
+(use-package helpful
+  :bind
+  ("C-h f" . #'helpful-callable)
+  ("C-h v" . #'helpful-variable)
+  ("C-h k" . #'helpful-key))
+#+end_src
 ** Reverse-im
 Translates input sequences to english therefore allowing usage of
 emacs with other keyboard languages. Configured to work with Greek.
@@ -985,16 +1033,28 @@ Install doom-themes and zerodark (which is enabled). Also configure zerodark mod
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
   :config
+
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
   (doom-themes-org-config)
   (doom-themes-treemacs-config))
 
-(use-package zerodark-theme
+
+(straight-use-package '(nano-theme :type git :host github :repo "rougier/nano-theme"))
+
+(use-package nano-theme
   :config
-  (load-theme 'zerodark t)
-  (zerodark-setup-modeline-format))
+  (nano-dark))
+
 #+END_SRC
+
+** Nano-modeline
+#+begin_src emacs-lisp
+(use-package nano-modeline
+  :config
+  (setq nano-modeline-position "Bottom")
+  (nano-modeline-mode 1))
+#+end_src
 
 ** GCMH
 Enforce a sneaky GC strategy to minimize GC interference with user activity
