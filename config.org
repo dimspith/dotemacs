@@ -220,17 +220,19 @@ That is, pasting or deleting while having text selected overwrites it.
   (setq window-divider-default-right-width 24)
   (setq window-divider-default-places 'right-only)
 
-  ;; Nicer glyphs for continuation and wrap 
-  (set-display-table-slot standard-display-table
-                          'truncation (make-glyph-code ?… 'nano-faded))
-  (set-display-table-slot standard-display-table
-                          'wrap (make-glyph-code ?- 'nano-faded))
-
   :hook (after-init . window-divider-mode))
 #+END_SRC
 
 * Base Package Settings
 In this section we modify some base emacs packages and functionality of emacs
+** Eldoc
+#+begin_src emacs-lisp
+(use-package eldoc
+  :straight (:type built-in)
+  :config
+  (global-eldoc-mode 1))
+#+end_src
+
 ** Re-builder
 Emacs's built-in regex builder. Invoking this in a buffer allows you to match
 regexes against it, very useful.
@@ -375,10 +377,7 @@ Highlight matching parentheses and delimiters when the pointer is above them.
 (use-package paren
   :straight (:type built-in)
   :config
-  (setq show-paren-style 'parenthesis)
-  (setq show-paren-when-point-in-periphery t)
-  (setq show-paren-when-point-inside-paren nil))
-  ;; (show-paren-mode 1))
+  (show-paren-mode 1))
    #+END_SRC
 
 ** Hippie-expand
@@ -414,6 +413,7 @@ In this section we install and configure all external packages.
   ("C-h v" . #'helpful-variable)
   ("C-h k" . #'helpful-key))
 #+end_src
+
 ** Reverse-im
 Translates input sequences to english therefore allowing usage of
 emacs with other keyboard languages. Configured to work with Greek.
@@ -588,7 +588,6 @@ We enable it for various languages.
   :hook
    (latex-mode      . company-mode)
    (rustic-mode     . company-mode)
-   (vue-mode        . company-mode)
    (clojure-mode    . company-mode)
    (elixir-mode     . company-mode)
    (nim-mode        . company-mode)
@@ -600,8 +599,6 @@ We enable it for various languages.
    (php-mode        . company-mode)
    (css-mode        . company-mode)
    (emacs-lisp-mode . company-mode)
-   (julia-mode      . company-mode)
-   (zig-mode        . company-mode)
   :config
    (setq company-idle-delay 0.1)
    (setq company-minimum-prefix-length 1)
@@ -619,6 +616,7 @@ Syntax checking extension for displaying info about code.
   :hook
   (haskell-mode . flycheck-mode)
   (php-mode     . flycheck-mode)
+  (nim-mode     . flycheck-mode)
   :config
   (setq flycheck-check-syntax-automatically '(save mode-enabled)))
 #+end_src
@@ -668,26 +666,20 @@ A simple to use LSP client.
 (use-package eglot
   :hook
   (latex-mode      . eglot-ensure)
-  (nim-mode        . eglot-ensure)
   (c-mode          . eglot-ensure)
   (c++-mode        . eglot-ensure)
   (php-mode        . eglot-ensure)
-  (vue-mode        . eglot-ensure)
-  (julia-mode      . eglot-ensure)
   (typescript-mode . eglot-ensure)
-  (zig-mode        . eglot-ensure)
   (js2-minor-mode  . eglot-ensure)
   :config
   (add-to-list 'eglot-server-programs '(haskell-mode    . ("ghcide" "--lsp")))
-  (add-to-list 'eglot-server-programs '(nim-mode        . ("nimlsp")))
   (add-to-list 'eglot-server-programs '(c-mode          . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
   (add-to-list 'eglot-server-programs '(c++-mode        . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
   (add-to-list 'eglot-server-programs '(elixir-mode     . ("~/.local/bin/language_server.sh")))
   (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '(js2-minor-mode  . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode) . ("digestif")))
-  (add-to-list 'eglot-server-programs '(php-mode        . ("intelephense" "--stdio")))
-  (add-to-list 'eglot-server-programs '(zig-mode        . ("zls"))))
+  (add-to-list 'eglot-server-programs '(php-mode        . ("intelephense" "--stdio"))))
 #+end_src
 
 ** Magit
@@ -857,33 +849,6 @@ Common packages for a subset of programming languages.
   (setq sgml-basic-offset 4))
 #+end_src
 
-*** Julia-lang
-#+begin_src emacs-lisp
-(use-package julia-mode)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package julia-repl
-  :hook
-  (julia-mode . julia-repl-mode))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package eglot-jl
-  :hook
-  (julia-mode . eglot-jl-init))
-#+end_src
-
-*** VueJS
-#+begin_src emacs-lisp
-(use-package vue-mode)
-#+end_src
-
-*** Zig-lang
-#+begin_src emacs-lisp
-(use-package zig-mode)
-#+end_src
-
 *** Rust-lang
 #+begin_src emacs-lisp
 (use-package rustic
@@ -928,8 +893,15 @@ Common packages for a subset of programming languages.
 *** Nim-lang
 #+BEGIN_SRC emacs-lisp
 (use-package nim-mode
-  :defer t)
+  :hook
+  (nim-mode . nimsuggest-mode))
 #+END_SRC
+
+#+begin_src emacs-lisp
+(use-package flycheck-nimsuggest
+  :hook
+  (nimsuggest-mode . flycheck-nimsuggest-setup))
+#+end_src
 
 *** Lua-lang
 #+begin_src emacs-lisp
@@ -1037,14 +1009,8 @@ Install doom-themes and zerodark (which is enabled). Also configure zerodark mod
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
   (doom-themes-org-config)
-  (doom-themes-treemacs-config))
-
-
-(straight-use-package '(nano-theme :type git :host github :repo "rougier/nano-theme"))
-
-(use-package nano-theme
-  :config
-  (nano-dark))
+  (doom-themes-treemacs-config)
+  (load-theme 'doom-badger t))
 
 #+END_SRC
 
