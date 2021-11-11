@@ -182,10 +182,6 @@ That is, pasting or deleting while having text selected overwrites it.
   ("C-x C-b"     . ibuffer)
   ("M-j"         . (lambda () (interactive) (join-line -1)))
   :config
-  (setq window-divider-default-right-width 1)
-  (setq window-divider-default-bottom-width 1)
-  (setq window-divider-default-places 'right-only)
-
   ;; Text mode is initial mode
   (setq initial-major-mode 'text-mode)
 
@@ -217,8 +213,9 @@ That is, pasting or deleting while having text selected overwrites it.
   (setq line-spacing 0)
 
   ;; Vertical window divider
-  (setq window-divider-default-right-width 24)
-  (setq window-divider-default-places 'right-only)
+  (setq window-divider-default-right-width 5)
+  (setq window-divider-default-bottom-width 5)
+  (setq window-divider-default-places t)
 
   :hook (after-init . window-divider-mode))
 #+END_SRC
@@ -282,12 +279,10 @@ Emacs built-in window history. Allows for undoing and redoing window changes.
 #+BEGIN_SRC emacs-lisp
 (use-package winner
   :straight (:type built-in)
-
-  :config
-  (winner-mode t)
   :bind
   ("C-c w u" . winner-undo)
-  ("C-c w r" . winner-redo))
+  ("C-c w r" . winner-redo)
+  :hook (after-init . winner-mode))
 #+END_SRC
 
 ** Org-mode
@@ -883,6 +878,10 @@ Common packages for a subset of programming languages.
 (use-package mix
   :hook
   (elixir-mode . mix-minor-mode))
+
+(use-package exunit
+  :hook
+  (elixir-mode . exunit-mode))
 #+end_src
 
 *** Yaml-lang
@@ -895,13 +894,11 @@ Common packages for a subset of programming languages.
 (use-package nim-mode
   :hook
   (nim-mode . nimsuggest-mode))
-#+END_SRC
 
-#+begin_src emacs-lisp
 (use-package flycheck-nimsuggest
   :hook
   (nimsuggest-mode . flycheck-nimsuggest-setup))
-#+end_src
+#+END_SRC
 
 *** Lua-lang
 #+begin_src emacs-lisp
