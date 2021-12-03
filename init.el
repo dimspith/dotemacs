@@ -21,6 +21,7 @@
 ;; Replace use-package with straight-use-package
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
+(setq straight-vc-git-default-clone-depth 1)
 
 ;; Load config file
 (org-babel-load-file "~/.config/emacs/config.org")

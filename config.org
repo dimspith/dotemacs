@@ -213,8 +213,8 @@ That is, pasting or deleting while having text selected overwrites it.
   (setq line-spacing 0)
 
   ;; Vertical window divider
-  (setq window-divider-default-right-width 5)
-  (setq window-divider-default-bottom-width 5)
+  (setq window-divider-default-right-width 2)
+  (setq window-divider-default-bottom-width 2)
   (setq window-divider-default-places t)
 
   :hook (after-init . window-divider-mode))
@@ -304,19 +304,6 @@ agenda files. This document is an example of org-mode in action.
   (setq org-agenda-skip-deadline-if-done t)
   (setq org-agenda-skip-scheduled-if-done t)
   (setq org-agenda-start-on-weekday nil)
-  (setq org-agenda-sorting-strategy
-      (quote
-       ((agenda priority-down alpha-up)
-        (todo priority-down alpha-up)
-        (tags priority-down alpha-up))))
-  (setq org-agenda-prefix-format
-      (quote
-       ((agenda . "%s %?-12t %e ")
-        (timeline . "  %s")
-        (todo . " %i %e ")
-        (tags . " %i %e ")
-        (search . " %i %e "))))
-
   (setq org-todo-keywords
       (quote
        ((sequence "TODO" "PROG" "PAUS" "|" "DONE" "CANC"))))
@@ -599,8 +586,9 @@ We enable it for various languages.
    (setq company-minimum-prefix-length 1)
    (setq company-selection-wrap-around t)
    (setq company-tooltip-align-annotations t)
-   (setq company-tooltip-limit 10)
+   (setq company-tooltip-limit 10)
    (setq company-dabbrev-downcase nil)
+
    (company-tng-configure-default))
 #+end_src
 
@@ -655,28 +643,6 @@ Project interaction library for Emacs. Provides a nice set of features for opera
   ("C-c p" . projectile-command-map))
 #+end_src
 
-** Eglot
-A simple to use LSP client.
-#+begin_src emacs-lisp
-(use-package eglot
-  :hook
-  (latex-mode      . eglot-ensure)
-  (c-mode          . eglot-ensure)
-  (c++-mode        . eglot-ensure)
-  (php-mode        . eglot-ensure)
-  (typescript-mode . eglot-ensure)
-  (js2-minor-mode  . eglot-ensure)
-  :config
-  (add-to-list 'eglot-server-programs '(haskell-mode    . ("ghcide" "--lsp")))
-  (add-to-list 'eglot-server-programs '(c-mode          . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
-  (add-to-list 'eglot-server-programs '(c++-mode        . ("clangd" "--background-index" "--suggest-missing-includes" "--all-scopes-completion" "--completion-style=detailed")))
-  (add-to-list 'eglot-server-programs '(elixir-mode     . ("~/.local/bin/language_server.sh")))
-  (add-to-list 'eglot-server-programs '(typescript-mode . ("typescript-language-server" "--stdio")))
-  (add-to-list 'eglot-server-programs '(js2-minor-mode  . ("typescript-language-server" "--stdio")))
-  (add-to-list 'eglot-server-programs '((tex-mode context-mode texinfo-mode bibtex-mode) . ("digestif")))
-  (add-to-list 'eglot-server-programs '(php-mode        . ("intelephense" "--stdio"))))
-#+end_src
-
 ** Magit
 Magit is a text-based user interface to git. It supports almost every git task with just a couple of keypresses.
 #+begin_src emacs-lisp
@@ -690,7 +656,36 @@ Which-key is a keybinding preview utility to show all subsequent keys when waiti
 (use-package which-key
   :diminish which-key-mode
   :config
+    (setq which-key-allow-imprecise-window-fit nil)
     (which-key-mode t))
+#+end_src
+
+** LSP
+LSP Client for emacs
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :init
+  ;; Delay for refreshing highlights e.t.c
+  (setq lsp-idle-delay 0.500)
+  ;; set prefix for lsp-command-keymap
+  (setq lsp-keymap-prefix "C-c l")
+  :custom
+  (lsp-headerline-breadcrumb-mode t)
+  (lsp-enable-indentation nil)
+  (lsp-enable-on-type-formatting nil)
+  (lsp-modeline-code-actions-enable nil)
+  (lsp-modeline-diagnostics-enable nil)
+
+  ;; Company completion icons
+  (setq company-format-margin-function #'company-vscode-light-icons-margin)
+  :hook ((latex-mode      . lsp)
+         (c-mode          . lsp)
+         (c++-mode        . lsp)
+         (php-mode        . lsp)
+         (typescript-mode . lsp)
+         (js2-minor-mode  . lsp)
+         (lsp-mode        . lsp-enable-which-key-integration))
+  :commands lsp)
 #+end_src
 
 ** Iedit
@@ -895,9 +890,9 @@ Common packages for a subset of programming languages.
   :hook
   (nim-mode . nimsuggest-mode))
 
-(use-package flycheck-nimsuggest
-  :hook
-  (nimsuggest-mode . flycheck-nimsuggest-setup))
+;; (use-package flycheck-nimsuggest
+;;   :hook
+;;   (nimsuggest-mode . flycheck-nimsuggest-setup))
 #+END_SRC
 
 *** Lua-lang
@@ -907,7 +902,8 @@ Common packages for a subset of programming languages.
 
 *** Typescript-lang
 #+begin_src emacs-lisp
-(use-package typescript-mode)
+(use-package typescript-mode
+  :defer t)
 #+end_src
 
 *** C-lang
