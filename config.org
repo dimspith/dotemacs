@@ -212,6 +212,8 @@ That is, pasting or deleting while having text selected overwrites it.
   ;; Line spacing (in pixels)
   (setq line-spacing 0)
 
+  ;; (add-to-list 'tramp-default-proxies-alist (quote ((".*" "\\`root\\'" "/ssh:%h:"))))
+
   ;; Vertical window divider
   (setq window-divider-default-right-width 2)
   (setq window-divider-default-bottom-width 2)
@@ -912,7 +914,7 @@ Tab = 4 spaces, bsd indentation style
 (use-package cc-mode
   :defer t
   :config
-  (setq-default c-basic-offset 8)
+  (setq-default c-basic-offset 4)
   (setq-default c-default-style "bsd"))
 #+END_SRC
 
