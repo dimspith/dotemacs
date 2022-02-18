@@ -299,13 +299,7 @@ agenda files. This document is an example of org-mode in action.
   ("C-c o c" . org-capture)
   ("C-c o l" . org-store-link)
   :config
-  (setq org-agenda-span 30)
   (setq org-agenda-files (quote ("~/notes/")))
-  (setq org-agenda-restore-windows-after-quit t)
-  (setq org-agenda-compact-blocks t)
-  (setq org-agenda-skip-deadline-if-done t)
-  (setq org-agenda-skip-scheduled-if-done t)
-  (setq org-agenda-start-on-weekday nil)
   (setq org-todo-keywords
       (quote
        ((sequence "TODO" "PROG" "PAUS" "|" "DONE" "CANC"))))
@@ -575,6 +569,7 @@ We enable it for various languages.
    (clojure-mode    . company-mode)
    (elixir-mode     . company-mode)
    (nim-mode        . company-mode)
+   (go-mode         . company-mode)
    (typescript-mode . company-mode)
    (c-mode          . company-mode)
    (c++-mode        . company-mode)
@@ -682,6 +677,7 @@ LSP Client for emacs
   (setq company-format-margin-function #'company-vscode-light-icons-margin)
   :hook ((latex-mode      . lsp)
          (c-mode          . lsp)
+         (go-mode         . lsp)
          (c++-mode        . lsp)
          (php-mode        . lsp)
          (typescript-mode . lsp)
@@ -833,6 +829,11 @@ Highlight parentheses, brackets and braces according to their depth.
 
 ** LANGUAGES
 Common packages for a subset of programming languages.
+*** R-lang
+#+begin_src emacs-lisp
+(use-package ess)
+#+end_src
+
 *** HTML
 #+begin_src emacs-lisp
 (use-package sgml-mode
@@ -995,6 +996,13 @@ Tab = 4 spaces, bsd indentation style
               ("C-c C-k" . eval-buffer)))
    #+end_src
 
+*** Go-lang
+#+begin_src emacs-lisp
+(use-package go-mode)
+(use-package go-eldoc
+  :hook (go-mode . go-eldoc-setup))
+#+end_src
+
 ** Themes
 Install doom-themes and zerodark (which is enabled). Also configure zerodark modeline.
 #+BEGIN_SRC emacs-lisp
@@ -1003,8 +1011,6 @@ Install doom-themes and zerodark (which is enabled). Also configure zerodark mod
 
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
-  (doom-themes-org-config)
-  (doom-themes-treemacs-config)
   (load-theme 'doom-badger t))
 
 #+END_SRC
@@ -1038,4 +1044,8 @@ Display emacs startup time
            gcs-done))
 
 (add-hook 'emacs-startup-hook #'display-startup-time)
+
+(use-package calendar
+  :straight (:type built-in)
+  :defer t)
 #+END_SRC
