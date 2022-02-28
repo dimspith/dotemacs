@@ -30,9 +30,9 @@ with emacs and/or personal preferences.
 #+begin_src emacs-lisp
 (setq inhibit-startup-message t
       inhibit-startup-echo-area-message user-login-name
-      inhibit-default-init t
-      initial-major-mode 'fundamental-mode
-      initial-scratch-message nil)
+      inhibit-default-init t)
+      ;; initial-major-mode 'fundamental-mode
+      ;; initial-scratch-message nil)
 #+end_src
 
 ** Misc optimizations (taken from DOOM Emacs)
@@ -212,6 +212,9 @@ That is, pasting or deleting while having text selected overwrites it.
   ;; Line spacing (in pixels)
   (setq line-spacing 0)
 
+  ;; Save emacs history across restarts
+  (savehist-mode)
+
   ;; Vertical window divider
   (setq window-divider-default-right-width 2)
   (setq window-divider-default-bottom-width 2)
@@ -315,8 +318,6 @@ agenda files. This document is an example of org-mode in action.
   (setq org-highest-priority 65)
   (setq org-lowest-priority 90)
 
-  (setq org-bullets-bullet-list (quote ("◉" "◆" "✚" "☀" "○")))
-
   (setq org-src-window-setup 'current-window)
   (setq org-src-fontify-natively t)
   (setq org-src-preserve-indentation t)
@@ -396,6 +397,18 @@ In this section we install and configure all external packages.
   ("C-h k" . #'helpful-key))
 #+end_src
 
+** Dashboard 
+#+begin_src emacs-lisp
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook)
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  (setq dashboard-items '((recents  . 5)
+                          (bookmarks . 5)
+                          (projects . 5))))
+#+end_src
+
 ** Reverse-im
 Translates input sequences to english therefore allowing usage of
 emacs with other keyboard languages. Configured to work with Greek.
@@ -442,16 +455,22 @@ A better replacement for ansi-color.el which translates ansi escape sequences to
 
   ;; Work with eshell buffers
 
-  (with-eval-after-load 'esh-mode
-    (add-hook 'eshell-mode-hook
-              (lambda () (progn
-                           (setq xterm-color-preserve-properties t)
-                           (setenv "TERM" "xterm-256color"))))
-
+  (add-hook 'eshell-before-prompt-hook
+            (lambda ()
+              (setq xterm-color-preserve-properties t)))
+  
   (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
+  (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+  (setenv "TERM" "xterm-256color")
 
-  (setq eshell-output-filter-functions
-        (remove 'eshell-handle-ansi-color eshell-output-filter-functions)))
+  ;; Compilation buffers support
+  (setq compilation-environment '("TERM=xterm-256color"))
+  
+  (defun my/advice-compilation-filter (f proc string)
+    (funcall f proc (xterm-color-filter string)))
+  
+  (advice-add 'compilation-filter :around #'my/advice-compilation-filter)
+ 
 
   ;; Work with shell-mode
   (setq comint-output-filter-functions
@@ -656,6 +675,7 @@ Which-key is a keybinding preview utility to show all subsequent keys when waiti
 (use-package which-key
   :diminish which-key-mode
   :config
+    (which-key-setup-minibuffer)
     (setq which-key-allow-imprecise-window-fit nil)
     (which-key-mode t))
 #+end_src
@@ -683,8 +703,16 @@ LSP Client for emacs
          (c++-mode        . lsp)
          (php-mode        . lsp)
          (typescript-mode . lsp)
+         (vue-mode        . lsp)
          (js2-minor-mode  . lsp)
          (lsp-mode        . lsp-enable-which-key-integration))
+  :config
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-ui-doc-header t)
+  (setq lsp-ui-doc-include-signature t)
+  (setq lsp-ui-doc-border (face-foreground 'default))
+  (setq lsp-ui-sideline-show-code-actions t)
+  (setq lsp-ui-sideline-delay 0.05)
   :commands lsp)
 #+end_src
 
@@ -699,7 +727,10 @@ Edit multiple regions simultaneously in a buffer or a region.
 Display org-mode headings as utf-8 bullets.
 #+begin_src emacs-lisp
 (use-package org-bullets
-  :hook (org-mode . org-bullets-mode))
+  :hook (org-mode . org-bullets-mode)
+  :config
+  (setq org-bullets-bullet-list (quote ("◉" "◆" "✚" "☀" "○")))
+  (setq inhibit-compacting-font-caches t))
 #+end_src
 
 ** Latex
@@ -719,7 +750,9 @@ Offers snippets for html and css
 #+begin_src emacs-lisp
 (use-package emmet-mode
   :hook ((sgml-mode . emmet-mode)
-         (css-mode . emmet-mode)))
+         (css-mode . emmet-mode))
+  :config
+  (setq emmet-move-cursor-between-quotes t))
 #+end_src
 
 ** Treemacs
@@ -830,7 +863,7 @@ Highlight parentheses, brackets and braces according to their depth.
 #+END_SRC
 
 ** LANGUAGES
-Common packages for a subset of programming languages.
+Common packages for a couple of programming languages
 *** HTML
 #+begin_src emacs-lisp
 (use-package sgml-mode
@@ -992,6 +1025,12 @@ Tab = 4 spaces, bsd indentation style
   :bind (:map emacs-lisp-mode-map
               ("C-c C-k" . eval-buffer)))
    #+end_src
+
+*** Vue
+#+begin_src emacs-lisp
+(use-package vue-mode
+  :mode "\\.vue\\'")
+#+end_src
 
 ** Themes
 Install doom-themes and zerodark (which is enabled). Also configure zerodark modeline.
