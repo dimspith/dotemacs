@@ -162,65 +162,66 @@ That is, pasting or deleting while having text selected overwrites it.
 
 ** Misc
 #+BEGIN_SRC emacs-lisp
-(use-package newcomment
-  :straight (:type built-in)
-  :bind
-  ("C-x M-;" . comment-box))
+  (use-package newcomment
+    :straight (:type built-in)
+    :bind
+    ("C-x M-;" . comment-box))
 
-(use-package emacs
-  :straight (:type built-in)
-  :bind
-  ("C-M-<left>"  . shrink-window-horizontally)
-  ("C-M-<right>" . enlarge-window-horizontally)
-  ("C-M-<down>"  . shrink-window)
-  ("C-M-<up>"    . enlarge-window)
-  ("M-o"         . other-window)
-  ("C-<tab>"     . indent-relative)
-  ("<f5>"        . compile)
-  ("C-<f5>"      . recompile)
-  ("<C-f9>"      . set-frame-font)
-  ("C-x C-b"     . ibuffer)
-  ("M-j"         . (lambda () (interactive) (join-line -1)))
-  :config
-  ;; Text mode is initial mode
-  (setq initial-major-mode 'text-mode)
+  (use-package emacs
+    :straight (:type built-in)
+    :bind
+    ("C-M-<left>"  . shrink-window-horizontally)
+    ("C-M-<right>" . enlarge-window-horizontally)
+    ("C-M-<down>"  . shrink-window)
+    ("C-M-<up>"    . enlarge-window)
+    ("M-o"         . other-window)
+    ("C-<tab>"     . indent-relative)
+    ("<f5>"        . compile)
+    ("C-<f5>"      . recompile)
+    ("<C-f9>"      . set-frame-font)
+    ("C-x C-b"     . ibuffer)
+    ("M-j"         . (lambda () (interactive) (join-line -1)))
+    :config
+    ;; Text mode is initial mode
+    (setq initial-major-mode 'text-mode)
 
-  ;; Text mode is default major mode
-  (setq default-major-mode 'text-mode)
+    ;; Text mode is default major mode
+    (setq default-major-mode 'text-mode)
 
-  ;; Moderate font lock
-  (setq font-lock-maximum-decoration t)
+    ;; Moderate font lock
+    (setq font-lock-maximum-decoration t)
   
-  ;; No cursor in inactive windows
-  (setq cursor-in-non-selected-windows nil)
+    ;; No cursor in inactive windows
+    (setq cursor-in-non-selected-windows nil)
 
-  ;; Fill column at 80
-  (setq fill-column 80)
+    ;; Fill column at 80
+    (setq fill-column 80)
 
-  ;; Default frame settings
-  (setq default-frame-alist
-        (append (list
-                 '(min-height . 1)  '(height . 45)
-                 '(min-width  . 1)  '(width  . 81)
-                 '(vertical-scroll-bars . nil)
-                 '(internal-border-width . 24)
-                 '(left-fringe . 0)
-                 '(right-fringe . 0)
-                 '(tool-bar-lines . 0)
-                 '(menu-bar-lines . 0))))
+    ;; Default frame settings
+    (setq default-frame-alist
+	  (append (list
+		   '(min-height . 1)  '(height . 45)
+		   '(min-width  . 1)  '(width  . 81)
+		   '(vertical-scroll-bars . nil)
+		   '(internal-border-width . 24)
+		   '(left-fringe . 0)
+		   '(right-fringe . 0)
+		   '(tool-bar-lines . 0)
+		   '(menu-bar-lines . 0))))
 
-  ;; Line spacing (in pixels)
-  (setq line-spacing 0)
+    ;; Line spacing (in pixels)
+    (setq line-spacing 0)
 
-  ;; Save emacs history across restarts
-  (savehist-mode)
+    ;; Save emacs history across restarts
+    (savehist-mode)
+    ;; (add-to-list 'tramp-default-proxies-alist (quote ((".*" "\\`root\\'" "/ssh:%h:"))))
 
-  ;; Vertical window divider
-  (setq window-divider-default-right-width 2)
-  (setq window-divider-default-bottom-width 2)
-  (setq window-divider-default-places t)
+    ;; Vertical window divider
+    (setq window-divider-default-right-width 2)
+    (setq window-divider-default-bottom-width 2)
+    (setq window-divider-default-places t)
 
-  :hook (after-init . window-divider-mode))
+    :hook (after-init . window-divider-mode))
 #+END_SRC
 
 * Base Package Settings
@@ -300,13 +301,7 @@ agenda files. This document is an example of org-mode in action.
   ("C-c o c" . org-capture)
   ("C-c o l" . org-store-link)
   :config
-  (setq org-agenda-span 30)
   (setq org-agenda-files (quote ("~/notes/")))
-  (setq org-agenda-restore-windows-after-quit t)
-  (setq org-agenda-compact-blocks t)
-  (setq org-agenda-skip-deadline-if-done t)
-  (setq org-agenda-skip-scheduled-if-done t)
-  (setq org-agenda-start-on-weekday nil)
   (setq org-todo-keywords
       (quote
        ((sequence "TODO" "PROG" "PAUS" "|" "DONE" "CANC"))))
@@ -459,8 +454,8 @@ A better replacement for ansi-color.el which translates ansi escape sequences to
             (lambda ()
               (setq xterm-color-preserve-properties t)))
   
-  (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
-  (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+  ;; (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
+  ;;(setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
   (setenv "TERM" "xterm-256color")
 
   ;; Compilation buffers support
@@ -592,6 +587,7 @@ We enable it for various languages.
    (clojure-mode    . company-mode)
    (elixir-mode     . company-mode)
    (nim-mode        . company-mode)
+   (go-mode         . company-mode)
    (typescript-mode . company-mode)
    (c-mode          . company-mode)
    (c++-mode        . company-mode)
@@ -700,6 +696,7 @@ LSP Client for emacs
   (setq company-format-margin-function #'company-vscode-light-icons-margin)
   :hook ((latex-mode      . lsp)
          (c-mode          . lsp)
+         (go-mode         . lsp)
          (c++-mode        . lsp)
          (php-mode        . lsp)
          (typescript-mode . lsp)
@@ -864,6 +861,11 @@ Highlight parentheses, brackets and braces according to their depth.
 
 ** LANGUAGES
 Common packages for a couple of programming languages
+*** R-lang
+#+begin_src emacs-lisp
+(use-package ess)
+#+end_src
+
 *** HTML
 #+begin_src emacs-lisp
 (use-package sgml-mode
@@ -945,7 +947,7 @@ Tab = 4 spaces, bsd indentation style
 (use-package cc-mode
   :defer t
   :config
-  (setq-default c-basic-offset 8)
+  (setq-default c-basic-offset 4)
   (setq-default c-default-style "bsd"))
 #+END_SRC
 
@@ -1019,17 +1021,24 @@ Tab = 4 spaces, bsd indentation style
 #+END_SRC
 
 *** Elisp-lang
-   #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (use-package elisp-mode
   :straight (:type built-in)
   :bind (:map emacs-lisp-mode-map
               ("C-c C-k" . eval-buffer)))
-   #+end_src
+#+end_src
 
 *** Vue
 #+begin_src emacs-lisp
 (use-package vue-mode
   :mode "\\.vue\\'")
+#+end_src
+
+*** Go-lang
+#+begin_src emacs-lisp
+(use-package go-mode)
+(use-package go-eldoc
+  :hook (go-mode . go-eldoc-setup))
 #+end_src
 
 ** Themes
@@ -1040,8 +1049,6 @@ Install doom-themes and zerodark (which is enabled). Also configure zerodark mod
 
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
-  (doom-themes-org-config)
-  (doom-themes-treemacs-config)
   (load-theme 'doom-badger t))
 
 #+END_SRC
@@ -1075,4 +1082,8 @@ Display emacs startup time
            gcs-done))
 
 (add-hook 'emacs-startup-hook #'display-startup-time)
+
+(use-package calendar
+  :straight (:type built-in)
+  :defer t)
 #+END_SRC
