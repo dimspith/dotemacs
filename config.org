@@ -30,9 +30,9 @@ with emacs and/or personal preferences.
 #+begin_src emacs-lisp
 (setq inhibit-startup-message t
       inhibit-startup-echo-area-message user-login-name
-      inhibit-default-init t)
-      ;; initial-major-mode 'fundamental-mode
-      ;; initial-scratch-message nil)
+      inhibit-default-init t
+      initial-major-mode 'fundamental-mode
+      initial-scratch-message nil)
 #+end_src
 
 ** Misc optimizations (taken from DOOM Emacs)
@@ -392,18 +392,6 @@ In this section we install and configure all external packages.
   ("C-h k" . #'helpful-key))
 #+end_src
 
-** Dashboard 
-#+begin_src emacs-lisp
-(use-package dashboard
-  :ensure t
-  :config
-  (dashboard-setup-startup-hook)
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
-  (setq dashboard-items '((recents  . 5)
-                          (bookmarks . 5)
-                          (projects . 5))))
-#+end_src
-
 ** Reverse-im
 Translates input sequences to english therefore allowing usage of
 emacs with other keyboard languages. Configured to work with Greek.
@@ -645,6 +633,19 @@ Display icons for files and folders in dired buffers.
   (dired-mode . all-the-icons-dired-mode))
 #+end_src
 
+** Project.el
+Use a recent project-el to prevent errors in packages like magit
+#+begin_src emacs-lisp
+(straight-use-package 'project)
+#+end_src
+
+** Magit
+Magit is a text-based user interface to git. It supports almost every git task with just a couple of keypresses.
+#+begin_src emacs-lisp
+(use-package magit
+  :bind ("C-x g". magit-status))
+#+end_src
+
 ** Projectile
 Project interaction library for Emacs. Provides a nice set of features for operating on projects.
 #+begin_src emacs-lisp
@@ -656,13 +657,6 @@ Project interaction library for Emacs. Provides a nice set of features for opera
   (projectile-mode +1)
   :bind-keymap
   ("C-c p" . projectile-command-map))
-#+end_src
-
-** Magit
-Magit is a text-based user interface to git. It supports almost every git task with just a couple of keypresses.
-#+begin_src emacs-lisp
-(use-package magit
-  :bind ("C-x g". magit-status))
 #+end_src
 
 ** Which-key
@@ -700,6 +694,7 @@ LSP Client for emacs
          (c++-mode        . lsp)
          (php-mode        . lsp)
          (typescript-mode . lsp)
+         (elixir-mode     . lsp)
          (vue-mode        . lsp)
          (js2-minor-mode  . lsp)
          (lsp-mode        . lsp-enable-which-key-integration))
@@ -804,6 +799,8 @@ A tree layout file explorer similar to Vim's Nerdtree.
     ;;(treemacs-resize-icons 44)
 
     (treemacs-follow-mode t)
+    (treemacs-tag-follow-mode t)
+    (treemacs-project-follow-mode t)
     (treemacs-filewatch-mode t)
     (treemacs-fringe-indicator-mode t)
     (pcase (cons (not (null (executable-find "git")))
@@ -1049,7 +1046,7 @@ Install doom-themes and zerodark (which is enabled). Also configure zerodark mod
 
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
-  (load-theme 'doom-badger t))
+  (load-theme 'doom-material-dark t))
 
 #+END_SRC
 
