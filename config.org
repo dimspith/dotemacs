@@ -840,6 +840,22 @@ Structural editing for lisps.
               ("M-[" . paredit-wrap-square)))
 #+end_src
 
+** Origami
+#+begin_src emacs-lisp
+(use-package origami
+  :bind
+  (("C-c h h" . origami-toggle-node)
+   ("C-c h u" . origami-undo)
+   ("C-c h r" . origami-redo)
+   ("C-c h n" . origami-next-fold)
+   ("C-c h p" . origami-previous-fold)
+   ("C-c h o" . origami-open-all-nodes)
+   ("C-c h c" . origami-close-all-nodes)
+   ("C-c h t" . origami-toggle-all-nodes))
+  :config
+  (global-origami-mode))
+#+end_src
+
 ** Aggressive-Indent-Mode
 Keeps code always indented when typing.
 #+begin_src emacs-lisp
