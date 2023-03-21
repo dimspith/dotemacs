@@ -565,6 +565,14 @@ Consult provides various practical commands based on Emacs completion. We use it
   (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 
+** diff-hl
+#+begin_src emacs-lisp
+(use-package diff-hl
+  :ensure t
+  :config
+  (global-diff-hl-mode))
+#+end_src
+
 ** Ctrlf
 Better buffer text searching. Replaces packages such as =Isearch=, =Swiper= or =Helm-iswoop=.
 #+begin_src emacs-lisp
@@ -603,7 +611,7 @@ A text completion framework for Emacs. Primarily used for programming autocomple
   :hook((latex-mode      . company-mode)
         (rustic-mode     . company-mode)
         (clojure-mode    . company-mode)
-        (elixir-mode     . company-mode)
+        ;; (elixir-mode     . company-mode)
         (nim-mode        . company-mode)
         (go-mode         . company-mode)
         (typescript-mode . company-mode)
@@ -755,6 +763,7 @@ LSP Client for emacs
          (c-mode          . lsp)
          (go-mode         . lsp)
          (c++-mode        . lsp)
+         (sh-mode         . lsp)
          (php-mode        . lsp)
          (typescript-mode . lsp)
          (elixir-mode     . lsp)
@@ -766,6 +775,7 @@ LSP Client for emacs
   :config
   (setq lsp-ui-doc-enable nil)
   (setq lsp-ui-doc-header t)
+  
   (setq lsp-ui-doc-include-signature t)
   ;; (setq lsp-ui-doc-border (face-foreground 'default))
   (setq lsp-ui-sideline-show-code-actions t)
@@ -1048,16 +1058,15 @@ Kaolin themes: A set of eye pleasing themes for emacs
 #+BEGIN_SRC emacs-lisp
 (use-package kaolin-themes
   :config
-  (load-theme 'kaolin-dark t)
+  (load-theme 'kaolin-galaxy t)
   (kaolin-treemacs-theme))
 #+END_SRC
 
-** Nano-modeline
+** Doom-modeline
 #+begin_src emacs-lisp
-(use-package nano-modeline
-  :config
-  (setq nano-modeline-position "Bottom")
-  (nano-modeline-mode 1))
+(use-package doom-modeline
+  :ensure t
+  :hook (after-init . doom-modeline-mode))
 #+end_src
 
 ** GCMH

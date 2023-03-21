@@ -17,9 +17,8 @@
 (menu-bar-mode -1)
 
 ;; Set default, fixed and variable fonts
-(set-face-attribute 'default nil :family "Iosevka Extended" :height 105)
-(set-face-attribute 'fixed-pitch nil :family "Iosevka Extended" :height 105)
-(set-face-attribute 'variable-pitch nil :family "Open Sans" :height 120 :weight 'regular)
+(add-to-list 'default-frame-alist '(font . "Caskaydia Cove Nerd Font 11" ))
+(set-face-attribute 'default nil :family "Caskaydia Cove Nerd Font" :height 110)
 
 ;; Prevent package.el loading packages
 (setq package-enable-at-startup nil)
