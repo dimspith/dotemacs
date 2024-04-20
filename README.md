@@ -1,15 +1,6 @@
 # Emacs Configuration
 
-![Image](./example.png "Example")
-
 ## Installation
-
-#### The normal way
-* Delete the `~/.emacs` file and the `~/.emacs.d` directory if they exist.
-* Clone the repository inside the `~/.emacs.d/` directory.
-  * i.e `git clone --depth 1 https://github.com/dimspith/dotemacs.git ~/.emacs.d/`
-
-#### The way that doesn't bloat your $HOME
 * Delete the `~/.emacs` file and the `~/.emacs.d` directory if they exist.
 * Clone the repository inside the `~/.config/emacs/` directory.
   * i.e `git clone --depth 1 https://github.com/dimspith/dotemacs.git ~/.config/emacs/`
