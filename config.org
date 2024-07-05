@@ -557,48 +557,23 @@ Fuzzy finder similar to fzf that displays results in the minibuffer.
    ("C-c f" . affe-find)))
 #+end_src
 
-** Corfu
+** Company
 A text completion framework for Emacs. Primarily used for programming autocompletion.
 #+begin_src emacs-lisp
-(use-package corfu
-  :ensure (corfu :host github :repo "minad/corfu" :files (:defaults "extensions/*"))
-  :defer 5
-  :custom
-  (corfu-cycle t)
-  (corfu-seperator ?-)
-  :config
-  (global-corfu-mode))
-
-;; Add extensions
-(use-package cape
+(use-package company
   :ensure t
-  ;; Bind dedicated completion commands
-  ;; Alternative prefix keys: C-c p, M-p, M-+, ...
-  :bind (("C-c c p" . completion-at-point) ;; capf
-         ("C-c c t" . complete-tag)        ;; etags
-         ("C-c c d" . cape-dabbrev)        ;; or dabbrev-completion
-         ("C-c c h" . cape-history)
-         ("C-c c f" . cape-file)
-         ("C-c c k" . cape-keyword)
-         ("C-c c s" . cape-elisp-symbol)
-         ("C-c c e" . cape-elisp-block)
-         ("C-c c a" . cape-abbrev)
-         ("C-c c l" . cape-line)
-         ("C-c c w" . cape-dict)
-         ("C-c c :" . cape-emoji)
-         ("C-c c \\" . cape-tex)
-         ("C-c c _" . cape-tex)
-         ("C-c c ^" . cape-tex)
-         ("C-c c &" . cape-sgml)
-         ("C-c c r" . cape-rfc1345))
-  :init
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+  :diminish
+  :hook
+  (after-init . global-company-mode)
   :config
-  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
+  (setq company-idle-delay 0.1)
+  (setq company-minimum-prefix-length 1)
+  (setq company-selection-wrap-around t)
+  (setq company-tooltip-align-annotations t)
+  (setq company-tooltip-limit 10)
+  (setq company-dabbrev-downcase nil)
 
-
+  (company-tng-configure-default))
 #+end_src
 
 ** Kind-icon
@@ -688,7 +663,7 @@ Which-key is a keybinding preview utility to show all subsequent keys when waiti
   (setq which-key-allow-imprecise-window-fit nil)
 
   ;; Show on the right, otherwise on bottom
-  (which-key-setup-side-window-right-bottom)
+  (which-key-setup-side-window-bottom)
 
   ;; Enable which-key
   (which-key-mode t))
@@ -697,8 +672,12 @@ Which-key is a keybinding preview utility to show all subsequent keys when waiti
 ** Doom-modeline
 #+begin_src emacs-lisp
 (use-package doom-modeline
-  :ensure t
-  :hook (after-init . doom-modeline-mode))
+  :defer 2
+  :config
+  (column-number-mode 1)
+  (doom-modeline-mode)
+  :custom
+  (doom-modeline-icon t "Show icons in the modeline"))
 #+end_src
 ** Language modes
 #+begin_src emacs-lisp
